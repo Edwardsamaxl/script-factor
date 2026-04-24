@@ -71,7 +71,7 @@ src/
 │   ├── common/         # 通用组件（Button, Modal, TagInput）
 │   ├── layout/         # 布局组件（Navbar, TabBar）
 │   ├── persona/        # 人设相关组件
-│   ├── script/        # 剧本相关组件
+│   ├── script/         # 剧本相关组件
 │   └── scene/          # 场景相关组件
 ├── context/            # React Context（全局状态）
 │   ├── UserContext.jsx
@@ -91,8 +91,8 @@ src/
 │   ├── ScriptCreatePage.jsx    # /script/create
 │   ├── ScriptDetailPage.jsx    # /script/:id
 │   ├── AICreatePage.jsx        # /ai/create/:scriptId
-│   ├── AIHubPage.jsx          # /ai/hub
-│   └── ProfilePage.jsx        # /profile
+│   ├── AIHubPage.jsx           # /ai/hub
+│   └── ProfilePage.jsx         # /profile
 ├── utils/               # 工具函数
 │   ├── promptBuilder.js  # AI prompt 构造
 │   └── scriptParser.js   # 剧本 JSON 解析
