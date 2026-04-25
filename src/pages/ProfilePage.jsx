@@ -75,7 +75,7 @@ export default function ProfilePage() {
       </section>
 
       {/* 我的剧本 */}
-      <section>
+      <section id="scripts">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-lg font-semibold text-gray-900">📝 我的剧本</h2>
         </div>

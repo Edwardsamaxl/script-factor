@@ -1,6 +1,5 @@
 import express from 'express';
 import crypto from 'crypto';
-import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { generateScript } from '../services/scriptGenerator.js';
@@ -8,39 +7,12 @@ import { summarizeToStoryboard } from '../services/scriptSummarizer.js';
 import { createSession, getSession } from '../services/sessionStore.js';
 import { queueAndGenerate } from '../services/multiTurnGenerator.js';
 import { callDeepSeekAWithSystem, callDeepSeekBWithSystem } from '../services/llm.js';
+import { loadScripts, saveScripts } from '../services/dataStore.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const router = express.Router();
-const SCRIPTS_FILE = path.join(__dirname, '../data/scripts.json');
-
-// 确保数据目录存在
-const DATA_DIR = path.join(__dirname, '../data');
-if (!fs.existsSync(DATA_DIR)) {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
-}
-
-/**
- * 加载剧本列表
- */
-function loadScripts() {
-  try {
-    if (fs.existsSync(SCRIPTS_FILE)) {
-      return JSON.parse(fs.readFileSync(SCRIPTS_FILE, 'utf-8'));
-    }
-  } catch (error) {
-    console.error('Failed to load scripts:', error);
-  }
-  return [];
-}
-
-/**
- * 保存剧本列表
- */
-function saveScripts(scripts) {
-  fs.writeFileSync(SCRIPTS_FILE, JSON.stringify(scripts, null, 2), 'utf-8');
-}
 
 /**
  * POST /api/scripts/generate-multi

@@ -11,10 +11,20 @@ export function buildVideoPrompt(script, mode = 'cover') {
 // 构建 AI 图像生成 prompt（GPT Image / Flux）
 export function buildImagePrompt(script, mode = 'cover') {
   const { title, personaA, personaB, scene } = script
+
+  if (mode === 'characterA' && personaA?.imagePrompt) {
+    return personaA.imagePrompt
+  }
+  if (mode === 'characterB' && personaB?.imagePrompt) {
+    return personaB.imagePrompt
+  }
+
   const prompts = {
     cover: `${scene?.description || 'Scene'} - ${personaA?.name || 'Character A'} and ${personaB?.name || 'Character B'} in conversation.`,
-    characterA: `Portrait of ${personaA?.name || 'Character'}. ${personaA?.coreView || 'friendly'}. Style: detailed, expressive.`,
-    characterB: `Portrait of ${personaB?.name || 'Character'}. ${personaB?.coreView || 'friendly'}. Style: detailed, expressive.`,
+    characterA: personaA?.imagePrompt
+      || `Portrait of ${personaA?.name || 'Character'}. ${personaA?.coreView || 'friendly'}. Style: detailed, expressive.`,
+    characterB: personaB?.imagePrompt
+      || `Portrait of ${personaB?.name || 'Character'}. ${personaB?.coreView || 'friendly'}. Style: detailed, expressive.`,
   }
   return prompts[mode] || prompts.cover
 }

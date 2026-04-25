@@ -167,13 +167,15 @@ scriptstudio/
 |------|------|------|------|
 | `id` | string | 自动 | 唯一标识 |
 | `name` | string | ✅ | 人设名称 |
-| `avatar` | string | - | 头像 emoji（14个可选） |
+| `avatar` | string | - | 头像 emoji |
 | `creator` | string | 自动 | `'user'` 或 `'system'` |
 | `coreView` | string | ✅ | 核心观点（一段话） |
 | `speakingStyle` | string | ✅ | 说话风格（方言、口头禅等） |
 | `actionStyle` | string | ✅ | 行动风格（小动作、习惯等） |
 | `background` | string | - | 背景故事 |
-| `exampleDialogs` | array | - | 示例对话（预留） |
+| `imagePrompt` | string | - | AI 生图英文 prompt（自动生成） |
+| `imageUrl` | string | - | AI 生图结果 URL |
+| `isFavorited` | boolean | 自动 | 是否收藏 |
 | `usageCount` | number | 自动 | 使用次数 |
 | `likeCount` | number | 自动 | 点赞数 |
 | `isPublic` | boolean | - | 是否公开 |
@@ -259,14 +261,20 @@ scriptstudio/
 
 ## 内置数据
 
-### 人设
+### 内置人设（2个）
 
 | 名称 | 核心观点 | 说话风格 | 行动风格 |
 |------|---------|---------|---------|
 | **佳宜** 👩‍💼 | 丁克、不结婚、为自己而活 | 客气→毒舌、逻辑碾压 | 被惹怒后扇耳光 |
 | **王大妈** 👵 | 养儿防老、女必嫁人 | 杭州方言、阴阳怪气 | 紧张放屁、戳人说话 |
 
-### 场景
+### 内置场景（3个）
+
+| 场景 | 描述 |
+|------|------|
+| **过年催婚** | 家庭聚会催婚连环攻势 |
+| **亲戚盘问** | 七大姑八大姨问工资/对象/买房 |
+| **工作交接** | 老员工推活给实习生 |
 
 | 场景 | 描述 |
 |------|------|

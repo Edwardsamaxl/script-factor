@@ -15,8 +15,8 @@
     "isPremium": false,
     "createdAt": 1745587200000,
     "updatedAt": 1745587200000,
-    "imagePrompt": null,
-    "imageUrl": null
+    "imagePrompt": "A professional young Chinese woman in her late 20s, 985 university graduate, working in a modern office, neat appearance with glasses, confident and independent expression, wearing smart casual business attire, warm natural lighting, realistic style",
+    "imageUrl": "/assets/personas/jiayi.jpg"
   },
   {
     "id": "王大妈",
@@ -34,7 +34,7 @@
     "isPremium": false,
     "createdAt": 1745587200000,
     "updatedAt": 1745587200000,
-    "imagePrompt": null,
+    "imagePrompt": "A 52-year-old Chinese woman with permed curly gray hair, wearing lots of gold jewelry including thick gold necklace and oversized gold earrings, dressed in loud floral print blouse with bright red lipstick, standing in a traditional Chinese neighborhood alley, arms crossed with a judgmental smug expression, sneering with arms akimbo, warm harsh sunlight creating strong shadows on her face showing wrinkles and attitude, realistic style",
     "imageUrl": null
   }
 ]

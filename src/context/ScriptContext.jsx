@@ -27,21 +27,16 @@ export function ScriptProvider({ children }) {
   }, [])
 
   const addScript = async (script) => {
-    try {
-      const res = await fetch(`${API_BASE}/scripts`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(script)
-      })
-      const data = await res.json()
-      if (data.success) {
-        setScripts(prev => [data.data, ...prev])
-        return data.data
-      }
-    } catch (error) {
-      console.error('Failed to add script:', error)
+    // 剧本已在后端自动保存（multiTurnGenerator.js）
+    // 此处只更新前端状态
+    const newScript = {
+      ...script,
+      id: script.id || `script-${Date.now()}`,
+      createdAt: script.createdAt || Date.now(),
+      updatedAt: Date.now()
     }
-    return null
+    setScripts(prev => [newScript, ...prev])
+    return newScript
   }
 
   const updateScript = async (id, updates) => {

@@ -75,9 +75,12 @@ export default function ScriptViewer({ script, onDelete }) {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title: newTitle }),
-      }).then(() => {
-        script.title = newTitle
-        window.location.reload()
+      }).then((res) => res.json()).then((data) => {
+        if (data.success) {
+          // 直接更新传入的 script 对象的 title（props 是只读的，但对象引用可以修改内部属性）
+          script.title = newTitle
+          setIsRenaming(false)
+        }
       })
     } else {
       setIsRenaming(false)

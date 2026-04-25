@@ -1,3 +1,4 @@
+import { loadSessions as loadSessionsFromFile, saveSessions as saveSessionsToFile } from './dataStore.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -5,55 +6,42 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// JSON file for persistent storage
-const DATA_DIR = path.join(__dirname, '../data');
-const SESSIONS_FILE = path.join(DATA_DIR, 'sessions.json');
-
-// Ensure data directory exists
-if (!fs.existsSync(DATA_DIR)) {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
-}
-
 // In-memory session store
 const sessions = new Map();
 
 // Queue for concurrent request control per scriptId
 const generationQueues = new Map();
 
-/**
- * Load sessions from JSON file on startup
- */
-function loadSessions() {
-  try {
-    if (fs.existsSync(SESSIONS_FILE)) {
-      const data = JSON.parse(fs.readFileSync(SESSIONS_FILE, 'utf-8'));
-      for (const [id, session] of Object.entries(data)) {
-        sessions.set(id, session);
+// Dirty flag for batch saving
+let isDirty = false;
+let saveTimeout = null;
+
+// Auto-cleanup: keep only the latest N completed sessions, delete the rest
+const MAX_COMPLETED_SESSIONS = 10;
+
+// Batch save: delay write to reduce I/O
+function scheduleSave() {
+  if (saveTimeout) return;
+  isDirty = true;
+  saveTimeout = setTimeout(() => {
+    if (isDirty) {
+      const data = {};
+      for (const [id, session] of sessions) {
+        data[id] = session;
       }
-      console.log(`Loaded ${sessions.size} sessions from persistent storage`);
+      saveSessionsToFile(data);
+      isDirty = false;
     }
-  } catch (error) {
-    console.error('Failed to load sessions:', error);
-  }
+    saveTimeout = null;
+  }, 1000); // 1 second delay for batch writes
 }
 
-/**
- * Save sessions to JSON file
- */
-function saveSessions() {
-  try {
-    const data = {};
-    for (const [id, session] of sessions) {
-      data[id] = session;
-    }
-    fs.writeFileSync(SESSIONS_FILE, JSON.stringify(data, null, 2), 'utf-8');
-  } catch (error) {
-    console.error('Failed to save sessions:', error);
-  }
+// Load sessions from file on startup
+const loadedSessions = loadSessionsFromFile();
+for (const [id, session] of Object.entries(loadedSessions)) {
+  sessions.set(id, session);
 }
-
-// Load sessions on module init
-loadSessions();
+console.log(`Loaded ${sessions.size} sessions from persistent storage`);
 
 /**
  * Create a new session
@@ -75,7 +63,7 @@ function createSession(id, data = {}) {
     summary: null
   };
   sessions.set(id, session);
-  saveSessions(); // Persist to file
+  scheduleSave(); // Batch persist to file
   return session;
 }
 
@@ -97,7 +85,7 @@ function updateSession(id, updates) {
   const session = sessions.get(id);
   if (session) {
     Object.assign(session, updates);
-    saveSessions(); // Persist to file
+    scheduleSave(); // Batch persist to file
   }
 }
 
@@ -111,7 +99,7 @@ function addDialogue(id, dialogue) {
   if (session) {
     session.dialogues.push(dialogue);
     session.progress = Math.round((session.dialogues.length / 10) * 100);
-    saveSessions(); // Persist to file
+    scheduleSave(); // Batch persist to file
   }
 }
 
@@ -124,7 +112,46 @@ function completeSession(id) {
   if (session) {
     session.status = 'completed';
     session.progress = 100;
-    saveSessions(); // Persist to file
+    cleanupCompletedSessions();
+  }
+}
+
+/**
+ * Auto-cleanup: keep only the latest MAX_COMPLETED_SESSIONS completed sessions
+ * Called after each session completion to prevent sessions.json from growing indefinitely
+ */
+function cleanupCompletedSessions() {
+  const allSessions = [];
+  for (const [sid, s] of sessions) {
+    allSessions.push({ id: sid, session: s });
+  }
+
+  // Only completed sessions are candidates for cleanup
+  const completed = allSessions
+    .filter(({ session }) => session.status === 'completed')
+    .sort((a, b) => (b.session.updatedAt || 0) - (a.session.updatedAt || 0));
+
+  // Keep the latest N, delete the rest
+  const toDelete = completed.slice(MAX_COMPLETED_SESSIONS);
+
+  if (toDelete.length > 0) {
+    for (const { id } of toDelete) {
+      sessions.delete(id);
+      generationQueues.delete(id);
+    }
+    console.log(`[sessionStore] Cleaned up ${toDelete.length} old completed sessions, kept latest ${MAX_COMPLETED_SESSIONS}`);
+    isDirty = true;
+    // Trigger immediate save since we modified session list
+    if (saveTimeout) {
+      clearTimeout(saveTimeout);
+      saveTimeout = null;
+    }
+    const data = {};
+    for (const [sid, s] of sessions) {
+      data[sid] = s;
+    }
+    saveSessionsToFile(data);
+    isDirty = false;
   }
 }
 
@@ -138,7 +165,7 @@ function failSession(id, error) {
   if (session) {
     session.status = 'failed';
     session.error = error;
-    saveSessions(); // Persist to file
+    scheduleSave(); // Batch persist to file
   }
 }
 

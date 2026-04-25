@@ -9,7 +9,7 @@ export default function HomePage() {
   const { personas } = usePersonas()
   const { scripts } = useScripts()
 
-  const myPersonas = personas.slice(0, 3)
+  const myPersonas = personas.filter(p => p.creator === 'user').slice(0, 4)
   const recentScripts = scripts.slice(0, 3)
 
   return (
@@ -50,7 +50,7 @@ export default function HomePage() {
             <h2 className="heading-2">最近剧本</h2>
           </div>
           {scripts.length > 3 && (
-            <Link to="/profile" className="text-sm text-accent hover:text-accent-dark font-medium">
+            <Link to="/profile#scripts" className="text-sm text-accent hover:text-accent-dark font-medium">
               查看全部
             </Link>
           )}
@@ -90,8 +90,8 @@ export default function HomePage() {
             <h2 className="heading-2">我的人设</h2>
           </div>
           {myPersonas.length > 0 && (
-            <Link to="/persona/create">
-              <Button variant="outline" size="sm">+ 新建</Button>
+            <Link to="/profile" className="text-sm text-accent hover:text-accent-dark font-medium flex items-center">
+              查看全部
             </Link>
           )}
         </div>

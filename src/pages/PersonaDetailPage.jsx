@@ -32,10 +32,23 @@ export default function PersonaDetailPage() {
 
       <PersonaPreview persona={persona} />
 
-      {persona.background && (
+      {persona.imagePrompt && (
         <div className="mt-4 bg-gray-50 rounded-xl p-4">
-          <h3 className="font-medium text-gray-900 mb-2">背景故事</h3>
-          <p className="text-sm text-gray-600">{persona.background}</p>
+          <h3 className="font-medium text-gray-900 mb-2">形象描述</h3>
+          <p className="text-sm text-gray-600 whitespace-pre-wrap">{persona.imagePrompt}</p>
+        </div>
+      )}
+
+      {persona.imageUrl && (
+        <div className="mt-4">
+          <h3 className="font-medium text-gray-900 mb-2">形象图</h3>
+          <div className="rounded-xl overflow-hidden border border-gray-200">
+            <img
+              src={persona.imageUrl}
+              alt={persona.name}
+              className="w-full max-h-96 object-contain bg-gray-50"
+            />
+          </div>
         </div>
       )}
 

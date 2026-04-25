@@ -72,6 +72,7 @@ export default function ScriptCreatePage() {
             speakingStyle: personaA.speakingStyle,
             actionStyle: personaA.actionStyle,
             background: personaA.background,
+            imagePrompt: personaA.imagePrompt || '',
           },
           personaB: {
             id: personaB.id,
@@ -80,6 +81,7 @@ export default function ScriptCreatePage() {
             speakingStyle: personaB.speakingStyle,
             actionStyle: personaB.actionStyle,
             background: personaB.background,
+            imagePrompt: personaB.imagePrompt || '',
           },
           scene: {
             id: scene.id,
@@ -128,6 +130,7 @@ export default function ScriptCreatePage() {
             speakingStyle: personaA.speakingStyle || '',
             actionStyle: personaA.actionStyle || '',
             background: personaA.background || '',
+            imagePrompt: personaA.imagePrompt || '',
           },
           personaB: {
             id: personaB.id,
@@ -137,6 +140,7 @@ export default function ScriptCreatePage() {
             speakingStyle: personaB.speakingStyle || '',
             actionStyle: personaB.actionStyle || '',
             background: personaB.background || '',
+            imagePrompt: personaB.imagePrompt || '',
           },
           scene: { id: scene.id, name: scene.name, description: scene.description || '' },
           creator: '当前用户',

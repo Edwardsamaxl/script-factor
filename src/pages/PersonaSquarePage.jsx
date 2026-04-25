@@ -19,8 +19,8 @@ export default function PersonaSquarePage() {
     } else if (filter === 'favorited') {
       result = result.filter(p => p.isFavorited)
     } else {
-      // 全部（公开的）
-      result = result.filter(p => p.isPublic !== false)
+      // 全部（公开的或我创建的）
+      result = result.filter(p => p.isPublic === true || p.creator === 'user')
     }
 
     // 搜索
@@ -36,7 +36,13 @@ export default function PersonaSquarePage() {
     if (filter === 'hot') {
       result = [...result].sort((a, b) => (b.usageCount || 0) - (a.usageCount || 0))
     } else if (filter === 'new') {
-      result = [...result].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
+      result = [...result].sort((a, b) => {
+        const timeA = b.createdAt || 0
+        const timeB = a.createdAt || 0
+        if (timeA !== timeB) return timeA - timeB
+        // createdAt 相同时用 updatedAt 排序
+        return (b.updatedAt || 0) - (a.updatedAt || 0)
+      })
     }
 
     return result

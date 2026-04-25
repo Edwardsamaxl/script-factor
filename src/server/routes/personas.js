@@ -1,43 +1,15 @@
 import express from 'express';
-import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { generatePersona } from '../services/personaGenerator.js';
 import { rewritePersona } from '../services/personaRewriter.js';
+import { loadBuiltInPersonas, loadUserPersonas, saveUserPersonas } from '../services/dataStore.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const router = express.Router();
-const BUILT_IN_PERSONAS_PATH = path.join(__dirname, '../data/built-in-personas.json');
-const USER_PERSONAS_PATH = path.join(__dirname, '../data/user-personas.json');
 
-// 确保数据目录存在
-const DATA_DIR = path.join(__dirname, '../data');
-if (!fs.existsSync(DATA_DIR)) {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
-}
-
-/**
- * 加载用户人物
- */
-function loadUserPersonas() {
-  try {
-    if (fs.existsSync(USER_PERSONAS_PATH)) {
-      return JSON.parse(fs.readFileSync(USER_PERSONAS_PATH, 'utf-8'));
-    }
-  } catch (error) {
-    console.error('Failed to load user personas:', error);
-  }
-  return [];
-}
-
-/**
- * 保存用户人物
- */
-function saveUserPersonas(personas) {
-  fs.writeFileSync(USER_PERSONAS_PATH, JSON.stringify(personas, null, 2), 'utf-8');
-}
 
 /**
  * GET /api/personas/built-in
@@ -45,7 +17,7 @@ function saveUserPersonas(personas) {
  */
 router.get('/built-in', (req, res) => {
   try {
-    const builtIn = JSON.parse(fs.readFileSync(BUILT_IN_PERSONAS_PATH, 'utf-8'));
+    const builtIn = loadBuiltInPersonas();
     const userStats = loadUserPersonas().filter(p => p.builtInId);
 
     // 合并统计数据
@@ -259,7 +231,7 @@ router.post('/:id/like', (req, res) => {
     }
 
     // 内置人物：在 user-personas.json 中创建/更新统计记录，用 isFavorited 标记收藏
-    const builtInPersonas = JSON.parse(fs.readFileSync(BUILT_IN_PERSONAS_PATH, 'utf-8'));
+    const builtInPersonas = loadBuiltInPersonas();
     const builtInSource = builtInPersonas.find(p => p.id === id);
 
     if (builtInSource) {
@@ -316,7 +288,7 @@ router.post('/:id/use', (req, res) => {
     }
 
     // 内置人物
-    const builtInPersonas = JSON.parse(fs.readFileSync(BUILT_IN_PERSONAS_PATH, 'utf-8'));
+    const builtInPersonas = loadBuiltInPersonas();
     const isBuiltIn = builtInPersonas.some(p => p.id === id);
 
     if (isBuiltIn) {
