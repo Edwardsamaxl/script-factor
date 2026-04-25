@@ -14,7 +14,9 @@
     "isPublic": true,
     "isPremium": false,
     "createdAt": 1745587200000,
-    "updatedAt": 1745587200000
+    "updatedAt": 1745587200000,
+    "imagePrompt": null,
+    "imageUrl": null
   },
   {
     "id": "王大妈",
@@ -31,6 +33,8 @@
     "isPublic": true,
     "isPremium": false,
     "createdAt": 1745587200000,
-    "updatedAt": 1745587200000
+    "updatedAt": 1745587200000,
+    "imagePrompt": null,
+    "imageUrl": null
   }
 ]

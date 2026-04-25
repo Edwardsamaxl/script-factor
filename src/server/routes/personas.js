@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { generatePersona } from '../services/personaGenerator.js';
+import { rewritePersona } from '../services/personaRewriter.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -131,12 +132,19 @@ router.get('/favorites', (req, res) => {
  */
 router.post('/', (req, res) => {
   try {
-    const { name, avatar, coreView, speakingStyle, actionStyle, background, isPublic } = req.body;
+    const { name, avatar, coreView, speakingStyle, actionStyle, background, imagePrompt, isPublic } = req.body;
 
     if (!name || !coreView || !speakingStyle || !actionStyle) {
       return res.status(400).json({
         success: false,
         error: 'Missing required fields: name, coreView, speakingStyle, actionStyle'
+      });
+    }
+
+    if (!imagePrompt) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required field: imagePrompt (must go through rewrite first)'
       });
     }
 
@@ -151,6 +159,8 @@ router.post('/', (req, res) => {
       speakingStyle,
       actionStyle,
       background: background || '',
+      imagePrompt,
+      imageUrl: null,
       exampleDialogs: [],
       usageCount: 0,
       likeCount: 0,
@@ -183,7 +193,7 @@ router.post('/', (req, res) => {
 router.put('/:id', (req, res) => {
   try {
     const { id } = req.params;
-    const { name, avatar, coreView, speakingStyle, actionStyle, background, isPublic } = req.body;
+    const { name, avatar, coreView, speakingStyle, actionStyle, background, imagePrompt, isPublic } = req.body;
 
     const personas = loadUserPersonas();
     const index = personas.findIndex(p => p.id === id);
@@ -203,6 +213,7 @@ router.put('/:id', (req, res) => {
       speakingStyle: speakingStyle ?? personas[index].speakingStyle,
       actionStyle: actionStyle ?? personas[index].actionStyle,
       background: background ?? personas[index].background,
+      imagePrompt: imagePrompt ?? personas[index].imagePrompt,
       isPublic: isPublic ?? personas[index].isPublic,
       updatedAt: Date.now()
     };
@@ -332,6 +343,42 @@ router.post('/:id/use', (req, res) => {
   } catch (error) {
     console.error('Error incrementing usage:', error);
     res.status(500).json({ success: false, error: 'Failed to increment usage' });
+  }
+});
+
+/**
+ * POST /api/personas/rewrite
+ * Rewrite and enrich a persona with LLM (auto-triggered before save)
+ */
+router.post('/rewrite', async (req, res) => {
+  try {
+    const { name, coreView, speakingStyle, actionStyle, background } = req.body;
+
+    if (!name || !coreView || !speakingStyle || !actionStyle) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required fields: name, coreView, speakingStyle, actionStyle'
+      });
+    }
+
+    const rewritten = await rewritePersona({
+      name,
+      coreView,
+      speakingStyle,
+      actionStyle,
+      background
+    });
+
+    res.json({
+      success: true,
+      data: rewritten
+    });
+  } catch (error) {
+    console.error('Error rewriting persona:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to rewrite persona'
+    });
   }
 });
 
