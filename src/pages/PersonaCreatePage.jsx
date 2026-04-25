@@ -19,6 +19,7 @@ export default function PersonaCreatePage() {
   const [rewritten, setRewritten] = useState(null)
   const [error, setError] = useState(null)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const editingPersona = id ? getPersona(id) : null
 
@@ -51,23 +52,27 @@ export default function PersonaCreatePage() {
 
   // Step 2: 用户确认 → 保存
   const handleConfirm = async (confirmedData) => {
+    setIsSubmitting(true)
     try {
+      let savedPersona
+
       if (editingPersona) {
-        const updated = await updatePersona(editingPersona.id, confirmedData)
-        if (updated) {
-          navigate(`/persona/${editingPersona.id}`)
-        }
+        savedPersona = await updatePersona(editingPersona.id, confirmedData)
       } else {
-        const newPersona = await addPersona({
+        savedPersona = await addPersona({
           ...confirmedData,
           creator: user?.name || '游客',
         })
-        if (newPersona) {
-          navigate(`/persona/${newPersona.id}`)
-        }
       }
+
+      if (!savedPersona) {
+        throw new Error('Failed to save persona')
+      }
+
+      navigate(`/persona/${savedPersona.id}`)
     } catch (err) {
       console.error('Failed to save persona:', err)
+      setIsSubmitting(false)
     }
   }
 

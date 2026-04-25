@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useScripts } from '../hooks/useScripts'
+import { useAIResults } from '../hooks/useAIResults'
 import Button from '../components/common/Button'
 import { buildVideoPrompt, buildImagePrompt } from '../utils/promptBuilder'
 
 const AI_TOOLS = [
-  { id: 'seedance', name: 'Seedance', icon: 'video', type: 'video', description: 'AI 视频生成' },
-  { id: 'gpt-image', name: 'GPT Image', icon: 'image', type: 'image', description: 'AI 图像生成' },
-  { id: 'flux', name: 'Flux', icon: 'sparkle', type: 'image', description: '高质量图像生成' },
+  { id: 'video', name: '视频生成', icon: 'video', type: 'video', description: 'AI 生成视频' },
+  { id: 'image', name: '图片生成', icon: 'image', type: 'image', description: 'AI 生成图片' },
 ]
 
 const MODES = {
@@ -81,6 +81,7 @@ export default function AICreatePage() {
   const { scriptId } = useParams()
   const navigate = useNavigate()
   const { getScript } = useScripts()
+  const { createTask } = useAIResults(scriptId)
 
   const script = getScript(scriptId)
 
@@ -124,19 +125,28 @@ export default function AICreatePage() {
     }
   }
 
-  const handleSendToAI = () => {
+  const handleSendToAI = async () => {
     if (!prompt) return
-    const encodedPrompt = encodeURIComponent(prompt)
 
-    if (selectedTool === 'seedance') {
-      window.open(`https://seedance.ai/create?prompt=${encodedPrompt}`, '_blank')
-    } else if (selectedTool === 'gpt-image') {
-      window.open(`https://chat.openai.com/?prompt=${encodedPrompt}`, '_blank')
-    } else if (selectedTool === 'flux') {
-      window.open(`https://flux.ai/create?prompt=${encodedPrompt}`, '_blank')
+    const tool = AI_TOOLS.find(t => t.id === selectedTool)
+    const type = tool?.type || 'image'
+
+    try {
+      await createTask({
+        type,
+        provider: selectedTool,
+        mode: selectedMode,
+        prompt,
+        personaImages: {
+          aUrl: script.personaA?.imageUrl,
+          bUrl: script.personaB?.imageUrl
+        }
+      })
+      navigate('/ai/hub')
+    } catch (error) {
+      console.error('Failed to create task:', error)
+      alert('发送失败: ' + error.message)
     }
-
-    navigate('/ai/hub')
   }
 
   return (

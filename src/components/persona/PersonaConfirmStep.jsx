@@ -49,6 +49,8 @@ function EditableField({ label, value, onChange }) {
 }
 
 export default function PersonaConfirmStep({ rewritten, onConfirm, onRegenerate, onCancel }) {
+  const AVATARS = ['😀', '😎', '🤔', '😅', '😭', '🤣', '🎬', '🎭', '🎨', '🎯', '💡', '🔥', '🌟', '💫']
+
   const [form, setForm] = useState({ ...rewritten })
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -74,8 +76,25 @@ export default function PersonaConfirmStep({ rewritten, onConfirm, onRegenerate,
         </p>
       </div>
 
-      {/* 润色后的字段 - 纯展示，点击编辑 */}
+      {/* 头像选择 */}
       <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+        <div className="p-4 border-b border-gray-100">
+          <label className="block text-sm font-medium text-gray-500 mb-2">头像</label>
+          <div className="flex flex-wrap gap-2">
+            {AVATARS.map((avatar) => (
+              <button
+                key={avatar}
+                type="button"
+                onClick={() => setForm({ ...form, avatar })}
+                className={`w-10 h-10 text-xl rounded-xl flex items-center justify-center transition-all ${
+                  form.avatar === avatar ? 'bg-blue-100 ring-2 ring-blue-500 scale-110' : 'bg-gray-100 hover:bg-gray-200'
+                }`}
+              >
+                {avatar}
+              </button>
+            ))}
+          </div>
+        </div>
         <EditableField label="名称" value={form.name} onChange={(v) => handleChange('name', v)} />
         <EditableField label="核心观点" value={form.coreView} onChange={(v) => handleChange('coreView', v)} />
         <EditableField label="说话风格" value={form.speakingStyle} onChange={(v) => handleChange('speakingStyle', v)} />
@@ -86,7 +105,7 @@ export default function PersonaConfirmStep({ rewritten, onConfirm, onRegenerate,
 
       {/* 操作按钮 */}
       <div className="flex gap-3">
-        <Button variant="secondary" onClick={onCancel} className="flex-1">
+        <Button variant="secondary" onClick={onCancel} className="flex-1" disabled={isSubmitting}>
           返回修改
         </Button>
         <Button variant="secondary" onClick={onRegenerate} className="flex-1" disabled={isSubmitting}>

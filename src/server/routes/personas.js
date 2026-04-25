@@ -27,7 +27,8 @@ router.get('/built-in', (req, res) => {
         return {
           ...p,
           usageCount: p.usageCount + (stats.usageCount || 0),
-          likeCount: p.likeCount + (stats.likeCount || 0)
+          likeCount: p.likeCount + (stats.likeCount || 0),
+          imageUrl: stats.imageUrl || p.imageUrl
         };
       }
       return p;
@@ -333,6 +334,8 @@ router.post('/rewrite', async (req, res) => {
       });
     }
 
+    const { avatar } = req.body;
+
     const rewritten = await rewritePersona({
       name,
       coreView,
@@ -343,7 +346,7 @@ router.post('/rewrite', async (req, res) => {
 
     res.json({
       success: true,
-      data: rewritten
+      data: { ...rewritten, avatar }
     });
   } catch (error) {
     console.error('Error rewriting persona:', error);

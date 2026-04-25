@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Button from '../components/common/Button'
-import { useLocalStorage } from '../hooks/useLocalStorage'
+import { useAIResults } from '../hooks/useAIResults'
+import { usePersonas } from '../hooks/usePersonas'
 
 const StatusIcon = ({ status }) => {
   const icons = {
@@ -49,12 +50,109 @@ const TypeIcon = ({ type }) => (
   </div>
 )
 
+const PreviewModal = ({ result, onClose, onDelete }) => {
+  if (!result) return null
+
+  return (
+    <div
+      className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <div
+        className="relative max-w-5xl w-full max-h-[92vh] flex flex-col"
+        onClick={e => e.stopPropagation()}
+      >
+        {/* 顶部操作栏 */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${result.type === 'video' ? 'bg-ink-900 text-paper-100' : 'bg-accent/20 text-accent'}`}>
+              {result.type === 'video' ? '视频' : '图片'}
+            </span>
+            <span className="text-white/60 text-sm">{result.mode}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            {result.resultUrl && (
+              <a
+                href={result.resultUrl}
+                download
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-9 h-9 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+              >
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="text-white">
+                  <path d="M7 2v7M4 6l3 3 3-3M2 11h10" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </a>
+            )}
+            <button
+              onClick={() => { onDelete(result.id); onClose() }}
+              className="w-9 h-9 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="text-white">
+                <path d="M2 4h10M5 4V3h4v1M3 4v8h8V4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+            <button
+              onClick={onClose}
+              className="w-9 h-9 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="text-white">
+                <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* 媒体内容 */}
+        <div className="flex-1 flex items-center justify-center overflow-hidden rounded-xl bg-black/50">
+          {result.type === 'video' ? (
+            <video
+              src={result.resultUrl}
+              controls
+              autoPlay
+              className="max-w-full max-h-[70vh] rounded-xl"
+            />
+          ) : (
+            <img
+              src={result.resultUrl}
+              alt="AI生成内容"
+              className="max-w-full max-h-[70vh] object-contain rounded-xl"
+            />
+          )}
+        </div>
+
+        {/* Prompt 信息 */}
+        {result.prompt && (
+          <div className="mt-3 bg-white/10 backdrop-blur-sm rounded-xl p-4">
+            <p className="text-white/90 text-sm font-mono leading-relaxed break-words">{result.prompt}</p>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 export default function AIHubPage() {
   const navigate = useNavigate()
-  const [tasks, setTasks] = useLocalStorage('scriptstudio_ai_tasks', [])
+  const { results, deleteResult, retryTask } = useAIResults()
+  const { refreshPersonas } = usePersonas()
   const [filter, setFilter] = useState('all')
+  const [previewResult, setPreviewResult] = useState(null)
+  const hasRefreshedRef = useRef(false)
 
-  const filteredTasks = tasks.filter((t) => {
+  // 当有 persona 模式的任务成功时，刷新 persona 数据（只刷新一次）
+  useEffect(() => {
+    if (hasRefreshedRef.current) return
+    const successPersonaTask = results.find(
+      t => t.mode === 'persona' && t.status === 'success' && t.resultUrl
+    )
+    if (successPersonaTask) {
+      hasRefreshedRef.current = true
+      refreshPersonas()
+    }
+  }, [results, refreshPersonas])
+
+  const filteredTasks = results.filter((t) => {
     if (filter === 'all') return true
     if (filter === 'video') return t.type === 'video'
     if (filter === 'image') return t.type === 'image'
@@ -62,9 +160,12 @@ export default function AIHubPage() {
     return true
   })
 
-  const handleRetry = (taskId) => {
-    // TODO: 实现重试逻辑
-    console.log('Retry task:', taskId)
+  const handleRetry = async (resultId) => {
+    await retryTask(resultId)
+  }
+
+  const handleDelete = async (resultId) => {
+    await deleteResult(resultId)
   }
 
   return (
@@ -143,19 +244,39 @@ export default function AIHubPage() {
               )}
 
               {/* 成功结果 */}
-              {task.status === 'success' && task.output?.resultUrl && (
-                <div className="mt-2 mb-3 rounded-lg overflow-hidden bg-ink-100">
-                  <img
-                    src={task.output.resultUrl}
-                    alt="result"
-                    className="w-full h-28 object-cover"
-                  />
+              {task.status === 'success' && task.resultUrl && (
+                <div
+                  className="relative mt-2 mb-3 rounded-lg overflow-hidden bg-ink-100 cursor-pointer group"
+                  onClick={() => setPreviewResult(task)}
+                >
+                  {task.type === 'video' ? (
+                    <video
+                      src={task.resultUrl}
+                      className="w-full h-40 object-cover transition-transform duration-200 group-hover:scale-105"
+                      preload="metadata"
+                      muted
+                    />
+                  ) : (
+                    <img
+                      src={task.resultUrl}
+                      alt="result"
+                      className="w-full h-40 object-cover transition-transform duration-200 group-hover:scale-105"
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-full bg-white/90 flex items-center justify-center">
+                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="text-ink-700">
+                        <circle cx="8" cy="8" r="5" stroke="currentColor" strokeWidth="1.5"/>
+                        <path d="M12 12l4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                      </svg>
+                    </div>
+                  </div>
                 </div>
               )}
 
               {/* 失败信息 */}
-              {task.status === 'failed' && task.output?.error && (
-                <p className="text-xs text-red-500 mb-3 p-2 bg-red-50 rounded-lg">{task.output.error}</p>
+              {task.status === 'failed' && task.error && (
+                <p className="text-xs text-red-500 mb-3 p-2 bg-red-50 rounded-lg">{task.error}</p>
               )}
 
               {/* 操作按钮 */}
@@ -165,11 +286,14 @@ export default function AIHubPage() {
                     重试
                   </Button>
                 )}
-                {task.output?.resultUrl && (
+                {task.resultUrl && (
                   <Button variant="secondary" size="sm" className="flex-1">
                     下载
                   </Button>
                 )}
+                <Button variant="ghost" size="sm" onClick={() => handleDelete(task.id)}>
+                  删除
+                </Button>
               </div>
             </div>
           ))}
@@ -188,6 +312,15 @@ export default function AIHubPage() {
             <Button variant="primary" onClick={() => navigate('/')}>去创作剧本</Button>
           </div>
         </div>
+      )}
+
+      {/* 预览弹窗 */}
+      {previewResult && (
+        <PreviewModal
+          result={previewResult}
+          onClose={() => setPreviewResult(null)}
+          onDelete={(id) => { handleDelete(id); setPreviewResult(null) }}
+        />
       )}
     </div>
   )

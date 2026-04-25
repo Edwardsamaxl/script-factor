@@ -1,10 +1,8 @@
-const express = require('express');
-const router = express.Router();
-const { v4: uuidv4 } = require('uuid');
-const { generateImage, generateVideo } = require('../services/aigcService');
+import express from 'express';
+import { createAIResult, getAIResult, getAIResultsByScriptId, deleteAIResult } from '../services/aigcService.js';
+import { loadAIResults } from '../services/dataStore.js';
 
-// In-memory task store (replace with database in production)
-const taskStore = new Map();
+const router = express.Router();
 
 /**
  * POST /api/ai/generate
@@ -12,7 +10,8 @@ const taskStore = new Map();
  */
 router.post('/generate', async (req, res) => {
   try {
-    const { scriptId, type, mode, provider = 'dalle', persona, script } = req.body;
+    console.log('[AI Generate] Request body:', req.body);
+    const { scriptId, type, mode, provider = 'seedance', prompt, personaImages, personaId } = req.body;
 
     if (!type || !['image', 'video'].includes(type)) {
       return res.status(400).json({
@@ -21,59 +20,121 @@ router.post('/generate', async (req, res) => {
       });
     }
 
-    const taskId = uuidv4();
-    const prompt = buildPrompt(type, mode, { persona, script });
-
-    const task = {
-      id: taskId,
-      scriptId,
-      type,
-      mode,
-      provider,
-      prompt,
-      status: 'pending',
-      progress: 0,
-      output: null,
-      error: null,
-      createdAt: Date.now(),
-      completedAt: null
-    };
-
-    taskStore.set(taskId, task);
-
-    // Start async generation
-    if (type === 'image') {
-      startImageGeneration(task);
-    } else {
-      startVideoGeneration(task);
+    if (!prompt) {
+      return res.status(400).json({
+        success: false,
+        error: 'Prompt is required'
+      });
     }
+
+    console.log('[AI Generate] Calling createAIResult with:', { scriptId, type, provider, mode, prompt: prompt?.substring(0, 50) });
+
+    // Create AI result and start generation
+    const result = await createAIResult({
+      scriptId: scriptId || 'standalone',
+      scriptTitle: 'Script',
+      type,
+      provider,
+      mode: mode || 'cover',
+      prompt,
+      personaImages,
+      personaId
+    });
+
+    console.log('[AI Generate] createAIResult returned:', result);
 
     res.json({
       success: true,
       data: {
-        taskId,
-        status: 'pending',
-        prompt
+        resultId: result.id,
+        status: result.status
       }
     });
   } catch (error) {
-    console.error('Error starting AI generation:', error);
+    console.error('[AI Generate] Error:', error.message, error.stack);
     res.status(500).json({
       success: false,
-      error: 'Failed to start AI generation'
+      error: 'Failed to start AI generation: ' + error.message
     });
   }
 });
 
 /**
+ * GET /api/ai/results
+ * Get AI results, optionally filtered by scriptId
+ */
+router.get('/results', (req, res) => {
+  const { scriptId } = req.query;
+
+  let results;
+  if (scriptId) {
+    results = getAIResultsByScriptId(scriptId);
+  } else {
+    results = loadAIResults();
+  }
+
+  // Sort by createdAt descending
+  results = results.sort((a, b) => b.createdAt - a.createdAt);
+
+  res.json({
+    success: true,
+    data: results
+  });
+});
+
+/**
+ * GET /api/ai/results/:resultId
+ * Get single AI result
+ */
+router.get('/results/:resultId', (req, res) => {
+  const { resultId } = req.params;
+  const result = getAIResult(resultId);
+
+  if (!result) {
+    return res.status(404).json({
+      success: false,
+      error: 'Result not found'
+    });
+  }
+
+  res.json({
+    success: true,
+    data: result
+  });
+});
+
+/**
+ * DELETE /api/ai/results/:resultId
+ * Delete an AI result
+ */
+router.delete('/results/:resultId', (req, res) => {
+  const { resultId } = req.params;
+  const deleted = deleteAIResult(resultId);
+
+  if (!deleted) {
+    return res.status(404).json({
+      success: false,
+      error: 'Result not found'
+    });
+  }
+
+  res.json({
+    success: true,
+    data: { resultId }
+  });
+});
+
+// Legacy endpoints for backwards compatibility
+
+/**
  * GET /api/ai/tasks/:taskId
- * Get task status
+ * Get task status (legacy - redirects to results)
  */
 router.get('/tasks/:taskId', (req, res) => {
   const { taskId } = req.params;
-  const task = taskStore.get(taskId);
+  const result = getAIResult(taskId);
 
-  if (!task) {
+  if (!result) {
     return res.status(404).json({
       success: false,
       error: 'Task not found'
@@ -82,16 +143,16 @@ router.get('/tasks/:taskId', (req, res) => {
 
   res.json({
     success: true,
-    data: task
+    data: result
   });
 });
 
 /**
  * GET /api/ai/tasks
- * List all tasks
+ * List all tasks (legacy)
  */
 router.get('/tasks', (req, res) => {
-  const tasks = Array.from(taskStore.values())
+  const tasks = loadAIResults()
     .sort((a, b) => b.createdAt - a.createdAt)
     .slice(0, 50);
 
@@ -103,128 +164,41 @@ router.get('/tasks', (req, res) => {
 
 /**
  * POST /api/ai/tasks/:taskId/retry
- * Retry a failed task
+ * Retry a failed task (legacy)
  */
 router.post('/tasks/:taskId/retry', async (req, res) => {
   const { taskId } = req.params;
-  const task = taskStore.get(taskId);
+  const existingResult = getAIResult(taskId);
 
-  if (!task) {
+  if (!existingResult) {
     return res.status(404).json({
       success: false,
       error: 'Task not found'
     });
   }
 
-  if (task.status !== 'failed') {
+  if (existingResult.status !== 'failed') {
     return res.status(400).json({
       success: false,
       error: 'Can only retry failed tasks'
     });
   }
 
-  task.status = 'pending';
-  task.progress = 0;
-  task.error = null;
-  taskStore.set(taskId, task);
-
-  if (task.type === 'image') {
-    startImageGeneration(task);
-  } else {
-    startVideoGeneration(task);
-  }
+  // Create a new result to retry
+  const result = await createAIResult({
+    scriptId: existingResult.scriptId,
+    scriptTitle: existingResult.scriptTitle,
+    type: existingResult.type,
+    provider: existingResult.provider,
+    mode: existingResult.mode,
+    prompt: existingResult.prompt,
+    personaImages: existingResult.personaImages
+  });
 
   res.json({
     success: true,
-    data: { taskId, status: 'pending' }
+    data: { resultId: result.id, status: 'pending' }
   });
 });
 
-// Helper functions
-
-function buildPrompt(type, mode, { persona, script }) {
-  if (type === 'image') {
-    if (mode === 'character' && persona) {
-      return `Portrait of ${persona.name}.
-Personality: ${persona.personality?.join(', ') || 'distinctive'}
-Speaking style: ${persona.speakingStyle || 'unique'}
-Style: Digital illustration, expressive, Chinese animation aesthetic.`;
-    }
-
-    if (script) {
-      if (mode === 'cover') {
-        return `Create cinematic cover for "${script.title || 'Untitled'}".
-Scene: ${script.scene?.name || 'Drama'} - ${script.scene?.description || ''}
-Characters: ${script.personaA?.name || 'Character A'} and ${script.personaB?.name || 'Character B'}
-Style: Modern Chinese drama, high contrast, emotional atmosphere, cinematic lighting.`;
-      }
-
-      if (mode === 'storyboard') {
-        const panels = (script.dialogues || []).map((d, i) =>
-          `Panel ${i + 1}: [${d.speaker}] ${d.content}`
-        ).join('\n');
-        return `Create ${script.dialogues?.length || 6}-panel storyboard.
-${panels}
-Style: Comic book style, clear visual storytelling, Chinese aesthetic, dynamic composition.`;
-      }
-    }
-  }
-
-  if (type === 'video') {
-    if (script) {
-      return `Video scene: "${script.title || 'Untitled'}"
-Scenario: ${script.scene?.description || ''}
-Characters: ${script.personaA?.name || ''} and ${script.personaB?.name || ''}
-Dialogue excerpt: "${script.dialogues?.[0]?.content || ''}"
-Style: Short dramatic scene, Chinese cinema aesthetic, emotional depth.`;
-    }
-  }
-
-  return 'Create an artistic image.';
-}
-
-async function startImageGeneration(task) {
-  task.status = 'processing';
-  task.progress = 0;
-  taskStore.set(task.id, task);
-
-  try {
-    const result = await generateImage(task.prompt, task.provider);
-    task.status = 'success';
-    task.progress = 1;
-    task.output = {
-      resultUrl: result.url,
-      thumbnails: result.url ? [result.url] : []
-    };
-    task.completedAt = Date.now();
-  } catch (error) {
-    task.status = 'failed';
-    task.error = error.message;
-  }
-  taskStore.set(task.id, task);
-}
-
-async function startVideoGeneration(task) {
-  task.status = 'processing';
-  task.progress = 0;
-  taskStore.set(task.id, task);
-
-  try {
-    const result = await generateVideo(task.prompt, task.provider);
-    task.status = result.status === 'pending' ? 'processing' : 'success';
-    task.progress = result.progress || 0.5;
-    task.output = {
-      resultUrl: result.url,
-      thumbnails: result.thumbnails || []
-    };
-    if (result.status === 'completed') {
-      task.completedAt = Date.now();
-    }
-  } catch (error) {
-    task.status = 'failed';
-    task.error = error.message;
-  }
-  taskStore.set(task.id, task);
-}
-
-module.exports = router;
+export default router;

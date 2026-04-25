@@ -80,7 +80,8 @@ export const FILES = {
   SCRIPTS: path.join(DATA_DIR, 'scripts.json'),
   USER_PERSONAS: path.join(DATA_DIR, 'user-personas.json'),
   BUILT_IN_PERSONAS: path.join(DATA_DIR, 'built-in-personas.json'),
-  SESSIONS: path.join(DATA_DIR, 'sessions.json')
+  SESSIONS: path.join(DATA_DIR, 'sessions.json'),
+  AI_RESULTS: path.join(DATA_DIR, 'ai-results.json')
 };
 
 /**
@@ -130,4 +131,18 @@ export function loadSessions() {
  */
 export function saveSessions(sessions) {
   writeJsonFile(FILES.SESSIONS, sessions);
+}
+
+/**
+ * Load AI results with centralized logic
+ */
+export function loadAIResults() {
+  return readJsonFile(FILES.AI_RESULTS, []);
+}
+
+/**
+ * Save AI results with backup
+ */
+export function saveAIResults(results) {
+  writeJsonFile(FILES.AI_RESULTS, results);
 }

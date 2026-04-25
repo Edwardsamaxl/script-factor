@@ -1,14 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
 import Button from '../common/Button'
 import { formatScriptText } from '../../utils/scriptParser'
+import AIContentGallery from './AIContentGallery'
 
-function sendToSeedance(prompt) {
-  window.open(`https://seedance.ai/create?prompt=${encodeURIComponent(prompt)}`, '_blank')
-}
-
-function sendToGPTImage(prompt) {
-  window.open(`https://chat.openai.com/?prompt=${encodeURIComponent(prompt)}`, '_blank')
-}
 
 export default function ScriptViewer({ script, onDelete }) {
   const [copied, setCopied] = useState(false)
@@ -218,6 +212,16 @@ export default function ScriptViewer({ script, onDelete }) {
         >
           📝 对话
         </button>
+        <button
+          onClick={() => setActiveTab('aicontent')}
+          className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
+            activeTab === 'aicontent'
+              ? 'bg-purple-500 text-white'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          }`}
+        >
+          🎨 AI内容
+        </button>
       </div>
 
       {/* 故事板 Tab */}
@@ -309,13 +313,34 @@ export default function ScriptViewer({ script, onDelete }) {
                     </div>
                     {/* AI 快捷操作 */}
                     <button
-                      onClick={() => sendToGPTImage(scene.visualPrompt)}
+                      onClick={async () => {
+                        try {
+                          const res = await fetch('/api/ai/generate', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              scriptId: script.id,
+                              type: 'image',
+                              prompt: scene.visualPrompt,
+                              personaImages: script.personaImages
+                            })
+                          })
+                          const data = await res.json()
+                          if (data.success) {
+                            setActiveTab('aicontent')
+                          } else {
+                            alert('生成失败: ' + (data.error || '未知错误'))
+                          }
+                        } catch (err) {
+                          alert('请求失败: ' + err.message)
+                        }
+                      }}
                       className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-ink-900 text-paper-100 text-xs font-medium hover:bg-ink-700 active:scale-[0.97] transition-all"
                     >
                       <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                         <path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
-                      发送到 GPT Image
+                      AI 生成图片
                     </button>
                   </div>
                 </div>
@@ -351,13 +376,34 @@ export default function ScriptViewer({ script, onDelete }) {
 
             {/* 主要操作按钮 */}
             <button
-              onClick={() => sendToSeedance(summary.videoPrompt)}
+              onClick={async () => {
+                try {
+                  const res = await fetch('/api/ai/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      scriptId: script.id,
+                      type: 'video',
+                      prompt: summary.videoPrompt,
+                      personaImages: script.personaImages
+                    })
+                  })
+                  const data = await res.json()
+                  if (data.success) {
+                    setActiveTab('aicontent')
+                  } else {
+                    alert('生成失败: ' + (data.error || '未知错误'))
+                  }
+                } catch (err) {
+                  alert('请求失败: ' + err.message)
+                }
+              }}
               className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-ink-900 text-paper-100 text-sm font-semibold hover:bg-ink-700 active:scale-[0.97] transition-all mb-4"
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                 <path d="M2 7h10M8 4l3 3-3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              发送到 Seedance
+              AI 生成视频
             </button>
 
             {/* 主要Prompt展示 */}
@@ -467,6 +513,11 @@ export default function ScriptViewer({ script, onDelete }) {
             </Button>
           </div>
         </div>
+      )}
+
+      {/* AI内容 Tab */}
+      {activeTab === 'aicontent' && (
+        <AIContentGallery scriptId={script.id} script={script} />
       )}
 
       {onDelete && (

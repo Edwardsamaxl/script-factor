@@ -57,17 +57,19 @@ async function summarizeToStoryboard(script) {
       "action": "角色动作和表情描述",
       "dialogue": "关键对白（20字以内）",
       "emotion": "整体情绪基调",
-      "visualPrompt": "英文AI图像生成prompt，包含人物描述、场景、风格，光线等"
+      "visualPrompt": "中文AI图像生成prompt，包含人物描述、场景、风格、光线等"
     }
   ]
 }
 
 ## 规则
 1. 场景数量建议为对话轮数的1/3到1/2，确保每个场景有足够的戏剧性
-2. visualPrompt应该是详细的英文描述，包含：人物外观、表情、动作、服装、环境、构图、风格，光线等
+2. visualPrompt应该是详细的中文描述，包含：人物外观、表情、动作、服装、环境、构图、风格，光线等
 3. 每段对话如果内容丰富可以拆成多个场景
 4. 保持故事的戏剧性和节奏感
-5. visualPrompt要适合Midjourney/SD/DALL-E等AI图像工具
+5. visualPrompt使用中文描述，适合即梦、可灵、海螺等中文AI图像工具
+6. 【重要】人物一致性：同一人物在不同场景中外观特征（发型、服装、五官）必须保持一致，只有表情、动作、姿态可以变化
+7. 【重要】情绪递进：场景之间要有情绪的递进或转折，如从平静→紧张→爆发，或从疏远→试探→亲近，避免所有场景都是同一种情绪基调
 
 ## 原始剧本
 ${personaContext}
@@ -150,19 +152,27 @@ async function summarizeToScriptSummary(script) {
     return `${i + 1}. ${speaker}: ${d.content}`;
   }).join('\n');
 
-  const prompt = `你是一个AI视频生成prompt工程师。你的任务是将一段对话剧本转换为一个精准的、适合AI视频生成的短prompt。
+  const prompt = `你是一个AI视频生成prompt工程师。你的任务是将一段对话剧本转换为一个丰富的、适合AI视频生成的详细描述。
 
 ## 要求
 用户只能生成约10秒的视频，所以prompt必须：
-1. 精准：抓住故事最核心的画面和情绪
-2. 简短：prompt应在50-80字之间
-3. 具体：包含具体的动作、表情、场景细节
-4. 可执行：适合Runway/Pika/Sora等AI视频工具
+1. 生动：包含具体的动作、神态、语气描写，让AI能理解人物的情绪和状态
+2. 详细：prompt应在150-200字之间，充分描述画面
+3. 具体：包含具体的身体动作、面部表情、眼神、手势、姿态变化等细节
+4. 可执行：适合即梦、可灵、海螺等中文AI视频工具
+5. 画面感：描述要有镜头感，包括人物站位、视线方向、互动方式
+
+## 重点描写要素（每个场景都要涵盖）
+- 动作描写：具体的身体动作，如抬手、转身、低头、靠近、后退等
+- 神态描写：面部表情、眼神变化、眉毛、嘴角等微表情
+- 语气暗示：通过姿态暗示人物说话的语气（激动、温柔、愤怒、犹豫等）
+- 场景细节：环境物品、光线氛围、人物位置关系
+- 镜头感：画面构图、视野角度
 
 ## 输出格式
 请以JSON格式输出，结构如下：
 {
-  "videoPrompt": "精准的AI视频生成prompt，英文，50-80字",
+  "videoPrompt": "详细的中文AI视频生成prompt，150-200字，包含动作、神态、场景细节",
   "duration": "10秒",
   "emotion": "整体情绪基调",
   "style": "建议的视频风格如'电影感'、'动漫风'、'写实'等"
@@ -181,7 +191,7 @@ ${dialogueHistory}
     prompt,
     {
       temperature: 0.7,
-      max_tokens: 1024
+      max_tokens: 2048
     }
   );
 
@@ -209,19 +219,19 @@ ${dialogueHistory}
  * @returns {Promise<string>} - Enhanced visual prompt
  */
 async function enhanceScenePrompt(scene, personaA, personaB) {
-  const prompt = `Enhance this scene description into a detailed AI image generation prompt.
+  const prompt = `增强这个场景描述，生成一个详细的中文AI图像生成prompt。
 
-Scene Info:
-- Setting: ${scene.setting}
-- Characters: ${scene.characters?.join(', ') || 'Unknown'}
-- Action: ${scene.action}
-- Emotion: ${scene.emotion}
+场景信息:
+- 场景: ${scene.setting}
+- 角色: ${scene.characters?.join(', ') || '未知'}
+- 动作: ${scene.action}
+- 情绪: ${scene.emotion}
 
-Character Details:
-- ${personaA.name}: ${(personaA.personality || []).join(', ')}, ${personaA.speakingStyle || 'natural'}
-- ${personaB.name}: ${(personaB.personality || []).join(', ')}, ${personaB.speakingStyle || 'natural'}
+角色详情:
+- ${personaA.name}: ${(personaA.personality || []).join(', ')}, ${personaA.speakingStyle || '自然'}
+- ${personaB.name}: ${(personaB.personality || []).join(', ')}, ${personaB.speakingStyle || '自然'}
 
-Please output ONLY the enhanced English prompt, no other text. Make it vivid and detailed for AI image generation (Midjourney/SD/DALL-E style).`;
+请只输出增强后的中文prompt，不要输出其他内容。要生动详细，适合即梦、可灵、海螺等中文AI图像工具。`;
 
   const response = await callDeepSeekAWithSystem(
     'You are an expert at writing AI image generation prompts.',

@@ -1,100 +1,65 @@
-import { useNavigate, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { usePersonas } from '../hooks/usePersonas'
 import { useScripts } from '../hooks/useScripts'
-import PersonaCard from '../components/persona/PersonaCard'
-import ScriptCard from '../components/script/ScriptCard'
-import Button from '../components/common/Button'
 
 export default function ProfilePage() {
-  const navigate = useNavigate()
   const { personas } = usePersonas()
   const { scripts } = useScripts()
 
-  const myPersonas = personas
+  const myPersonas = personas.filter(p => p.creator === 'user')
   const myScripts = scripts
 
   return (
-    <div>
-      <div className="flex items-center gap-3 mb-4">
-        <button onClick={() => navigate(-1)} className="p-2 -ml-2 hover:bg-gray-100 rounded-xl">
-          ←
-        </button>
-        <h1 className="text-xl font-bold">我的</h1>
+    <div className="space-y-4 animate-fade-in">
+      {/* 三大板块入口 */}
+      <div className="grid grid-cols-1 gap-4">
+        {/* 人设 */}
+        <Link
+          to="/my/personas"
+          className="card-elevated p-6 flex items-center gap-4 group hover:shadow-lifted hover:-translate-y-0.5 transition-all duration-300"
+        >
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
+            <span className="text-3xl">👤</span>
+          </div>
+          <div className="flex-1">
+            <h2 className="heading-3 text-ink-900 mb-1">我的人设</h2>
+            <p className="body-small text-ink-500">管理你创建的角色</p>
+          </div>
+          <div className="text-3xl font-bold text-blue-500">{myPersonas.length}</div>
+        </Link>
+
+        {/* 剧本 */}
+        <Link
+          to="/my/scripts"
+          className="card-elevated p-6 flex items-center gap-4 group hover:shadow-lifted hover:-translate-y-0.5 transition-all duration-300"
+        >
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-100 to-purple-200 flex items-center justify-center">
+            <span className="text-3xl">📝</span>
+          </div>
+          <div className="flex-1">
+            <h2 className="heading-3 text-ink-900 mb-1">我的剧本</h2>
+            <p className="body-small text-ink-500">查看所有对话剧本</p>
+          </div>
+          <div className="text-3xl font-bold text-purple-500">{myScripts.length}</div>
+        </Link>
+
+        {/* 创作中心 */}
+        <Link
+          to="/ai/hub"
+          className="card-elevated p-6 flex items-center gap-4 group hover:shadow-lifted hover:-translate-y-0.5 transition-all duration-300"
+        >
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-100 to-orange-200 flex items-center justify-center">
+            <span className="text-3xl">✨</span>
+          </div>
+          <div className="flex-1">
+            <h2 className="heading-3 text-ink-900 mb-1">创作中心</h2>
+            <p className="body-small text-ink-500">AI 生图/视频作品</p>
+          </div>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-ink-400 group-hover:text-ink-600 transition-colors">
+            <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </Link>
       </div>
-
-      {/* 统计卡片 */}
-      <div className="grid grid-cols-3 gap-3 mb-6">
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-4 text-center">
-          <div className="text-2xl font-bold text-blue-600">{myPersonas.length}</div>
-          <div className="text-xs text-blue-600">人设</div>
-        </div>
-        <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-4 text-center">
-          <div className="text-2xl font-bold text-purple-600">{myScripts.length}</div>
-          <div className="text-xs text-purple-600">剧本</div>
-        </div>
-        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-4 text-center">
-          <div className="text-2xl font-bold text-green-600">
-            {myScripts.reduce((acc, s) => acc + (s.totalLines || 0), 0)}
-          </div>
-          <div className="text-xs text-green-600">对话轮</div>
-        </div>
-      </div>
-
-      {/* 快捷操作 */}
-      <div className="grid grid-cols-2 gap-3 mb-6">
-        <Button variant="primary" onClick={() => navigate('/persona/create')}>
-          + 创建人设
-        </Button>
-        <Button variant="secondary" onClick={() => navigate('/script/create')}>
-          ✍️ 创作剧本
-        </Button>
-      </div>
-
-      {/* 我的人设 */}
-      <section className="mb-6">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-semibold text-gray-900">👤 我的人设</h2>
-        </div>
-        {myPersonas.length > 0 ? (
-          <div className="space-y-3">
-            {myPersonas.map((persona) => (
-              <Link key={persona.id} to={`/persona/${persona.id}`}>
-                <PersonaCard persona={persona} showActions={false} />
-              </Link>
-            ))}
-          </div>
-        ) : (
-          <div className="bg-white rounded-2xl p-6 text-center border border-gray-100">
-            <div className="text-4xl mb-2">👤</div>
-            <p className="text-gray-500 mb-3">还没有人设</p>
-            <Button variant="outline" onClick={() => navigate('/persona/create')}>
-              创建人设
-            </Button>
-          </div>
-        )}
-      </section>
-
-      {/* 我的剧本 */}
-      <section id="scripts">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-semibold text-gray-900">📝 我的剧本</h2>
-        </div>
-        {myScripts.length > 0 ? (
-          <div className="space-y-3">
-            {myScripts.map((script) => (
-              <ScriptCard key={script.id} script={script} />
-            ))}
-          </div>
-        ) : (
-          <div className="bg-white rounded-2xl p-6 text-center border border-gray-100">
-            <div className="text-4xl mb-2">📝</div>
-            <p className="text-gray-500 mb-3">还没有剧本</p>
-            <Button variant="outline" onClick={() => navigate('/script/create')}>
-              创作剧本
-            </Button>
-          </div>
-        )}
-      </section>
     </div>
   )
 }

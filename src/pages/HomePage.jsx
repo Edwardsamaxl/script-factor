@@ -50,7 +50,7 @@ export default function HomePage() {
             <h2 className="heading-2">最近剧本</h2>
           </div>
           {scripts.length > 3 && (
-            <Link to="/profile#scripts" className="text-sm text-accent hover:text-accent-dark font-medium">
+            <Link to="/my/scripts" className="text-sm text-accent hover:text-accent-dark font-medium">
               查看全部
             </Link>
           )}
@@ -90,7 +90,7 @@ export default function HomePage() {
             <h2 className="heading-2">我的人设</h2>
           </div>
           {myPersonas.length > 0 && (
-            <Link to="/profile" className="text-sm text-accent hover:text-accent-dark font-medium flex items-center">
+            <Link to="/my/personas" className="text-sm text-accent hover:text-accent-dark font-medium flex items-center">
               查看全部
             </Link>
           )}

@@ -1,10 +1,16 @@
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Import routes
 import personasRoutes from './routes/personas.js';
 import scenesRoutes from './routes/scenes.js';
 import scriptsRoutes from './routes/scripts.js';
+import aigcRoutes from './routes/aigc.js';
 
 const app = express();
 
@@ -19,6 +25,9 @@ app.use((req, res, next) => {
   next();
 });
 
+// Serve static files from public directory
+app.use(express.static(path.join(__dirname, '../../public')));
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: Date.now() });
@@ -28,6 +37,7 @@ app.get('/health', (req, res) => {
 app.use('/api/personas', personasRoutes);
 app.use('/api/scenes', scenesRoutes);
 app.use('/api/scripts', scriptsRoutes);
+app.use('/api/ai', aigcRoutes);
 
 // 404 handler
 app.use((req, res) => {

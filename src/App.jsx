@@ -10,6 +10,8 @@ import ScriptDetailPage from './pages/ScriptDetailPage'
 import AICreatePage from './pages/AICreatePage'
 import AIHubPage from './pages/AIHubPage'
 import ProfilePage from './pages/ProfilePage'
+import MyPersonasPage from './pages/MyPersonasPage'
+import MyScriptsPage from './pages/MyScriptsPage'
 import { PersonaProvider } from './context/PersonaContext'
 import { ScriptProvider } from './context/ScriptContext'
 import { UserProvider } from './context/UserContext'
@@ -32,6 +34,8 @@ export default function App() {
                 <Route path="/ai/create/:scriptId" element={<AICreatePage />} />
                 <Route path="/ai/hub" element={<AIHubPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/my/personas" element={<MyPersonasPage />} />
+                <Route path="/my/scripts" element={<MyScriptsPage />} />
               </Routes>
             </main>
             <TabBar />
