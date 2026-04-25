@@ -5,21 +5,76 @@ import Button from '../components/common/Button'
 import { buildVideoPrompt, buildImagePrompt } from '../utils/promptBuilder'
 
 const AI_TOOLS = [
-  { id: 'seedance', name: 'Seedance', icon: '🎬', type: 'video', description: 'AI 视频生成' },
-  { id: 'gpt-image', name: 'GPT Image', icon: '🖼️', type: 'image', description: 'AI 图像生成' },
-  { id: 'flux', name: 'Flux', icon: '✨', type: 'image', description: '高质量图像生成' },
+  { id: 'seedance', name: 'Seedance', icon: 'video', type: 'video', description: 'AI 视频生成' },
+  { id: 'gpt-image', name: 'GPT Image', icon: 'image', type: 'image', description: 'AI 图像生成' },
+  { id: 'flux', name: 'Flux', icon: 'sparkle', type: 'image', description: '高质量图像生成' },
 ]
 
 const MODES = {
   video: [
-    { id: 'cover', name: '生成视频封面', icon: '🎞️' },
-    { id: 'storyboard', name: '生成分镜图', icon: '🎬' },
+    { id: 'cover', name: '生成视频封面', icon: 'film' },
+    { id: 'storyboard', name: '生成分镜图', icon: 'layout' },
   ],
   image: [
-    { id: 'cover', name: '生成场景图', icon: '🖼️' },
-    { id: 'characterA', name: '生成分镜图', icon: '👤' },
-    { id: 'characterB', name: '角色图 B', icon: '👤' },
+    { id: 'cover', name: '生成场景图', icon: 'image' },
+    { id: 'characterA', name: '角色 A 图', icon: 'user' },
+    { id: 'characterB', name: '角色 B 图', icon: 'user-check' },
   ],
+}
+
+const ToolIcon = ({ type, className }) => {
+  const icons = {
+    video: (
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className={className}>
+        <rect x="2" y="4" width="16" height="12" rx="2" stroke="currentColor" strokeWidth="1.5"/>
+        <path d="M8 8l4 2-4 2V8z" fill="currentColor"/>
+      </svg>
+    ),
+    image: (
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className={className}>
+        <rect x="2" y="4" width="16" height="12" rx="2" stroke="currentColor" strokeWidth="1.5"/>
+        <circle cx="7" cy="8" r="1.5" fill="currentColor"/>
+        <path d="M2 13l4-3 3 2 4-4 5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ),
+    sparkle: (
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className={className}>
+        <path d="M10 2v3M10 15v3M2 10h3M15 10h3M4.93 4.93l2.12 2.12M12.95 12.95l2.12 2.12M4.93 15.07l2.12-2.12M12.95 7.05l2.12-2.12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      </svg>
+    ),
+    film: (
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className={className}>
+        <rect x="2" y="3" width="14" height="12" rx="2" stroke="currentColor" strokeWidth="1.5"/>
+        <circle cx="5" cy="6" r="0.75" fill="currentColor"/>
+        <circle cx="5" cy="12" r="0.75" fill="currentColor"/>
+        <circle cx="13" cy="6" r="0.75" fill="currentColor"/>
+        <circle cx="13" cy="12" r="0.75" fill="currentColor"/>
+      </svg>
+    ),
+    layout: (
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className={className}>
+        <rect x="2" y="2" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5"/>
+        <rect x="10" y="2" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5"/>
+        <rect x="2" y="10" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5"/>
+        <rect x="10" y="10" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5"/>
+      </svg>
+    ),
+    user: (
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className={className}>
+        <circle cx="9" cy="6" r="3" stroke="currentColor" strokeWidth="1.5"/>
+        <path d="M3 16c0-3.314 2.686-6 6-6s6 2.686 6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      </svg>
+    ),
+    'user-check': (
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className={className}>
+        <circle cx="7" cy="6" r="3" stroke="currentColor" strokeWidth="1.5"/>
+        <path d="M2 16c0-3.314 2.239-6 5-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+        <circle cx="13" cy="8" r="2.5" stroke="currentColor" strokeWidth="1.5"/>
+        <path d="M16 11l1.5 1.5L20 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ),
+  }
+  return icons[type] || null
 }
 
 export default function AICreatePage() {
@@ -36,11 +91,17 @@ export default function AICreatePage() {
   if (!script) {
     return (
       <div className="text-center py-12">
-        <div className="text-4xl mb-2">🔍</div>
-        <p className="text-gray-500 mb-4">剧本不存在</p>
-        <button onClick={() => navigate('/')} className="text-blue-500 hover:underline">
-          返回首页
-        </button>
+        <div className="empty-state">
+          <div className="w-16 h-16 rounded-2xl bg-ink-100 flex items-center justify-center mb-4 mx-auto">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" className="text-ink-400">
+              <circle cx="13" cy="13" r="9" stroke="currentColor" strokeWidth="1.5"/>
+              <path d="M13 9v5l3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+          </div>
+          <p className="empty-state-title">剧本不存在</p>
+          <p className="empty-state-desc mb-4">请返回首页选择剧本</p>
+          <Button variant="primary" onClick={() => navigate('/')}>返回首页</Button>
+        </div>
       </div>
     )
   }
@@ -56,7 +117,6 @@ export default function AICreatePage() {
 
   const handleModeSelect = (modeId) => {
     setSelectedMode(modeId)
-    // 生成默认 prompt
     if (tool?.type === 'video') {
       setPrompt(buildVideoPrompt(script, modeId))
     } else if (tool?.type === 'image') {
@@ -66,60 +126,68 @@ export default function AICreatePage() {
 
   const handleSendToAI = () => {
     if (!prompt) return
-
-    // 构建跳转 URL（这里只是示例，实际应根据各平台接口调整）
     const encodedPrompt = encodeURIComponent(prompt)
 
     if (selectedTool === 'seedance') {
-      // Seedance 的 URL 格式（示例）
       window.open(`https://seedance.ai/create?prompt=${encodedPrompt}`, '_blank')
     } else if (selectedTool === 'gpt-image') {
-      // GPT Image 的 URL 格式（示例）
       window.open(`https://chat.openai.com/?prompt=${encodedPrompt}`, '_blank')
     } else if (selectedTool === 'flux') {
-      // Flux 的 URL 格式（示例）
       window.open(`https://flux.ai/create?prompt=${encodedPrompt}`, '_blank')
     }
 
-    // 跳转到创作中心
     navigate('/ai/hub')
   }
 
   return (
-    <div>
-      <div className="flex items-center gap-3 mb-4">
-        <button onClick={() => navigate(-1)} className="p-2 -ml-2 hover:bg-gray-100 rounded-xl">
-          ←
+    <div className="animate-fade-in">
+      {/* 头部 */}
+      <div className="flex items-center gap-3 mb-5">
+        <button
+          onClick={() => navigate(-1)}
+          className="w-9 h-9 rounded-xl bg-ink-100 flex items-center justify-center text-ink-600 hover:bg-ink-200 transition-colors"
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M10 12L6 8l4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
         </button>
-        <h1 className="text-xl font-bold">AI 创作</h1>
+        <h1 className="heading-1">AI 创作</h1>
       </div>
 
       {/* 剧本信息 */}
-      <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-4 mb-4">
-        <p className="font-semibold text-gray-900 mb-1">{script.title}</p>
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          <span>{script.personaA?.avatar} {script.personaA?.name}</span>
-          <span className="text-gray-400">vs</span>
-          <span>{script.personaB?.avatar} {script.personaB?.name}</span>
+      <div className="card-paper p-4 mb-5">
+        <p className="font-semibold text-ink-900 mb-2">{script.title}</p>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 text-sm text-ink-600">
+            <span className="text-base">{script.personaA?.avatar}</span>
+            <span className="font-medium">{script.personaA?.name}</span>
+          </div>
+          <span className="text-ink-400 text-xs font-bold">VS</span>
+          <div className="flex items-center gap-1.5 text-sm text-ink-600">
+            <span className="text-base">{script.personaB?.avatar}</span>
+            <span className="font-medium">{script.personaB?.name}</span>
+          </div>
         </div>
       </div>
 
       {/* 选择 AI 工具 */}
-      <div className="mb-4">
-        <h2 className="text-sm font-semibold text-gray-700 mb-2">选择 AI 工具</h2>
-        <div className="grid grid-cols-3 gap-2">
+      <div className="mb-5">
+        <h2 className="heading-3 mb-3">选择 AI 工具</h2>
+        <div className="grid grid-cols-3 gap-3">
           {AI_TOOLS.map((t) => (
             <button
               key={t.id}
               onClick={() => handleToolSelect(t.id)}
-              className={`p-3 rounded-xl border-2 text-center transition-all ${
+              className={`p-4 rounded-xl border-2 text-center transition-all duration-200 ${
                 selectedTool === t.id
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-100 bg-white hover:border-gray-200'
+                  ? 'border-accent bg-accent/5'
+                  : 'border-ink-200/50 bg-paper-50 hover:border-ink-300'
               }`}
             >
-              <div className="text-2xl mb-1">{t.icon}</div>
-              <div className="text-xs font-medium">{t.name}</div>
+              <div className="w-10 h-10 rounded-xl bg-ink-900 flex items-center justify-center mx-auto mb-2">
+                <ToolIcon type={t.icon} className="text-paper-100" />
+              </div>
+              <div className="text-xs font-semibold text-ink-700">{t.name}</div>
             </button>
           ))}
         </div>
@@ -127,21 +195,23 @@ export default function AICreatePage() {
 
       {/* 选择生成模式 */}
       {tool && modes.length > 0 && (
-        <div className="mb-4">
-          <h2 className="text-sm font-semibold text-gray-700 mb-2">选择生成模式</h2>
+        <div className="mb-5 animate-slide-up">
+          <h2 className="heading-3 mb-3">选择生成模式</h2>
           <div className="space-y-2">
             {modes.map((m) => (
               <button
                 key={m.id}
                 onClick={() => handleModeSelect(m.id)}
-                className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${
+                className={`w-full flex items-center gap-3 p-3.5 rounded-xl border-2 transition-all duration-200 ${
                   selectedMode === m.id
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-100 bg-white hover:border-gray-200'
+                    ? 'border-accent bg-accent/5'
+                    : 'border-ink-200/50 bg-paper-50 hover:border-ink-300'
                 }`}
               >
-                <span className="text-xl">{m.icon}</span>
-                <span className="font-medium">{m.name}</span>
+                <div className="w-9 h-9 rounded-lg bg-ink-100 flex items-center justify-center">
+                  <ToolIcon type={m.icon} className="text-ink-600" />
+                </div>
+                <span className="font-medium text-ink-700">{m.name}</span>
               </button>
             ))}
           </div>
@@ -150,13 +220,14 @@ export default function AICreatePage() {
 
       {/* Prompt 预览/编辑 */}
       {selectedMode && (
-        <div className="mb-4">
-          <h2 className="text-sm font-semibold text-gray-700 mb-2">生成的 Prompt</h2>
+        <div className="mb-5 animate-fade-in">
+          <h2 className="heading-3 mb-3">生成的 Prompt</h2>
           <textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            rows={4}
-            className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            rows={5}
+            className="input-field resize-none font-mono text-sm"
+            placeholder="输入 prompt..."
           />
         </div>
       )}
@@ -164,7 +235,10 @@ export default function AICreatePage() {
       {/* 发送按钮 */}
       {selectedMode && (
         <Button variant="primary" onClick={handleSendToAI} className="w-full">
-          发送到 {tool?.name} →
+          发送到 {tool?.name}
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="ml-1">
+            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
         </Button>
       )}
     </div>

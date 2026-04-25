@@ -13,54 +13,82 @@ export default function HomePage() {
   const recentScripts = scripts.slice(0, 3)
 
   return (
-    <div className="space-y-6">
-      {/* 主操作入口 */}
-      <div className="grid grid-cols-2 gap-3">
-        <Link to="/persona/create">
-          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-4 text-white h-full">
-            <div className="text-2xl mb-1">👤</div>
-            <div className="font-semibold">创建人设</div>
-            <div className="text-xs text-blue-100 mt-1">成为一级创作者</div>
+    <div className="space-y-8 animate-fade-in">
+      {/* 主操作入口 - 电影剧本感 */}
+      <div className="grid grid-cols-2 gap-4">
+        <Link to="/persona/create" className="group">
+          <div className="card-elevated p-5 h-full transition-all duration-300 group-hover:shadow-lifted group-hover:-translate-y-0.5">
+            <div className="w-10 h-10 rounded-xl bg-ink-900 flex items-center justify-center mb-3">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="text-paper-100">
+                <circle cx="10" cy="7" r="3" stroke="currentColor" strokeWidth="1.5"/>
+                <path d="M4 17c0-3.314 2.686-6 6-6s6 2.686 6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+            </div>
+            <div className="heading-3 text-ink-900 mb-1">创建人设</div>
+            <p className="body-small text-ink-500">塑造独特的角色</p>
           </div>
         </Link>
-        <Link to="/script/create">
-          <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-4 text-white h-full">
-            <div className="text-2xl mb-1">✍️</div>
-            <div className="font-semibold">创作剧本</div>
-            <div className="text-xs text-purple-100 mt-1">成为二级创作者</div>
+        <Link to="/script/create" className="group">
+          <div className="card-elevated p-5 h-full bg-accent/5 border-accent/20 transition-all duration-300 group-hover:shadow-lifted group-hover:-translate-y-0.5">
+            <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center mb-3">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="text-paper-100">
+                <path d="M4 4h12v12H4V4z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                <path d="M7 8h6M7 11h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+            </div>
+            <div className="heading-3 text-ink-900 mb-1">创作剧本</div>
+            <p className="body-small text-ink-500">编写精彩对话</p>
           </div>
         </Link>
       </div>
 
       {/* 最近剧本 */}
       <section>
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-semibold text-gray-900">📝 最近剧本</h2>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="w-1 h-4 bg-accent rounded-full" />
+            <h2 className="heading-2">最近剧本</h2>
+          </div>
           {scripts.length > 3 && (
-            <Link to="/profile" className="text-sm text-blue-500">查看全部</Link>
+            <Link to="/profile" className="text-sm text-accent hover:text-accent-dark font-medium">
+              查看全部
+            </Link>
           )}
         </div>
         {recentScripts.length > 0 ? (
           <div className="space-y-3">
-            {recentScripts.map((script) => (
-              <ScriptCard key={script.id} script={script} />
+            {recentScripts.map((script, index) => (
+              <div key={script.id} className="animate-slide-up" style={{ animationDelay: `${index * 100}ms` }}>
+                <ScriptCard script={script} />
+              </div>
             ))}
           </div>
         ) : (
-          <div className="bg-white rounded-2xl p-6 text-center border border-gray-100">
-            <div className="text-4xl mb-2">📝</div>
-            <p className="text-gray-500 mb-3">还没有剧本，创作你的第一个吧</p>
-            <Link to="/script/create">
-              <Button variant="primary" size="sm">开始创作</Button>
-            </Link>
+          <div className="card p-8">
+            <div className="empty-state">
+              <div className="w-16 h-16 rounded-2xl bg-ink-100 flex items-center justify-center mb-4 mx-auto">
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none" className="text-ink-400">
+                  <path d="M6 6h16v16H6V6z" stroke="currentColor" strokeWidth="1.5"/>
+                  <path d="M10 11h8M10 14h5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
+              </div>
+              <p className="empty-state-title">还没有剧本</p>
+              <p className="empty-state-desc">创作你的第一个剧本吧</p>
+              <Link to="/script/create">
+                <Button variant="primary" size="sm">开始创作</Button>
+              </Link>
+            </div>
           </div>
         )}
       </section>
 
       {/* 我的人设 */}
       <section>
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-semibold text-gray-900">👤 我的人设</h2>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="w-1 h-4 bg-ink-400 rounded-full" />
+            <h2 className="heading-2">我的人设</h2>
+          </div>
           {myPersonas.length > 0 && (
             <Link to="/persona/create">
               <Button variant="outline" size="sm">+ 新建</Button>
@@ -69,17 +97,27 @@ export default function HomePage() {
         </div>
         {myPersonas.length > 0 ? (
           <div className="grid grid-cols-2 gap-3">
-            {myPersonas.map((persona) => (
-              <PersonaCard key={persona.id} persona={persona} showActions={false} />
+            {myPersonas.map((persona, index) => (
+              <div key={persona.id} className="animate-slide-up" style={{ animationDelay: `${index * 100}ms` }}>
+                <PersonaCard key={persona.id} persona={persona} showActions={false} />
+              </div>
             ))}
           </div>
         ) : (
-          <div className="bg-white rounded-2xl p-6 text-center border border-gray-100">
-            <div className="text-4xl mb-2">👤</div>
-            <p className="text-gray-500 mb-3">还没有人设，创建你的人设资产</p>
-            <Link to="/persona/create">
-              <Button variant="primary" size="sm">创建人设</Button>
-            </Link>
+          <div className="card p-8">
+            <div className="empty-state">
+              <div className="w-16 h-16 rounded-2xl bg-ink-100 flex items-center justify-center mb-4 mx-auto">
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none" className="text-ink-400">
+                  <circle cx="14" cy="10" r="4" stroke="currentColor" strokeWidth="1.5"/>
+                  <path d="M6 24c0-4.418 3.582-8 8-8s8 3.582 8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
+              </div>
+              <p className="empty-state-title">还没有人设</p>
+              <p className="empty-state-desc">创建你的人设资产</p>
+              <Link to="/persona/create">
+                <Button variant="primary" size="sm">创建人设</Button>
+              </Link>
+            </div>
           </div>
         )}
       </section>

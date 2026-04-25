@@ -1,3 +1,206 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* =========================================
+   剧本工坊 - Editorial/Cinematic Design System
+   ========================================= */
+
+@layer base {
+  :root {
+    /* 色彩系统 */
+    --color-ink: #2e2b25;
+    --color-paper: #f9f7f3;
+    --color-accent: #c45d3a;
+    --color-accent-light: #e07a5f;
+    --color-accent-dark: #a14a2e;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-paper-100 text-ink-800 font-body;
+    background-image:
+      radial-gradient(ellipse at 20% 0%, rgba(196, 93, 58, 0.03) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 100%, rgba(46, 43, 37, 0.02) 0%, transparent 50%);
+  }
+
+  /* 选中文本 */
+  ::selection {
+    @apply bg-accent-muted text-ink-900;
+  }
+
+  /* 自定义滚动条 */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-ink-300 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-ink-400;
+  }
+
+  /* 焦点样式 */
+  :focus-visible {
+    @apply outline-none ring-2 ring-accent ring-offset-2 ring-offset-paper-100;
+  }
+}
+
+@layer components {
+  /* 页面容器 */
+  .page-container {
+    @apply max-w-lg mx-auto px-4 py-4;
+  }
+
+  /* 卡片系统 */
+  .card {
+    @apply bg-white rounded-2xl shadow-soft border border-ink-100/50;
+  }
+
+  .card-elevated {
+    @apply bg-white rounded-2xl shadow-lifted border border-ink-100/50;
+  }
+
+  .card-paper {
+    @apply bg-paper-50 rounded-2xl shadow-inner-soft border border-ink-200/30;
+  }
+
+  /* 标题层级 */
+  .heading-display {
+    @apply font-display text-2xl font-bold text-ink-900 tracking-tight;
+  }
+
+  .heading-1 {
+    @apply font-display text-xl font-bold text-ink-900;
+  }
+
+  .heading-2 {
+    @apply font-body text-lg font-semibold text-ink-800;
+  }
+
+  .heading-3 {
+    @apply font-body text-base font-semibold text-ink-700;
+  }
+
+  /* 正文 */
+  .body-text {
+    @apply text-sm text-ink-600 leading-relaxed;
+  }
+
+  .body-small {
+    @apply text-xs text-ink-500;
+  }
+
+  /* 标签/标签页 */
+  .tag {
+    @apply inline-flex items-center px-2.5 py-1 rounded-full text-2xs font-medium bg-ink-100 text-ink-600;
+  }
+
+  .tag-accent {
+    @apply bg-accent/10 text-accent-dark;
+  }
+
+  /* 分割线 */
+  .divider {
+    @apply border-t border-ink-200/50;
+  }
+
+  /* 输入框 */
+  .input-field {
+    @apply w-full px-4 py-2.5 bg-paper-50 rounded-xl border border-ink-200/50
+           text-ink-800 placeholder:text-ink-400
+           focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent
+           transition-all duration-200;
+  }
+
+  /* 主按钮 */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5
+           bg-accent text-white font-medium rounded-xl
+           hover:bg-accent-dark active:scale-[0.98]
+           disabled:opacity-50 disabled:cursor-not-allowed
+           transition-all duration-200;
+  }
+
+  /* 次要按钮 */
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5
+           bg-ink-100 text-ink-700 font-medium rounded-xl
+           hover:bg-ink-200 active:scale-[0.98]
+           disabled:opacity-50 disabled:cursor-not-allowed
+           transition-all duration-200;
+  }
+
+  /* 轮廓按钮 */
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5
+           border-2 border-ink-300 text-ink-700 font-medium rounded-xl
+           hover:bg-ink-50 hover:border-ink-400 active:scale-[0.98]
+           disabled:opacity-50 disabled:cursor-not-allowed
+           transition-all duration-200;
+  }
+
+  /* 幽灵按钮 */
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2
+           text-ink-600 font-medium rounded-xl
+           hover:bg-ink-100 active:scale-[0.98]
+           transition-all duration-200;
+  }
+
+  /* 空状态 */
+  .empty-state {
+    @apply flex flex-col items-center justify-center py-12 text-center;
+  }
+
+  .empty-state-icon {
+    @apply text-4xl mb-3 opacity-60;
+  }
+
+  .empty-state-title {
+    @apply font-semibold text-ink-700 mb-1;
+  }
+
+  .empty-state-desc {
+    @apply body-small text-ink-500 mb-4;
+  }
+}
+
+@layer utilities {
+  /* 文字截断 */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* 动画延迟 */
+  .animation-delay-100 { animation-delay: 100ms; }
+  .animation-delay-200 { animation-delay: 200ms; }
+  .animation-delay-300 { animation-delay: 300ms; }
+
+  /* 混合模式 */
+  .mix-blend-multiply {
+    mix-blend-mode: multiply;
+  }
+}

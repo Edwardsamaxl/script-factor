@@ -18,7 +18,7 @@ export default function App() {
     <UserProvider>
       <PersonaProvider>
         <ScriptProvider>
-          <div className="min-h-screen bg-gray-50 pb-16 md:pb-0">
+          <div className="min-h-screen bg-paper-100 pb-16 md:pb-0">
             <Navbar />
             <main className="max-w-lg mx-auto px-4 py-4">
               <Routes>

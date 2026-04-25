@@ -3,29 +3,39 @@ import Button from '../common/Button'
 
 export default function PersonaCard({ persona, showActions = true, onUse, onFavorite }) {
   return (
-    <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+    <div className="card p-4 h-full flex flex-col">
       <div className="flex items-start gap-3">
-        <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-purple-100 rounded-xl flex items-center justify-center text-2xl">
+        {/* 头像 */}
+        <div className="w-11 h-11 rounded-xl bg-ink-900 flex items-center justify-center text-xl shrink-0">
           {persona.avatar}
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-gray-900 truncate">{persona.name}</h3>
-          <p className="text-xs text-gray-500">@{persona.creator}</p>
-          <div className="flex flex-wrap gap-1 mt-1.5">
-            {persona.personality.slice(0, 3).map((tag) => (
-              <span key={tag} className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">
-                {tag}
-              </span>
-            ))}
-          </div>
+          <h3 className="font-semibold text-ink-900 truncate text-sm">{persona.name}</h3>
+          <p className="text-2xs text-ink-400">@{persona.creator}</p>
         </div>
       </div>
 
-      <p className="mt-3 text-sm text-gray-600 line-clamp-2">{persona.speakingStyle}</p>
+      {/* 标签 */}
+      <div className="flex flex-wrap gap-1.5 mt-3">
+        {persona.personality.slice(0, 2).map((tag) => (
+          <span key={tag} className="tag">
+            {tag}
+          </span>
+        ))}
+        {persona.personality.length > 2 && (
+          <span className="tag">+{persona.personality.length - 2}</span>
+        )}
+      </div>
 
-      <div className="flex items-center gap-4 mt-3 text-xs text-gray-400">
-        <span>使用 {persona.usageCount || 0} 次</span>
-        <span>♥ {persona.likeCount || 0}</span>
+      {/* 风格描述 */}
+      <p className="mt-2.5 text-xs text-ink-500 line-clamp-2 leading-relaxed">
+        {persona.speakingStyle}
+      </p>
+
+      {/* 统计 */}
+      <div className="flex items-center gap-4 mt-auto pt-3 text-2xs text-ink-400">
+        <span>{persona.usageCount || 0} 使用</span>
+        <span className="text-accent-muted">♥ {persona.likeCount || 0}</span>
       </div>
 
       {showActions && (
@@ -36,7 +46,7 @@ export default function PersonaCard({ persona, showActions = true, onUse, onFavo
             </Button>
           )}
           {onFavorite && (
-            <Button size="sm" variant="outline" onClick={() => onFavorite(persona.id)}>
+            <Button size="sm" variant="outline" onClick={() => onFavorite(persona.id)} className="px-2.5">
               {persona.isFavorited ? '♥' : '♡'}
             </Button>
           )}
