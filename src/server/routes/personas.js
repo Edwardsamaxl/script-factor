@@ -285,13 +285,6 @@ router.post('/:id/like', (req, res) => {
   }
 });
 
-    return res.status(404).json({ success: false, error: 'Persona not found' });
-  } catch (error) {
-    console.error('Error liking persona:', error);
-    res.status(500).json({ success: false, error: 'Failed to like persona' });
-  }
-});
-
 /**
  * POST /api/personas/:id/use
  * 记录人设使用次数

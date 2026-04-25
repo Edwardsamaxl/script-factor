@@ -44,11 +44,12 @@
     "background": "在职场上摸爬滚打多年，深谙明哲保身之道，推活技术一流。40出头，秃顶，保温杯不离手",
     "exampleDialogs": [],
     "usageCount": 67,
-    "likeCount": 32,
+    "likeCount": 33,
     "isPublic": true,
     "isPremium": false,
     "createdAt": 1745587200000,
-    "updatedAt": 1777097489716
+    "updatedAt": 1777099260491,
+    "isFavorited": true
   },
   {
     "id": "user-新人实习生",
