@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import Button from '../common/Button'
 
-export default function PersonaCard({ persona, showActions = true, onUse, onFavorite }) {
+export default function PersonaCard({ persona, showActions = true, onUse, onFavorite, onDelete }) {
   return (
     <div className="card p-4 h-full flex flex-col">
       <div className="flex items-start gap-3">
@@ -15,21 +15,9 @@ export default function PersonaCard({ persona, showActions = true, onUse, onFavo
         </div>
       </div>
 
-      {/* 标签 */}
-      <div className="flex flex-wrap gap-1.5 mt-3">
-        {persona.personality.slice(0, 2).map((tag) => (
-          <span key={tag} className="tag">
-            {tag}
-          </span>
-        ))}
-        {persona.personality.length > 2 && (
-          <span className="tag">+{persona.personality.length - 2}</span>
-        )}
-      </div>
-
-      {/* 风格描述 */}
+      {/* 核心观点简介 */}
       <p className="mt-2.5 text-xs text-ink-500 line-clamp-2 leading-relaxed">
-        {persona.speakingStyle}
+        核心观点：{persona.coreView}
       </p>
 
       {/* 统计 */}
@@ -55,6 +43,11 @@ export default function PersonaCard({ persona, showActions = true, onUse, onFavo
               详情
             </Button>
           </Link>
+          {onDelete && (
+            <Button size="sm" variant="danger" onClick={() => onDelete(persona.id)} className="px-2.5">
+              删除
+            </Button>
+          )}
         </div>
       )}
     </div>

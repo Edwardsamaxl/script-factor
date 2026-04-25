@@ -1,5 +1,6 @@
 import { callDeepSeekAWithSystem, callDeepSeekBWithSystem } from './llm.js';
-import { addDialogue, completeSession, failSession, getQueue } from './sessionStore.js';
+import { addDialogue, completeSession, failSession, getQueue, updateSession } from './sessionStore.js';
+import { summarizeToStoryboard, summarizeToScriptSummary } from './scriptSummarizer.js';
 
 const MAX_ROUNDS = 10;
 const SHORT_RESPONSE_THRESHOLD = 20;
@@ -12,21 +13,21 @@ async function callLMA(speakerPersona, listenerPersona, history, scene, round) {
     ? history.map((d, i) => `${i + 1}. ${d.speaker}: ${d.content}`).join('\n')
     : 'No previous dialogue.';
 
-  const prompt = `You are roleplaying as ${speakerPersona.name}${speakerPersona.description ? ` (${speakerPersona.description})` : ''}.
+  const prompt = `You are roleplaying as ${speakerPersona.name}${speakerPersona.background ? ` - ${speakerPersona.background}` : ''}.
 
 The current scene is: ${scene.name}${scene.description ? ` - ${scene.description}` : ''}
 
-The opponent is ${listenerPersona.name}${listenerPersona.description ? ` (${listenerPersona.description})` : ''}.
+The opponent is ${listenerPersona.name}${listenerPersona.background ? ` - ${listenerPersona.background}` : ''}.
 
-Personality: ${(speakerPersona.personality || []).join(', ')}
+Core view: ${speakerPersona.coreView || 'no specific view'}
 Speaking style: ${speakerPersona.speakingStyle || 'natural'}
-Core views: ${(speakerPersona.views || []).join('; ')}
+Action style: ${speakerPersona.actionStyle || 'none'}
 
 Previous dialogue:
 ${historyText}
 
 Round ${round}: Generate the next line of dialogue as ${speakerPersona.name}.
-Keep it natural and in character. Reflect the personality and speaking style in your response.
+Keep it natural and in character. Reflect the core view and speaking style in your response.
 The dialogue should be engaging and move the conversation forward.
 Do not include the speaker name in your response, just the dialogue content.
 If the conversation has reached a natural ending point, respond with exactly: [END]`;
@@ -47,15 +48,15 @@ async function callLMB(speakerPersona, listenerPersona, history, scene, round) {
     ? history.map((d, i) => `${i + 1}. ${d.speaker}: ${d.content}`).join('\n')
     : 'No previous dialogue.';
 
-  const prompt = `You are roleplaying as ${speakerPersona.name}${speakerPersona.description ? ` (${speakerPersona.description})` : ''}.
+  const prompt = `You are roleplaying as ${speakerPersona.name}${speakerPersona.background ? ` - ${speakerPersona.background}` : ''}.
 
 The current scene is: ${scene.name}${scene.description ? ` - ${scene.description}` : ''}
 
-The opponent is ${listenerPersona.name}${listenerPersona.description ? ` (${listenerPersona.description})` : ''}.
+The opponent is ${listenerPersona.name}${listenerPersona.background ? ` - ${listenerPersona.background}` : ''}.
 
-Personality: ${(speakerPersona.personality || []).join(', ')}
+Core view: ${speakerPersona.coreView || 'no specific view'}
 Speaking style: ${speakerPersona.speakingStyle || 'natural'}
-Core views: ${(speakerPersona.views || []).join('; ')}
+Action style: ${speakerPersona.actionStyle || 'none'}
 
 Previous dialogue:
 ${historyText}
@@ -152,22 +153,45 @@ async function generateMultiTurn(scriptId, personaA, personaB, scene, maxRounds 
       onEvent('dialogue', { speaker: speakerLabel, content: line });
     }
 
-    // Mark session complete
-    completeSession(scriptId);
-
-    // Send done event
-    onEvent('done', {
-      scriptId,
-      result: {
+    // Auto-generate storyboard and summary after dialogue completion
+    let storyboard = null;
+    let summary = null;
+    try {
+      const scriptData = {
         title: `Dialogue between ${personaA.name} and ${personaB.name}`,
-        personaA: { id: personaA.id, name: personaA.name },
-        personaB: { id: personaB.id, name: personaB.name },
-        scene: { id: scene.id, name: scene.name },
-        dialogues,
-        totalLines: dialogues.length,
-        wordCount: dialogues.reduce((sum, d) => sum + d.content.length, 0)
-      }
-    });
+        personaA: {
+          id: personaA.id,
+          name: personaA.name,
+          coreView: personaA.coreView || '',
+          speakingStyle: personaA.speakingStyle || '',
+          actionStyle: personaA.actionStyle || '',
+          background: personaA.background || ''
+        },
+        personaB: {
+          id: personaB.id,
+          name: personaB.name,
+          coreView: personaB.coreView || '',
+          speakingStyle: personaB.speakingStyle || '',
+          actionStyle: personaB.actionStyle || '',
+          background: personaB.background || ''
+        },
+        scene: { id: scene.id, name: scene.name, description: scene.description || '' },
+        dialogues
+      };
+      // Generate both storyboard and summary in parallel
+      [storyboard, summary] = await Promise.all([
+        summarizeToStoryboard(scriptData),
+        summarizeToScriptSummary(scriptData)
+      ]);
+      updateSession(scriptId, { storyboard, summary });
+    } catch (error) {
+      console.error('Failed to generate storyboard/summary:', error);
+      // Continue even if generation fails
+    }
+
+    // Mark session complete AFTER storyboard and summary generation
+    // Note: SSE endpoint polls session status, so this triggers the final response
+    completeSession(scriptId);
 
     return dialogues;
   } catch (error) {

@@ -1,35 +1,89 @@
-import { createContext } from 'react'
-import { useLocalStorage } from '../hooks/useLocalStorage'
+import { createContext, useState, useEffect } from 'react'
 
 export const ScriptContext = createContext(null)
 
+const API_BASE = '/api'
+
 export function ScriptProvider({ children }) {
-  const [scripts, setScripts] = useLocalStorage('scriptstudio_scripts', [])
+  const [scripts, setScripts] = useState([])
+  const [loading, setLoading] = useState(true)
 
-  const addScript = (script) => {
-    const newScript = {
-      ...script,
-      id: `script-${Date.now()}`,
-      createdAt: Date.now(),
+  // 从后端加载剧本
+  useEffect(() => {
+    async function loadScripts() {
+      try {
+        const res = await fetch(`${API_BASE}/scripts`)
+        const data = await res.json()
+        if (data.success) {
+          setScripts(data.data)
+        }
+      } catch (error) {
+        console.error('Failed to load scripts:', error)
+      } finally {
+        setLoading(false)
+      }
     }
-    setScripts((prev) => [newScript, ...prev])
-    return newScript
+    loadScripts()
+  }, [])
+
+  const addScript = async (script) => {
+    try {
+      const res = await fetch(`${API_BASE}/scripts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(script)
+      })
+      const data = await res.json()
+      if (data.success) {
+        setScripts(prev => [data.data, ...prev])
+        return data.data
+      }
+    } catch (error) {
+      console.error('Failed to add script:', error)
+    }
+    return null
   }
 
-  const updateScript = (id, updates) => {
-    setScripts((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, ...updates } : s))
-    )
+  const updateScript = async (id, updates) => {
+    try {
+      const res = await fetch(`${API_BASE}/scripts/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      })
+      const data = await res.json()
+      if (data.success) {
+        setScripts(prev =>
+          prev.map(s => s.id === id ? data.data : s)
+        )
+        return data.data
+      }
+    } catch (error) {
+      console.error('Failed to update script:', error)
+    }
+    return null
   }
 
-  const deleteScript = (id) => {
-    setScripts((prev) => prev.filter((s) => s.id !== id))
+  const deleteScript = async (id) => {
+    try {
+      const res = await fetch(`${API_BASE}/scripts/${id}`, {
+        method: 'DELETE'
+      })
+      const data = await res.json()
+      if (data.success) {
+        setScripts(prev => prev.filter(s => s.id !== id))
+        return true
+      }
+    } catch (error) {
+      console.error('Failed to delete script:', error)
+    }
+    return false
   }
 
-  const getScript = (id) => scripts.find((s) => s.id === id)
+  const getScript = (id) => scripts.find(s => s.id === id)
 
   return (
-    <ScriptContext.Provider value={{ scripts, addScript, updateScript, deleteScript, getScript }}>
+    <ScriptContext.Provider value={{ scripts, loading, addScript, updateScript, deleteScript, getScript }}>
       {children}
     </ScriptContext.Provider>
   )

@@ -13,29 +13,23 @@ export default function PersonaPreview({ persona }) {
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-1.5 mb-3">
-        {persona.personality.map((tag) => (
-          <span key={tag} className="px-2 py-0.5 bg-white/80 text-blue-700 text-xs rounded-full">
-            {tag}
-          </span>
-        ))}
-      </div>
+      <p className="text-sm text-gray-700 mb-2">
+        <span className="font-medium">核心观点：</span>{persona.coreView}
+      </p>
 
       <p className="text-sm text-gray-700 mb-2">
         <span className="font-medium">说话风格：</span>{persona.speakingStyle}
       </p>
 
-      <div className="text-sm text-gray-700">
-        <span className="font-medium">核心观点：</span>
-        <ul className="mt-1 space-y-1">
-          {persona.views.slice(0, 3).map((view, i) => (
-            <li key={i} className="flex items-start gap-1.5">
-              <span className="text-blue-500">•</span>
-              <span>{view}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <p className="text-sm text-gray-700 mb-2">
+        <span className="font-medium">行动风格：</span>{persona.actionStyle}
+      </p>
+
+      {persona.background && (
+        <p className="text-sm text-gray-700">
+          <span className="font-medium">背景故事：</span>{persona.background}
+        </p>
+      )}
     </div>
   )
 }

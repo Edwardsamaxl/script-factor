@@ -1,11 +1,46 @@
 import express from 'express';
 import crypto from 'crypto';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { generateScript } from '../services/scriptGenerator.js';
+import { summarizeToStoryboard } from '../services/scriptSummarizer.js';
 import { createSession, getSession } from '../services/sessionStore.js';
 import { queueAndGenerate } from '../services/multiTurnGenerator.js';
 import { callDeepSeekAWithSystem, callDeepSeekBWithSystem } from '../services/llm.js';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const router = express.Router();
+const SCRIPTS_FILE = path.join(__dirname, '../data/scripts.json');
+
+// 确保数据目录存在
+const DATA_DIR = path.join(__dirname, '../data');
+if (!fs.existsSync(DATA_DIR)) {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+}
+
+/**
+ * 加载剧本列表
+ */
+function loadScripts() {
+  try {
+    if (fs.existsSync(SCRIPTS_FILE)) {
+      return JSON.parse(fs.readFileSync(SCRIPTS_FILE, 'utf-8'));
+    }
+  } catch (error) {
+    console.error('Failed to load scripts:', error);
+  }
+  return [];
+}
+
+/**
+ * 保存剧本列表
+ */
+function saveScripts(scripts) {
+  fs.writeFileSync(SCRIPTS_FILE, JSON.stringify(scripts, null, 2), 'utf-8');
+}
 
 /**
  * POST /api/scripts/generate-multi
@@ -58,8 +93,8 @@ router.post('/generate-multi', async (req, res) => {
     // Generate unique script ID
     const scriptId = crypto.randomUUID();
 
-    // Create session
-    createSession(scriptId);
+    // Create session with persona data for storyboard generation
+    createSession(scriptId, { personaA, personaB, scene });
 
     // Start generation in background (non-blocking)
     queueAndGenerate(scriptId, personaA, personaB, scene, rounds, () => {});
@@ -105,7 +140,9 @@ router.get('/:id', async (req, res) => {
         title: `Dialogue session`,
         dialogues: session.dialogues,
         totalLines: session.dialogues.length,
-        wordCount: session.dialogues.reduce((sum, d) => sum + d.content.length, 0)
+        wordCount: session.dialogues.reduce((sum, d) => sum + d.content.length, 0),
+        storyboard: session.storyboard || null,
+        summary: session.summary || null
       };
     } else if (session.status === 'failed') {
       response.error = session.error;
@@ -154,7 +191,9 @@ router.get('/:id/stream', async (req, res) => {
         title: `Dialogue session`,
         dialogues: session.dialogues,
         totalLines: session.dialogues.length,
-        wordCount: session.dialogues.reduce((sum, d) => sum + d.content.length, 0)
+        wordCount: session.dialogues.reduce((sum, d) => sum + d.content.length, 0),
+        storyboard: session.storyboard || null,
+        summary: session.summary || null
       }
     })}\n\n`);
     res.end();
@@ -204,7 +243,9 @@ router.get('/:id/stream', async (req, res) => {
           title: `Dialogue session`,
           dialogues: currentSession.dialogues,
           totalLines: currentSession.dialogues.length,
-          wordCount: currentSession.dialogues.reduce((sum, d) => sum + d.content.length, 0)
+          wordCount: currentSession.dialogues.reduce((sum, d) => sum + d.content.length, 0),
+          storyboard: currentSession.storyboard || null,
+          summary: currentSession.summary || null
         }
       })}\n\n`);
       res.end();
@@ -325,6 +366,176 @@ router.post('/test-dual-llm', async (req, res) => {
     res.status(500).json({
       success: false,
       error: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/scripts/:id/summarize
+ * Generate a storyboard from the script dialogues
+ */
+router.post('/:id/summarize', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { script } = req.body;
+
+    if (!script || !script.dialogues || !Array.isArray(script.dialogues)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid script data'
+      });
+    }
+
+    // Generate storyboard from the provided script
+    const storyboard = await summarizeToStoryboard(script);
+
+    res.json({
+      success: true,
+      storyboard
+    });
+  } catch (error) {
+    console.error('Error generating storyboard:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to generate storyboard: ' + error.message
+    });
+  }
+});
+
+/**
+ * GET /api/scripts
+ * 获取剧本列表
+ */
+router.get('/', (req, res) => {
+  try {
+    const scripts = loadScripts();
+    res.json({
+      success: true,
+      data: scripts
+    });
+  } catch (error) {
+    console.error('Error loading scripts:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to load scripts'
+    });
+  }
+});
+
+/**
+ * POST /api/scripts
+ * 保存剧本
+ */
+router.post('/', (req, res) => {
+  try {
+    const script = req.body;
+    if (!script || !script.title || !script.dialogues) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid script data'
+      });
+    }
+
+    const scripts = loadScripts();
+    const timestamp = Date.now();
+    const newScript = {
+      ...script,
+      id: script.id || `script-${timestamp}`,
+      createdAt: timestamp,
+      updatedAt: timestamp
+    };
+
+    // 如果有相同ID则更新，否则添加
+    const index = scripts.findIndex(s => s.id === newScript.id);
+    if (index >= 0) {
+      scripts[index] = { ...scripts[index], ...newScript, updatedAt: timestamp };
+    } else {
+      scripts.unshift(newScript);
+    }
+
+    saveScripts(scripts);
+
+    res.json({
+      success: true,
+      data: newScript
+    });
+  } catch (error) {
+    console.error('Error saving script:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to save script'
+    });
+  }
+});
+
+/**
+ * PUT /api/scripts/:id
+ * 更新剧本
+ */
+router.put('/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+    const scripts = loadScripts();
+    const index = scripts.findIndex(s => s.id === id);
+
+    if (index === -1) {
+      return res.status(404).json({
+        success: false,
+        error: 'Script not found'
+      });
+    }
+
+    scripts[index] = {
+      ...scripts[index],
+      ...updates,
+      id, // 防止ID被修改
+      updatedAt: Date.now()
+    };
+
+    saveScripts(scripts);
+
+    res.json({
+      success: true,
+      data: scripts[index]
+    });
+  } catch (error) {
+    console.error('Error updating script:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to update script'
+    });
+  }
+});
+
+/**
+ * DELETE /api/scripts/:id
+ * 删除剧本
+ */
+router.delete('/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+    const scripts = loadScripts();
+    const filtered = scripts.filter(s => s.id !== id);
+
+    if (filtered.length === scripts.length) {
+      return res.status(404).json({
+        success: false,
+        error: 'Script not found'
+      });
+    }
+
+    saveScripts(filtered);
+
+    res.json({
+      success: true,
+      data: { id }
+    });
+  } catch (error) {
+    console.error('Error deleting script:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to delete script'
     });
   }
 });

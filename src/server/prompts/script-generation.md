@@ -19,10 +19,10 @@ You are a scriptwriting expert specializing in creating engaging dialogues betwe
 interface PersonaRef {
   id: string;
   name: string;
-  personality: string[];
-  speakingStyle: string;
-  views: string[];
-  background?: string;
+  coreView: string;          // 核心观点（字符串）
+  speakingStyle: string;     // 说话风格
+  actionStyle: string;       // 行动风格
+  background?: string;        // 背景故事
 }
 ```
 
@@ -122,24 +122,18 @@ Structure the dialogue with a natural arc:
   "personaA": {
     "id": "p001",
     "name": "毒舌影评人老王",
-    "personality": ["犀利", "幽默", "感性"],
+    "coreView": "烂片就该骂，不能惯着。现在的电影越来越不用心，评分虚高都是刷出来的。",
     "speakingStyle": "直接犀利，喜欢用比喻讽刺，语速快",
-    "views": [
-      "烂片就该骂，不能惯着",
-      "现在的电影越来越不用心",
-      "评分虚高都是刷出来的"
-    ]
+    "actionStyle": "点评时喜欢拍桌子，摇头叹气",
+    "background": "资深影评人，说话不留情面"
   },
   "personaB": {
     "id": "p002",
     "name": "佛系观众小张",
-    "personality": ["温和", "随缘", "包容"],
+    "coreView": "电影不用太认真，看个乐子。每个人感受不同，开心就好。",
     "speakingStyle": "语气平和，说'还行吧'较多",
-    "views": [
-      "电影不用太认真，看个乐子",
-      "每个人感受不同",
-      "开心就好"
-    ]
+    "actionStyle": "听时点头，偶尔耸肩",
+    "background": "普通观众，不较真"
   },
   "scene": {
     "id": "s001",

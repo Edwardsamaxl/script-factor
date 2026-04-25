@@ -1,4 +1,4 @@
-# Agent 剧本工坊 PRD v1.0
+# 剧本工坊 (ScriptStudio) — PRD v1.0
 
 > 人设蒸馏 × Agent 对话 × 剧本创作
 
@@ -10,44 +10,42 @@
 **核心理念：** 每个人设都是一个宇宙，两个人设的碰撞诞生一个故事
 
 **一句话描述：**
-用户将自身或他人"蒸馏"为人设资产，选择两个已有的人设并设定场景，让 AI Agent 以这两个人设的身份进行对话，最终生成可用于 AI 视频创作的剧本。
+用户将角色"蒸馏"为人设资产，选择两个已有的人设并设定场景，让 AI Agent 以这些人设的身份进行对话，最终生成带故事板和视频脚本的对话剧本。
 
 **核心 Slogan：** 两个人设，一个故事
-
-**产品定位：**
-- AI 内容创作平台
-- 人设资产的沉淀与交易市场
-- 连接"人设创作者"与"剧本创作者"的中间件
 
 ---
 
 ## 2. 用户角色与创作分层
 
-### 2.1 一级创作者（人设蒸馏师）
+### 2.1 一级创作者（人设创作者）
 
-将真实人物/角色/风格蒸馏成可复用的人设资产。
+将角色蒸馏成可复用的人设资产。
 
 | 角色 | 描述 | 核心诉求 |
 |------|------|---------|
-| **普通用户** | 把自己的性格/观点蒸馏成人设 | 留下数字分身，获得他人使用署名 |
+| **普通用户** | 将自己的性格/观点蒸馏成人设 | 留下数字分身，获得他人使用署名 |
 | **KOL/网红** | 将自己的公众形象人设化 | IP 变现，授权他人创作 |
 | **内容团队** | 批量创建角色人设 | 打造角色库，供创作复用 |
 
-**人设构成要素：**
+**人设构成要素（实际 v1.0）：**
 ```
 Persona {
-  id: string
-  name: string                    // 人设名称（如"毒舌评论家老王"）
-  avatar: string                  // 头像
-  creator: string                 // 创建者
-  personality: string             // 性格描述（逗号分隔的关键词）
-  speakingStyle: string           // 说话风格（如"犀利、直接、带点讽刺"）
-  views: string[]                 // 核心观点/立场
-  background: string              // 背景故事（选填）
-  exampleDialogs: Dialog[]        // 示例对话（用于调教）
-  usageCount: number              // 被使用次数
-  isPublic: boolean               // 是否公开
+  id: string                  // 唯一标识
+  name: string                // 人设名称（如"佳宜"）
+  avatar: string              // 头像 emoji
+  creator: string             // 'user' 或 'system'
+  coreView: string            // 核心观点（必填，一段话描述）
+  speakingStyle: string       // 说话风格（必填，方言、口头禅、语气特点）
+  actionStyle: string         // 行动风格（必填，小动作、习惯性动作、行为模式）
+  background: string          // 背景故事（选填）
+  exampleDialogs: Dialog[]    // 示例对话（预留）
+  usageCount: number          // 被使用次数
+  likeCount: number           // 被点赞数
+  isPublic: boolean           // 是否公开
+  isPremium: boolean          // 是否付费
   createdAt: timestamp
+  updatedAt: timestamp
 }
 ```
 
@@ -63,727 +61,329 @@ Persona {
 
 **剧本创作流程：**
 ```
-[选择人设A] + [选择人设B] + [选择/输入场景] → AI 对话生成 → [剧本]
+[选择人设A] + [选择人设B] + [选择场景]
+  → 双 LLM Agent 交替对话生成
+  → 自动生成故事板（AI生图用）
+  → 自动生成视频脚本（AI视频用）
+  → 保存剧本
 ```
 
 ---
 
-## 3. 用户痛点与解法
+## 3. 功能清单
 
-| # | 痛点 | 剧本工坊的解法 |
-|---|------|----------------|
-| 1 | AI 对话太泛，缺乏个性 | 使用有人设的 Agent，确保对话风格一致 |
-| 2 | 剧本创作费时费力 | 预设场景 + 人设组合 = 快速生成 |
-| 3 | 角色缺乏记忆和性格深度 | 人设资产可沉淀、可复用、可交易 |
-
----
-
-## 4. 功能清单
-
-### P0 — MVP 必须（核心闭环）
-
-| 功能 | 描述 | 验收标准 |
-|------|------|---------|
-| **人设创建** | 用户输入人设信息（名称、性格、说话风格、观点等） | 能创建、保存、编辑人设 |
-| **人设管理** | 查看已创建的人设列表 | 支持公开/私密切换 |
-| **场景预设** | 提供若干预设场景模板 | 至少 5 个场景，如"过年"、"辩论赛"、"绿茶互撕" |
-| **剧本生成** | 选定两个人设 + 场景，一键生成对话剧本 | 生成可读的剧本格式 |
-| **剧本查看** | 查看历史生成的剧本 | 支持复制、导出 |
-| **人设广场** | 浏览/搜索其他用户公开的人设 | 可预览人设信息 |
-| **剧本详情** | 查看剧本完整内容，支持格式化展示 | 包含人设、场景、对话内容 |
-
-### P1 — 核心体验（提升粘性）
-
-| 功能 | 描述 | 验收标准 |
-|------|------|---------|
-| **对话预览** | 在生成前预览两个人设的性格匹配度 | 显示简要分析 |
-| **收藏功能** | 收藏喜欢的人物设或剧本 | 收藏列表管理 |
-
-### P2 — AI 创作对接
-
-| 功能 | 描述 | 验收标准 |
-|------|------|---------|
-| **AI 视频生成** | 将剧本发送到 Seedance 等视频生成工具 | 生成可用的视频素材 |
-| **AI 图像生成** | 将剧本/场景描述发送给 GPT Image 等图像生成工具 | 生成配图或分镜 |
-| **创作中心** | 统一管理所有 AI 生成任务及结果 | 显示任务状态和结果预览 |
-
-### P3 — 商业化（未来扩展）
-
-| 功能 | 描述 | 验收标准 |
-|------|------|---------|
-| **人设市场** | 创作者可设置人设为付费/免费 | 显示使用量统计 |
-| **剧本模板** | 保存常用的人设+场景组合为模板 | 快速复用 |
-| **导出格式** | 支持导出为标准剧本格式（JSON/TXT） | 便于 AI 视频工具接入 |
+| 优先级 | 功能 | 描述 | 状态 |
+|--------|------|------|------|
+| P0 | **人设创建** | 填写名称、核心观点、说话风格、行动风格、背景故事 | ✅ 完成 |
+| P0 | **人设广场** | 浏览内置/用户人设，支持搜索、排序、分类筛选 | ✅ 完成 |
+| P0 | **人设详情** | 查看人设完整信息，支持直接使用创作剧本 | ✅ 完成 |
+| P0 | **场景预设** | 提供预设场景模板 | ✅ 完成 |
+| P0 | **剧本生成（双LLM）** | 双 Agent 多轮对话生成 + SSE 实时推送 | ✅ 完成 |
+| P0 | **剧本查看** | 故事板/视频脚本/原始对话三 Tab 展示 | ✅ 完成 |
+| P0 | **故事板生成** | 对话完成后自动生成故事板（AI生图 prompt） | ✅ 完成 |
+| P0 | **视频脚本生成** | 对话完成后自动生成视频 prompt | ✅ 完成 |
+| P1 | **收藏功能** | 收藏/取消收藏人设 | ✅ 完成 |
+| P1 | **搜索人设** | 按名称和核心观点搜索 | ✅ 完成 |
+| P1 | **人设编辑/删除** | 编辑和删除用户创建的人设 | ✅ 完成 |
+| P1 | **剧本保存/导出** | 保存到后端 JSON 文件，导出 JSON | ✅ 完成 |
+| P1 | **AI 创作（图像）** | DALL-E 3 图像生成（Flux 占位） | ✅ 部分完成 |
+| P2 | **AI 创作（视频）** | Seedance/Runway/Pika 视频生成（占位） | ⏳ 预留 |
+| P3 | **人设市场** | 付费人设、授权机制 | ❌ 未开始 |
 
 ---
 
-## 5. 数据模型
+## 4. 数据模型（实际代码 v1.0）
 
-### 5.1 核心实体
+### 4.1 人设 Persona
 
 ```javascript
-// 人设
-Persona {
-  id: string
-  name: string
-  avatar: string
-  creator: string
-  personality: string[]       // 性格标签
-  speakingStyle: string        // 说话风格描述
-  views: string[]              // 核心观点
-  background: string           // 背景故事（可选）
-  exampleDialogs: Dialog[]     // 示例对话
-  usageCount: number           // 被使用次数
-  likeCount: number            // 被点赞数
-  isPublic: boolean
-  isPremium: boolean           // 是否付费
-  createdAt: number
-  updatedAt: number
-}
-
-// 场景
-Scene {
-  id: string
-  name: string                 // 场景名称
-  description: string          // 场景描述
-  prompt: string              // 场景提示词模板
-  isBuiltIn: boolean           // 是否内置
-}
-
-// 对话示例
-Dialog {
-  id: string
-  personaId: string
-  role: 'user' | 'assistant'
-  content: string
-}
-
-// 剧本
-Script {
-  id: string
-  title: string
-  personaA: PersonaRef          // 人设A引用
-  personaB: PersonaRef          // 人设B引用
-  scene: SceneRef              // 场景引用
-  dialogues: DialogLine[]      // 对话内容
-  totalLines: number           // 对话轮数
-  wordCount: number            // 总字数
-  creator: string
-  createdAt: number
-}
-
-// 对话行
-DialogLine {
-  speaker: 'A' | 'B'           // 发言方
-  content: string              // 发言内容
-  emotion?: string             // 情绪标注（可选）
-}
-
-// 用户
-User {
-  id: string
-  name: string
-  avatar: string
-  personas: string[]           // 创建的人设ID列表
-  scripts: string[]            // 生成的剧本ID列表
-  favorites: string[]          // 收藏的人设/剧本
-  createdAt: number
-}
-
-// AI 生成任务
-AIGCTask {
-  id: string
-  scriptId: string             // 关联的剧本ID
-  type: 'video' | 'image'      // 任务类型
-  provider: string              // 服务商：seedance | gpt-image | flux
-  status: 'pending' | 'processing' | 'success' | 'failed'
-  input: AIGCInput              // 输入参数
-  output: AIGCOutput            // 输出结果
-  createdAt: number
-  completedAt: number          // 完成时间
-}
-
-// AI 生成输入
-AIGCInput {
-  prompt: string               // 发送给 AI 的 prompt
-  params: object               // 服务商特定参数
-}
-
-// AI 生成输出
-AIGCOutput {
-  resultUrl: string           // 生成结果 URL
-  thumbnails: string[]        // 缩略图（视频用）
-  metadata: object            // 额外元数据
-  error?: string              // 错误信息
-}
-```
-
-### 5.2 LocalStorage 持久化
-
-| 键名 | 数据类型 | 描述 |
-|------|---------|------|
-| `scriptstudio_user` | User | 当前用户 |
-| `scriptstudio_personas` | Persona[] | 所有的人设 |
-| `scriptstudio_scripts` | Script[] | 生成的剧本 |
-| `scriptstudio_scenes` | Scene[] | 场景配置 |
-| `scriptstudio_favorites` | string[] | 收藏ID列表 |
-
----
-
-## 6. 用户流程
-
-### 6.1 人设创建流程（一级创作）
-
-```
-[进入"人设广场"或"我的"]
-    │
-    ▼
-[点击"创建人设"]
-    │
-    ▼
-[填写人设信息]
-  - 名称：（如"毒舌影评人"）
-  - 性格标签：犀利、幽默、感性...
-  - 说话风格：直接、带梗、喜欢用比喻...
-  - 核心观点：3-5条（如"烂片就该骂"）
-  - 背景故事：（选填）
-    │
-    ▼
-[添加示例对话]
-  - 你："这部电影你觉得怎么样？"
-  - 人设回答："烂片预警，看得我脑仁疼"
-    │
-    ▼
-[保存人设]
-    │
-    ▼
-[发布到广场 / 保持私密]
-```
-
-### 6.2 剧本创作流程（二级创作）
-
-```
-[进入首页]
-    │
-    ▼
-[点击"创作剧本"]
-    │
-    ▼
-[第一步：选择人设A]
-    │  (可从广场选择，或使用自己的人设)
-    ▼
-[第二步：选择人设B]
-    │  (同上)
-    ▼
-[第三步：选择场景]
-    │  (预设场景 或 自定义场景描述)
-    ▼
-[预览两个人设的匹配度]
-    │
-    ▼
-[点击"生成剧本"]
-    │
-    ▼
-[AI 对话生成中...]
-    │
-    ▼
-[查看生成的剧本]
-  - 显示对话内容
-  - 可编辑/调整
-  - 可保存/导出
-```
-
-### 6.3 剧本消费流程
-
-```
-[进入"我的剧本"]
-    │
-    ▼
-[点击剧本卡片]
-    │
-    ▼
-[查看剧本详情]
-  - 人设信息
-  - 场景信息
-  - 完整对话
-    │
-    ├──[复制台词]→ 用于 AI 视频创作
-    ├──[导出 JSON]→ 对接外部工具
-    └──[删除]→ 确认后删除
-```
-
-### 6.4 AI 创作对接流程（三级创作）
-
-```
-[剧本详情页]
-    │
-    ▼
-[选择 AI 创作工具]
-    ├──[🎬 Seedance]→ 视频生成
-    └──[🖼️ GPT Image]→ 图像生成
-    │
-    ▼
-[选择生成模式]
-    ├──[生成视频封面]→ 基于剧本主题
-    ├──[生成角色图]→ 基于人设描述
-    └──[生成分镜]→ 将剧本转为分镜图
-    │
-    ▼
-[点击"发送到 AI"]
-    │
-    ▼
-[跳转至对应 AI 工具]
-    └── 携带剧本/人设信息自动填充 prompt
-```
-
-### 6.5 创作中心流程
-
-```
-[进入"创作中心"]
-    │
-    ▼
-[查看 AI 创作任务列表]
-    - 待处理 / 处理中 / 已完成 / 失败
-    │
-    ▼
-[点击任务卡片]
-    │
-    ▼
-[查看生成结果]
-    - 视频预览 / 图像预览
-    - 下载 / 复制 prompt
-    - 重新生成
-```
-
----
-
-## 7. UI/UX 草图
-
-### 7.1 首页
-
-```
-┌────────────────────────────────────┐
-│  🎬 剧本工坊          [我的] [广场] │  ← 顶部导航
-├────────────────────────────────────┤
-│                                    │
-│  [创建人设]  [创作剧本]            │  ← 主操作入口
-│                                    │
-├────────────────────────────────────┤
-│  📝 最近剧本                        │
-│  ┌────────────────────────────┐  │
-│  │ "毒舌影评人" vs "佛系观众"   │  │  ← 剧本卡片
-│  │ 场景：电影推荐              │  │
-│  │ 2026-04-24 | 12轮对话       │  │
-│  └────────────────────────────┘  │
-│                                    │
-├────────────────────────────────────┤
-│  👤 我的人设                        │
-│  ┌────┐ ┌────┐ ┌────┐           │
-│  │人设1│ │人设2│ │ + │           │  ← 人设卡片网格
-│  └────┘ └────┘ └────┘           │
-└────────────────────────────────────┘
-```
-
-### 7.2 人设创建页
-
-```
-┌────────────────────────────────────┐
-│ ← 返回           创建人设          │
-├────────────────────────────────────┤
-│                                    │
-│  [头像上传]                        │
-│                                    │
-│  名称：________________            │
-│  （如"毒舌影评人老王"）            │
-│                                    │
-│  性格标签：                        │
-│  [犀利] [幽默] [感性] [理性] [+]  │  ← 标签选择
-│                                    │
-│  说话风格：                        │
-│  ┌────────────────────────────┐  │
-│  │ 直接犀利，喜欢用比喻...     │  │  ← 文本输入
-│  └────────────────────────────┘  │
-│                                    │
-│  核心观点：                        │
-│  1. ________________              │
-│  2. ________________              │
-│  3. ________________              │
-│  [+ 添加观点]                      │
-│                                    │
-│  背景故事（选填）：                │
-│  ┌────────────────────────────┐  │
-│  │                             │  │
-│  └────────────────────────────┘  │
-│                                    │
-│  示例对话：                        │
-│  你：这部电影怎么样？              │
-│  人设：________________           │
-│                                    │
-│  [+ 添加示例]                      │
-│                                    │
-│  ─────────────────────────────────│
-│  [保存为私密]  [发布到广场]        │
-│                                    │
-└────────────────────────────────────┘
-```
-
-### 7.3 剧本创作页
-
-```
-┌────────────────────────────────────┐
-│ ← 返回           创作剧本          │
-├────────────────────────────────────┤
-│                                    │
-│  第一步：选择人设 A                 │
-│  ┌────────────────────────────┐  │
-│  │ [头像] 毒舌影评人           │  │  ← 人设选择卡
-│  │ 说话风格：犀利、直接        │  │
-│  └────────────────────────────┘  │
-│  [重新选择]                       │
-│                                    │
-│  第二步：选择人设 B                 │
-│  ┌────────────────────────────┐  │
-│  │ [头像] 佛系观众             │  │
-│  │ 说话风格：温和、随缘        │  │
-│  └────────────────────────────┘  │
-│  [重新选择] 或 [+ 创建新人设]      │
-│                                    │
-│  第三步：选择场景                   │
-│  ○ 电影推荐                       │
-│  ● 电影批评                       │
-│  ○ 观影讨论                       │
-│  ○ 自定义：________________      │
-│                                    │
-│  ─────────────────────────────────│
-│  [预览匹配度]                      │
-│                                    │
-│  ┌────────────────────────────┐  │
-│  │  ⚡ 性格差异大，可能产生    │  │  ← 匹配度提示
-│  │  有趣的碰撞                 │  │
-│  └────────────────────────────┘  │
-│                                    │
-│  [开始生成 →]                      │
-│                                    │
-└────────────────────────────────────┘
-```
-
-### 7.4 剧本结果页
-
-```
-┌────────────────────────────────────┐
-│ ← 返回           剧本详情    [⋮] │
-├────────────────────────────────────┤
-│                                    │
-│  毒舌影评人 vs 佛系观众            │
-│  场景：电影批评                   │
-│  2026-04-24 | 8轮对话             │
-│                                    │
-├────────────────────────────────────┤
-│  🎭 人设信息                       │
-│  ┌──────────┐ ┌──────────┐       │
-│  │ 毒舌影评人│ │ 佛系观众  │       │
-│  └──────────┘ └──────────┘       │
-├────────────────────────────────────┤
-│  📝 对话内容                       │
-│                                    │
-│  毒舌影评人：                      │
-│  "这部片子从头到尾就是催眠曲，      │
-│  建议改名叫《如何快速入睡》"        │
-│  ─────────────────────────────    │
-│  佛系观众：                        │
-│  "我觉得还行吧，看个乐子"          │
-│  ─────────────────────────────    │
-│  毒舌影评人：                      │
-│  "你的审美需要抢救"               │
-│  ...                              │
-│                                    │
-├────────────────────────────────────┤
-│  [复制全部] [导出 JSON] [删除]     │
-│                                    │
-└────────────────────────────────────┘
-```
-
-### 7.5 人设广场
-
-```
-┌────────────────────────────────────┐
-│ ← 返回           人设广场    [🔍] │
-├────────────────────────────────────┤
-│  [全部] [热门] [最新] [我的]       │  ← 筛选 Tab
-├────────────────────────────────────┤
-│                                    │
-│  ┌────────────────────────────┐  │
-│  │ [头像] 毒舌影评人            │  │
-│  │ 性格：犀利、幽默            │  │
-│  │ 被使用：128次               │  │
-│  │ [+ 使用] [♡ 收藏]           │  │
-│  └────────────────────────────┘  │
-│                                    │
-│  ┌────────────────────────────┐  │
-│  │ [头像] 佛系编剧              │  │
-│  │ 性格：温和、创意            │  │
-│  │ 被使用：89次                │  │
-│  └────────────────────────────┘  │
-│                                    │
-│  ...                              │
-│                                    │
-└────────────────────────────────────┘
-```
-
-### 7.6 AI 创作页
-
-```
-┌────────────────────────────────────┐
-│ ← 返回           AI 创作            │
-├────────────────────────────────────┤
-│                                    │
-│  选择 AI 工具：                    │
-│  ┌─────────────┐ ┌─────────────┐ │
-│  │ 🎬 Seedance │ │ 🖼️ GPT Image│ │
-│  │   视频生成   │ │   图像生成   │ │
-│  └─────────────┘ └─────────────┘ │
-│                                    │
-│  选择生成模式：                     │
-│  ○ 生成视频封面                   │
-│  ● 生成分镜图                     │
-│  ○ 生成角色图                     │
-│                                    │
-│  生成的 Prompt：                   │
-│  ┌────────────────────────────┐  │
-│  │ 基于"毒舌影评人"和"佛系观众" │  │
-│  │ 的电影批评场景，生成一组      │  │
-│  │ 分镜插画，风格为...         │  │
-│  └────────────────────────────┘  │
-│                                    │
-│  [编辑 Prompt]  [发送到 AI →]     │
-│                                    │
-└────────────────────────────────────┘
-```
-
-### 7.7 创作中心页
-
-```
-┌────────────────────────────────────┐
-│ ← 返回           创作中心          │
-├────────────────────────────────────┤
-│  [全部] [视频] [图像] [失败]     │  ← 状态筛选
-├────────────────────────────────────┤
-│                                    │
-│  ┌────────────────────────────┐  │
-│  │ 🎬 视频生成中...           │  │
-│  │ 剧本：毒舌影评人 vs 佛系观众│  │
-│  │ [████████░░] 80%          │  │
-│  └────────────────────────────┘  │
-│                                    │
-│  ┌────────────────────────────┐  │
-│  │ 🖼️ 分镜图 已完成           │  │
-│  │ 剧本：毒舌影评人 vs 佛系观众│  │
-│  │ [预览] [下载] [重新生成]    │  │
-│  └────────────────────────────┘  │
-│                                    │
-│  ┌────────────────────────────┐  │
-│  │ 🖼️ 角色图 失败             │  │
-│  │ 原因：请求超时             │  │
-│  │ [重试]                     │  │
-│  └────────────────────────────┘  │
-│                                    │
-└────────────────────────────────────┘
-```
-
----
-
-## 8. 技术方案
-
-### 8.1 技术栈
-
-| 层级 | 技术选型 | 理由 |
-|------|---------|------|
-| 前端框架 | React 19 + Vite | 快速开发，热更新 |
-| 路由 | React Router v6 | SPA 路由管理 |
-| 状态管理 | React Context + useReducer | 轻量，适合 MVP |
-| 样式 | Tailwind CSS | 快速布局 |
-| 数据持久化 | localStorage | 无后端，纯前端 |
-| AI 对话 | 调用 LLM API（如 Claude/GPT） | 核心生成能力 |
-| 构建工具 | Vite | 输出 dist/index.html |
-
-### 8.2 AI 对接设计
-
-```javascript
-// 剧本生成 prompt 构造
-const buildPrompt = (personaA, personaB, scene) => {
-  return `
-你是${personaA.name}，性格：${personaA.personality.join('、')}。
-说话风格：${personaA.speakingStyle}。
-核心观点：${personaA.views.join('；')}。
-
-对方是${personaB.name}，性格：${personaB.personality.join('、')}。
-说话风格：${personaB.speakingStyle}。
-核心观点：${personaB.views.join('；')}。
-
-场景：${scene.description}
-
-请模拟这两个人物进行对话，生成8-12轮对话，每轮对话50-150字。
-对话要体现各自的人设特点，观点碰撞要有戏剧性。
-以 JSON 格式输出：
+// 前端表单 + 后端存储的实际字段
 {
-  "title": "剧本标题",
-  "dialogues": [
-    {"speaker": "A", "content": "..."},
-    {"speaker": "B", "content": "..."}
-  ]
-}
-`.trim()
+  // 基本信息
+  id: 'user-1714500000000',           // 自动生成
+  name: '佳宜',                        // 必填
+  avatar: '👩‍💼',                      // 14个emoji可选
+  creator: 'user',                     // 'user' | 'system'
+
+  // 人设核心（三个必填字段）
+  coreView: '未来预期是丁克...',         // 核心观点（一段话，非数组）
+  speakingStyle: '平时唯唯诺诺...',      // 说话风格
+  actionStyle: '被惹怒后会直接扇耳光...', // 行动风格
+
+  // 选填
+  background: '985名校毕业...',         // 背景故事
+  exampleDialogs: [],                  // 示例对话（预留字段）
+
+  // 统计数据
+  usageCount: 128,
+  likeCount: 45,
+
+  // 控制字段
+  isPublic: true,
+  isPremium: false,
+  createdAt: 1745587200000,
+  updatedAt: 1745587200000
 }
 ```
 
-### 8.3 AI 创作 Prompt 生成策略
+### 4.2 剧本 Script
 
 ```javascript
-// 视频生成 Prompt（Seedance）
-const buildVideoPrompt = (script, mode) => {
-  const { title, dialogues, personaA, personaB, scene } = script
-  const prompts = {
-    cover: `Create cinematic cover for "${title}". Scene: ${scene.name}.`,
-    storyboard: `Create ${dialogues.length}-panel storyboard for "${title}".`
+{
+  id: 'uuid',
+  title: 'Dialogue session',           // 自动生成标题
+  personaA: {
+    id: '佳宜',
+    name: '佳宜',
+    avatar: '👩‍💼',
+    coreView: '...',
+    speakingStyle: '...',
+    actionStyle: '...',
+    background: '...'
+  },
+  personaB: { /* 同上 */ },
+  scene: {
+    id: '场景-过年催婚',
+    name: '过年催婚',
+    description: '家庭聚会...'
+  },
+  dialogues: [
+    { speaker: 'A', content: '...' },
+    { speaker: 'B', content: '...' }
+  ],
+  totalLines: 10,                      // 对话轮数
+  wordCount: 850,                      // 总字数
+  creator: '当前用户',
+  createdAt: 1745587200000,
+
+  // 自动生成的扩展内容
+  storyboard: {                        // 故事板 - 用于AI生图
+    title: 'Storyboard: ...',
+    totalScenes: 4,
+    scenes: [{
+      id: 1,
+      setting: '场景环境描述',
+      characters: ['佳宜', '王大妈'],
+      action: '角色动作描述',
+      dialogue: '关键对白（20字内）',
+      emotion: '情绪基调',
+      visualPrompt: '英文AI图像生成prompt...'
+    }]
+  },
+  summary: {                           // 视频脚本 - 用于AI视频
+    videoPrompt: '英文AI视频生成prompt...',
+    duration: '10秒',
+    emotion: 'tension',
+    style: '电影感'
   }
-  return prompts[mode] || prompts.cover
-}
-
-// 图像生成 Prompt（GPT Image / Flux）
-const buildImagePrompt = (script, mode) => {
-  const { title, personaA, personaB, scene } = script
-  const prompts = {
-    cover: `${scene.description} - ${personaA.name} and ${personaB.name}.`,
-    characterA: `Portrait of ${personaA.name}. ${personaA.personality.join(', ')}.`,
-    characterB: `Portrait of ${personaB.name}. ${personaB.personality.join(', ')}.`
-  }
-  return prompts[mode] || prompts.cover
 }
 ```
 
-### 8.4 项目结构
+### 4.3 Scene（场景）
 
-```
-src/client/
-├── components/
-│   ├── layout/
-│   │   ├── Navbar.jsx
-│   │   └── TabBar.jsx
-│   ├── persona/
-│   │   ├── PersonaCard.jsx
-│   │   ├── PersonaForm.jsx
-│   │   └── PersonaPreview.jsx
-│   ├── script/
-│   │   ├── ScriptCard.jsx
-│   │   ├── ScriptEditor.jsx
-│   │   └── ScriptViewer.jsx
-│   ├── scene/
-│   │   ├── SceneSelector.jsx
-│   │   └── ScenePreview.jsx
-│   └── common/
-│       ├── Button.jsx
-│       ├── Modal.jsx
-│       └── TagInput.jsx
-├── pages/
-│   ├── HomePage.jsx
-│   ├── PersonaCreatePage.jsx
-│   ├── PersonaSquarePage.jsx
-│   ├── ScriptCreatePage.jsx
-│   ├── ScriptDetailPage.jsx
-│   └── ProfilePage.jsx
-├── context/
-│   ├── UserContext.jsx
-│   ├── PersonaContext.jsx
-│   └── ScriptContext.jsx
-├── hooks/
-│   ├── useLocalStorage.js
-│   ├── usePersonas.js
-│   └── useScripts.js
-├── data/
-│   ├── scenes.js              # 预设场景
-│   └── mockPersonas.js        # 初始人设数据
-├── utils/
-│   ├── promptBuilder.js       # AI prompt 构造
-│   └── scriptParser.js        # 剧本解析
-├── App.jsx
-└── main.jsx
+```javascript
+{
+  id: '场景-过年催婚',
+  name: '过年催婚',
+  description: '家庭聚会，亲戚盘问婚姻对象',
+  prompt: '场景提示词模板',
+  isBuiltIn: true
+}
 ```
 
-### 8.4 路由设计
+---
 
-| 路径 | 页面 | 描述 |
+## 5. 技术架构
+
+### 5.1 系统架构图
+
+```
+┌─────────────────────────────────────────────────┐
+│                  前端 (React 19 + Vite 6)          │
+│  ┌────────┐ ┌────────┐ ┌────────┐ ┌──────────┐ │
+│  │ 人设管理│ │ 剧本创作│ │ 人设广场│ │ AI创作页 │ │
+│  └────────┘ └────────┘ └────────┘ └──────────┘ │
+│         ↕ API (fetch) ↕                          │
+├─────────────────────────────────────────────────┤
+│            后端 (Express 4.18)                    │
+│  ┌──────────┐ ┌──────────┐ ┌────────────────┐   │
+│  │ 人设 routes│ │ 场景 routes│ │ 剧本 routes      │   │
+│  └──────────┘ └──────────┘ └────────────────┘   │
+│         ↕                                        │
+│  ┌──────────────────────────────────────────┐    │
+│  │  Services                                │    │
+│  │  ┌────────┐ ┌────────────┐ ┌──────────┐ │    │
+│  │  │LLM封装  │ │多轮对话生成│ │故事板生成 │ │    │
+│  │  └────────┘ └────────────┘ └──────────┘ │    │
+│  └──────────────────────────────────────────┘    │
+│         ↕                                        │
+│  ┌──────────────────────────────────────────┐    │
+│  │  DeepSeek API (双 LLM)                    │    │
+│  │  LLM A: deepseek-chat  → Persona A       │    │
+│  │  LLM B: deepseek-chat  → Persona B       │    │
+│  └──────────────────────────────────────────┘    │
+└─────────────────────────────────────────────────┘
+```
+
+### 5.2 双 LLM 多轮对话架构
+
+```
+POST /api/scripts/generate-multi
+        │
+        ▼
+createSession(scriptId, {personaA, personaB, scene})
+        │
+        ▼
+queueAndGenerate(scriptId, personaA, personaB, scene, maxRounds=10)
+        │
+        ▼ (异步后台执行)
+┌───────────────────────────────────────────────────┐
+│  Round 1: LLM A (deepseek-chat) → Persona A 发言  │
+│              ↓ SSE: {event: 'dialogue', speaker:'A'}│
+│  Round 2: LLM B (deepseek-chat) → Persona B 发言  │
+│              ↓ SSE: {event: 'dialogue', speaker:'B'}│
+│  ... 交替进行 ...                                 │
+│  终止条件: [END]标记 / 连续短回复 / 达到 maxRounds │
+│                                                    │
+│  对话完成后（并行）:                                │
+│  ├─ summarizeToStoryboard() → storyboard           │
+│  └─ summarizeToScriptSummary() → summary           │
+│                                                    │
+│  completeSession() → SSE: {event: 'done'}          │
+└───────────────────────────────────────────────────┘
+        │
+        ▼
+前端 SSE 接收对话  →  保存剧本  →  跳转剧本详情页
+```
+
+### 5.3 前端轮询故事板
+
+```
+对话完成后（SSE done 事件触发）:
+  1. 收到 done 事件 → setIsGeneratingStoryboard(true)
+  2. 检查 result.storyboard 和 result.summary 是否存在
+  3. 如果不存在，每1秒轮询 GET /api/scripts/:id
+  4. 等待 storyboard 和 summary 都生成完毕（最长90秒）
+  5. 保存剧本并跳转详情页
+```
+
+---
+
+## 6. API 端点完整列表
+
+| 方法 | 路径 | 说明 | 请求体 |
+|------|------|------|--------|
+| `GET` | `/health` | 健康检查 | - |
+| `GET` | `/api/personas/built-in` | 内置人设列表（合并用户统计） | - |
+| `GET` | `/api/personas` | 用户创建的人设列表 | - |
+| `GET` | `/api/personas/favorites` | 已收藏人设 ID 列表 | - |
+| `POST` | `/api/personas` | 创建人设 | `{ name, avatar?, coreView, speakingStyle, actionStyle, background?, isPublic? }` |
+| `PUT` | `/api/personas/:id` | 更新人设 | `{ name?, coreView?, ... }` |
+| `DELETE` | `/api/personas/:id` | 删除人设 | - |
+| `POST` | `/api/personas/generate` | AI 辅助生成人设 | `{ name, personality?, speakingStyle, views?, background? }` |
+| `POST` | `/api/personas/:id/like` | 点赞/取消 | `{ action: 'like' \| 'unlike' }` |
+| `POST` | `/api/personas/:id/use` | 记录使用次数 | - |
+| `GET` | `/api/scenes` | 获取所有场景 | - |
+| `GET` | `/api/scripts` | 剧本列表 | - |
+| `POST` | `/api/scripts` | 保存剧本 | `{ title, dialogues, personaA, personaB, scene }` |
+| `PUT` | `/api/scripts/:id` | 更新剧本 | 任意字段 |
+| `DELETE` | `/api/scripts/:id` | 删除剧本 | - |
+| `POST` | `/api/scripts/generate` | 单轮 LLM 生成剧本 | `{ personaA, personaB, scene, maxRounds? }` |
+| `POST` | `/api/scripts/generate-multi` | 双 LLM 多轮生成 | `{ personaA, personaB, scene, maxRounds? }` |
+| `GET` | `/api/scripts/:id` | 轮询生成状态 | - |
+| `GET` | `/api/scripts/:id/stream` | SSE 流式实时推送 | - |
+| `POST` | `/api/scripts/:id/summarize` | 手动生成故事板 | `{ script: {...} }` |
+| `POST` | `/api/scripts/test-dual-llm` | 测试双 LLM 通信 | `{ message? }` |
+| `POST` | `/api/ai/generate` | AI 图像/视频生成 | `{ scriptId, type, mode, provider?, persona?, script }` |
+| `GET` | `/api/ai/tasks` | 任务列表 | - |
+| `GET` | `/api/ai/tasks/:taskId` | 任务状态 | - |
+| `POST` | `/api/ai/tasks/:taskId/retry` | 重试失败任务 | - |
+
+---
+
+## 7. 路由设计
+
+| 路径 | 页面 | 说明 |
 |------|------|------|
-| `/` | HomePage | 首页（最近剧本 + 我的人设） |
-| `/persona/create` | PersonaCreatePage | 创建人设 |
-| `/persona/:id` | PersonaDetailPage | 人设详情 |
-| `/persona/square` | PersonaSquarePage | 人设广场 |
-| `/script/create` | ScriptCreatePage | 创作剧本 |
-| `/script/:id` | ScriptDetailPage | 剧本详情 |
-| `/ai/create` | AICreatePage | AI 创作（发送至 Seedance/GPT Image） |
+| `/` | HomePage | 首页（主操作入口 + 最近剧本 + 我的人设） |
+| `/persona/create` | PersonaCreatePage | 创建人设（4+1 个必填/选填字段) |
+| `/persona/:id` | PersonaDetailPage | 人设详情 + 使用此人设 |
+| `/persona/square` | PersonaSquarePage | 人设广场（搜索/Tab筛选/排序） |
+| `/script/create` | ScriptCreatePage | 创作剧本（3步流程 + SSE进度） |
+| `/script/:id` | ScriptDetailPage | 剧本详情（3个Tab展示） |
+| `/ai/create/:scriptId` | AICreatePage | AI 创作（发送至图像/视频工具） |
 | `/ai/hub` | AIHubPage | 创作中心（任务管理） |
 | `/profile` | ProfilePage | 个人中心 |
 
 ---
 
-## 9. MVP 演示路径
+## 8. 内置数据
 
-### 9.1 演示流程（3 分钟）
+### 内置人设（2个）
 
-**Step 1: 创建人设（60 秒）**
-- 进入"创建人设"
-- 填写"毒舌影评人"信息
-- 添加性格标签和说话风格
-- 发布到广场
+| 人设 | 核心观点 | 说话风格 | 行动风格 |
+|------|---------|---------|---------|
+| **佳宜** 👩‍💼 | 丁克、不着急结婚、为自己而活 | 平时客气，被惹怒后毒舌、逻辑碾压 | 被惹怒后扇耳光，不扇肿不停手 |
+| **王大妈** 👵 | 养儿防老、女的必须嫁人 | 杭州方言、尖酸刻薄、阴阳怪气 | 一紧张放屁、激动时戳人 |
 
-**Step 2: 再创建第二个人设（30 秒）**
-- 快速创建"佛系观众"
-- 性格标签：温和、随缘
+### 内置场景（3个）
 
-**Step 3: 创作剧本（60 秒）**
-- 进入"创作剧本"
-- 选择"毒舌影评人"vs"佛系观众"
-- 选择场景"电影批评"
-- 点击生成
-
-**Step 4: 查看剧本（30 秒）**
-- 展示生成的对话剧本
-- 演示复制/导出功能
+| 场景 | 描述 |
+|------|------|
+| **过年催婚** | 家庭聚会催婚连环攻势 |
+| **亲戚盘问** | 七大姑八大姨问工资/对象/买房 |
+| **工作交接** | 老员工推活给实习生 |
 
 ---
 
-## 10. 成功指标
+## 9. 配置说明
 
-| 指标 | 定义 | 目标 |
-|------|------|------|
-| 人均创建人设数 | 人设总数 / 用户数 | >2 |
-| 剧本生成成功率 | 成功生成 / 尝试生成 | >90% |
-| 剧本平均轮数 | 对话总轮数 / 剧本数 | 8-12 |
-| 用户满意度 | 评分 | >4.5 |
+### 环境变量
 
----
+| 变量 | 说明 | 默认值 |
+|------|------|--------|
+| `DEEPSEEK_API_KEY` | DeepSeek API 密钥（必填） | - |
+| `PORT` | 服务器端口 | `3001` |
+| `OPENAI_API_KEY` | OpenAI API 密钥（DALL-E 图像生成） | 回退到 DEEPSEEK_API_KEY |
 
-## 11. 后续迭代方向
+### LLM 参数
 
-1. **人设市场**：付费人设、授权机制
-2. **剧本模板**：保存人设+场景组合
-3. **AI 视频对接**：导出格式适配主流 AI 视频工具
-4. **团队协作**：共享人设库、剧本库
-5. **人设训练**：基于对话历史优化人设
-
----
-
-## 12. 作品提交要求
-
-| 要求项 | 规格 |
-|--------|------|
-| **包体格式** | ZIP 包 |
-| **包体大小** | ≤ 8M |
-| **入口文件** | 主入口文件命名为 `index.html` |
-| **部署说明** | React + Vite 构建后，dist/index.html 为入口，需放 ZIP 根目录 |
+| 服务 | temperature | max_tokens | model | 重试次数 |
+|------|------------|------------|-------|---------|
+| personaGenerator | 0.7 | 4096 | deepseek-chat | 3次 |
+| scriptGenerator | 0.8 | 8192 | deepseek-chat | 3次 |
+| multiTurn (LLM A) | 0.8 | 1024 | deepseek-chat | 3次 |
+| multiTurn (LLM B) | 0.8 | 1024 | deepseek-chat | 3次 |
+| summarizeToStoryboard | 0.7 | 4096 | deepseek-chat | 3次 |
+| summarizeToScriptSummary | 0.7 | 1024 | deepseek-chat | 3次 |
 
 ---
 
-**文档版本：** v1.0
-**创建日期：** 2026-04-24
-**作者：** 剧本工坊产品团队
-**状态：** 新项目启动
+## 10. 文件持久化
+
+```
+src/server/data/
+├── built-in-personas.json   # 内置人设（只读）
+├── user-personas.json       # 用户创建的人设 + 内置人设的统计记录
+├── scenes.json              # 场景列表
+├── scripts.json             # 保存的剧本
+└── sessions.json            # 生成中的会话（崩溃恢复用）
+```
+
+---
+
+## 11. TODO
+
+- [ ] AI 创作 - DALL-E 图像生成实际对接
+- [ ] Flux 图像生成 API 对接
+- [ ] Seedance/Runway/Pika 视频生成 API 对接
+- [ ] 用户认证系统
+- [ ] 人设市场（付费/授权）
+- [ ] 剧本模板保存
+- [ ] 导出更多格式（TXT/Fountain）
+- [ ] 示例对话功能在前端表单中的实现
+
+---
+
+**文档版本：** v1.0（基于实际代码 v1.0）
+**状态：** 已发布

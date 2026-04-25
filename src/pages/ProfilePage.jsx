@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { usePersonas } from '../hooks/usePersonas'
 import { useScripts } from '../hooks/useScripts'
 import PersonaCard from '../components/persona/PersonaCard'
@@ -58,7 +58,9 @@ export default function ProfilePage() {
         {myPersonas.length > 0 ? (
           <div className="space-y-3">
             {myPersonas.map((persona) => (
-              <PersonaCard key={persona.id} persona={persona} showActions={false} />
+              <Link key={persona.id} to={`/persona/${persona.id}`}>
+                <PersonaCard persona={persona} showActions={false} />
+              </Link>
             ))}
           </div>
         ) : (

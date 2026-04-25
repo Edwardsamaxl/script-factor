@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { usePersonas } from '../hooks/usePersonas'
 import { useScripts } from '../hooks/useScripts'
@@ -7,8 +7,7 @@ import PersonaPreview from '../components/persona/PersonaPreview'
 import SceneSelector from '../components/scene/SceneSelector'
 import Button from '../components/common/Button'
 import Modal from '../components/common/Modal'
-import { buildScriptPrompt } from '../utils/promptBuilder'
-import { parseScriptResponse } from '../utils/scriptParser'
+import GenerationProgress from '../components/script/GenerationProgress'
 
 export default function ScriptCreatePage() {
   const navigate = useNavigate()
@@ -23,6 +22,12 @@ export default function ScriptCreatePage() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [showPersonaModal, setShowPersonaModal] = useState(false)
   const [selectingFor, setSelectingFor] = useState(null) // 'A' or 'B'
+  const [personaFilter, setPersonaFilter] = useState('all') // 'all' | 'mine' | 'favorited'
+  const [generationProgress, setGenerationProgress] = useState(0)
+  const [generationRound, setGenerationRound] = useState(0)
+  const [isGeneratingStoryboard, setIsGeneratingStoryboard] = useState(false)
+  const [generationError, setGenerationError] = useState(null)
+  const generationRef = useRef(false)
 
   // 初始化：如果 URL 中有 personaA 参数
   useEffect(() => {
@@ -45,53 +50,168 @@ export default function ScriptCreatePage() {
 
   const handleGenerate = async () => {
     if (!personaA || !personaB || !scene) return
+    // 防止双击/重入
+    if (generationRef.current) return
+    generationRef.current = true
 
+    setGenerationError(null)
     setIsGenerating(true)
+    setGenerationProgress(0)
+    setGenerationRound(1)
 
     try {
-      const prompt = buildScriptPrompt(personaA, personaB, scene)
+      // 调用后端 API 生成剧本
+      const response = await fetch('/api/scripts/generate-multi', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          personaA: {
+            id: personaA.id,
+            name: personaA.name,
+            coreView: personaA.coreView,
+            speakingStyle: personaA.speakingStyle,
+            actionStyle: personaA.actionStyle,
+            background: personaA.background,
+          },
+          personaB: {
+            id: personaB.id,
+            name: personaB.name,
+            coreView: personaB.coreView,
+            speakingStyle: personaB.speakingStyle,
+            actionStyle: personaB.actionStyle,
+            background: personaB.background,
+          },
+          scene: {
+            id: scene.id,
+            name: scene.name,
+            description: scene.description,
+            prompt: scene.prompt,
+          },
+          maxRounds: 10,
+        }),
+      })
 
-      // 模拟 AI 生成（实际项目中应调用 LLM API）
-      // 这里用 setTimeout 模拟网络请求
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-
-      // 模拟生成的剧本
-      const mockResponse = {
-        title: `${personaA.name} vs ${personaB.name}：${scene.name}`,
-        dialogues: [
-          { speaker: 'A', content: `${personaA.speakingStyle.split('，')[0]}...这个问题我觉得很有意思。` },
-          { speaker: 'B', content: `${personaB.speakingStyle.split('，')[0]}...嗯，我倒是有些不同的看法。` },
-          { speaker: 'A', content: `你说的有道理，但我觉得核心问题在于...` },
-          { speaker: 'B', content: `话虽如此，但是我们也要考虑到...` },
-          { speaker: 'A', content: `这正是我想说的！让我们深入探讨一下。` },
-          { speaker: 'B', content: `好吧，我承认你说的有几分道理。` },
-          { speaker: 'A', content: `所以最终我们的共识是...` },
-          { speaker: 'B', content: `不完全是，但我们可以求同存异。` },
-        ],
+      if (!response.ok) {
+        const errBody = await response.json().catch(() => ({}))
+        throw new Error(errBody.error || `请求失败 (${response.status})`)
       }
 
-      const parsedScript = parseScriptResponse(JSON.stringify(mockResponse))
+      const { scriptId } = await response.json()
 
-      if (parsedScript) {
-        const newScript = addScript({
-          ...parsedScript,
-          personaA: { id: personaA.id, name: personaA.name, avatar: personaA.avatar, speakingStyle: personaA.speakingStyle },
-          personaB: { id: personaB.id, name: personaB.name, avatar: personaB.avatar, speakingStyle: personaB.speakingStyle },
-          scene: { id: scene.id, name: scene.name, description: scene.description },
+      // 使用 SSE 实时获取进度
+      const result = await subscribeToScriptProgress(scriptId)
+
+      if (result) {
+        // 对话完成，继续等待故事板和总结版生成
+        // 轮询检查是否生成完成
+        let finalResult = result
+        if (!result.storyboard || !result.summary) {
+          const maxWait = 90 // 最多等待90秒
+          for (let i = 0; i < maxWait; i++) {
+            await new Promise(r => setTimeout(r, 1000))
+            const sessionRes = await fetch(`/api/scripts/${scriptId}`)
+            const sessionData = await sessionRes.json()
+            if (sessionData.result?.storyboard && sessionData.result?.summary) {
+              finalResult = sessionData.result
+              break
+            }
+          }
+        }
+
+        const newScript = await addScript({
+          ...finalResult,
+          personaA: {
+            id: personaA.id,
+            name: personaA.name,
+            avatar: personaA.avatar || '',
+            coreView: personaA.coreView || '',
+            speakingStyle: personaA.speakingStyle || '',
+            actionStyle: personaA.actionStyle || '',
+            background: personaA.background || '',
+          },
+          personaB: {
+            id: personaB.id,
+            name: personaB.name,
+            avatar: personaB.avatar || '',
+            coreView: personaB.coreView || '',
+            speakingStyle: personaB.speakingStyle || '',
+            actionStyle: personaB.actionStyle || '',
+            background: personaB.background || '',
+          },
+          scene: { id: scene.id, name: scene.name, description: scene.description || '' },
           creator: '当前用户',
         })
 
         incrementUsage(personaA.id)
         incrementUsage(personaB.id)
 
-        navigate(`/script/${newScript.id}`)
+        if (newScript) {
+          navigate(`/script/${newScript.id}`)
+        } else {
+          setGenerationError('剧本保存失败，但生成已完成')
+        }
+      } else {
+        setGenerationError('生成结果为空，请重试')
       }
     } catch (error) {
       console.error('Failed to generate script:', error)
-      alert('生成失败，请重试')
+      setGenerationError(error.message || '生成失败，请重试')
     } finally {
       setIsGenerating(false)
+      setGenerationProgress(0)
+      setGenerationRound(0)
+      setIsGeneratingStoryboard(false)
+      generationRef.current = false
     }
+  }
+
+  // 使用 SSE 实时获取剧本生成进度
+  const subscribeToScriptProgress = (scriptId) => {
+    return new Promise((resolve, reject) => {
+      const eventSource = new EventSource(`/api/scripts/${scriptId}/stream`)
+
+      eventSource.addEventListener('connected', () => {
+        console.log('SSE connected')
+      })
+
+      eventSource.addEventListener('progress', (event) => {
+        const data = JSON.parse(event.data)
+        const currentRound = data.round || 1
+        const total = data.total || 10
+        setGenerationRound(currentRound)
+        setGenerationProgress(Math.min(currentRound * 10, 100))
+      })
+
+      eventSource.addEventListener('dialogue', (event) => {
+        const dialogue = JSON.parse(event.data)
+        console.log('New dialogue:', dialogue)
+      })
+
+      eventSource.addEventListener('done', (event) => {
+        const data = JSON.parse(event.data)
+        eventSource.close()
+        setGenerationProgress(100)
+        // 对话完成，开始等待故事板生成
+        setIsGeneratingStoryboard(true)
+        resolve(data.result)
+      })
+
+      eventSource.addEventListener('error', (event) => {
+        eventSource.close()
+        try {
+          const data = JSON.parse(event.data)
+          reject(new Error(data.message || 'Generation failed'))
+        } catch {
+          reject(new Error('SSE connection error'))
+        }
+      })
+
+      // 超时处理
+      setTimeout(() => {
+        eventSource.close()
+        reject(new Error('Generation timeout'))
+      }, 300000) // 5 分钟超时
+    })
   }
 
   return (
@@ -173,9 +293,23 @@ export default function ScriptCreatePage() {
       )}
 
       {/* 步骤 3: 选择场景 */}
-      {step === 3 && (
+      {step === 3 && !isGenerating && (
         <div>
           <h2 className="text-lg font-semibold mb-3">第三步：选择场景</h2>
+
+          {/* 生成错误提示 */}
+          {generationError && (
+            <div className="mb-3 p-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-700">
+              {generationError}
+              <button
+                onClick={() => setGenerationError(null)}
+                className="ml-2 text-red-500 hover:text-red-700 font-medium"
+              >
+                关闭
+              </button>
+            </div>
+          )}
+
           <SceneSelector selected={scene} onChange={setScene} />
 
           {/* 匹配度预览 */}
@@ -194,12 +328,31 @@ export default function ScriptCreatePage() {
             <Button
               variant="primary"
               onClick={handleGenerate}
-              disabled={!scene || isGenerating}
+              disabled={!scene}
               className="flex-1"
             >
-              {isGenerating ? '生成中...' : '开始生成'}
+              开始生成
             </Button>
           </div>
+        </div>
+      )}
+
+      {/* 生成进度显示 */}
+      {step === 3 && isGenerating && (
+        <div>
+          <h2 className="text-lg font-semibold mb-3">
+            {isGeneratingStoryboard ? '正在生成故事板...' : '正在生成剧本...'}
+          </h2>
+          <GenerationProgress
+            progress={generationProgress}
+            currentRound={isGeneratingStoryboard ? 10 : generationRound}
+            animationType="bubbles"
+          />
+          <p className="text-center text-sm text-gray-500 mt-4">
+            {isGeneratingStoryboard
+              ? '对话已完成，正在生成故事板...'
+              : `${personaA?.name} vs ${personaB?.name} 的对话生成中`}
+          </p>
         </div>
       )}
 
@@ -209,25 +362,56 @@ export default function ScriptCreatePage() {
         onClose={() => { setShowPersonaModal(false); setSelectingFor(null); }}
         title={`选择人设 ${selectingFor === 'A' ? 'A' : 'B'}`}
       >
+        {/* 筛选 Tab */}
+        <div className="flex gap-2 mb-3">
+          {[
+            { key: 'all', label: '全部' },
+            { key: 'mine', label: '我的' },
+            { key: 'favorited', label: '已收藏' },
+          ].map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setPersonaFilter(tab.key)}
+              className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
+                personaFilter === tab.key
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
         <div className="space-y-3 max-h-[60vh] overflow-y-auto">
-          {personas.length > 0 ? (
-            personas.map((p) => (
-              <div
-                key={p.id}
-                onClick={() => selectPersona(p)}
-                className="cursor-pointer"
-              >
-                <PersonaCard persona={p} showActions={false} />
+          {(() => {
+            let filtered = personas
+            if (personaFilter === 'mine') {
+              filtered = personas.filter(p => p.creator === 'user')
+            } else if (personaFilter === 'favorited') {
+              filtered = personas.filter(p => p.isFavorited)
+            }
+            return filtered.length > 0 ? (
+              filtered.map((p) => (
+                <div
+                  key={p.id}
+                  onClick={() => selectPersona(p)}
+                  className="cursor-pointer"
+                >
+                  <PersonaCard persona={p} showActions={false} />
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-500 mb-3">
+                  {personaFilter === 'mine' ? '你还没有创建过人设' : personaFilter === 'favorited' ? '你还没有收藏过人设' : '暂没有人设'}
+                </p>
+                <Button variant="primary" onClick={() => navigate('/persona/create')}>
+                  创建人设
+                </Button>
               </div>
-            ))
-          ) : (
-            <div className="text-center py-8">
-              <p className="text-gray-500 mb-3">还没有人设</p>
-              <Button variant="primary" onClick={() => navigate('/persona/create')}>
-                创建人设
-              </Button>
-            </div>
-          )}
+            )
+          })()}
         </div>
       </Modal>
     </div>

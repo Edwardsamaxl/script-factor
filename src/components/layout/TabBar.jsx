@@ -50,15 +50,15 @@ export default function TabBar() {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-paper-50/95 backdrop-blur-md border-t border-ink-200/30 z-40 md:hidden">
-      <div className="max-w-lg mx-auto flex justify-around">
+      <div className="max-w-lg mx-auto flex justify-between px-2">
         {tabs.map((tab) => {
           const isActive = location.pathname === tab.path ||
-            (tab.path !== '/' && location.pathname.startsWith(tab.path))
+            (tab.path !== '/' && location.pathname.startsWith(tab.path + '/'))
           return (
             <Link
               key={tab.path}
               to={tab.path}
-              className={`flex flex-col items-center py-2.5 px-2 min-w-[60px] transition-colors ${
+              className={`relative flex flex-col items-center py-2.5 px-2 min-w-[60px] transition-colors ${
                 isActive ? 'text-accent' : 'text-ink-400'
               }`}
             >

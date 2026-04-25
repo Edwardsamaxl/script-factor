@@ -99,7 +99,9 @@ export default function HomePage() {
           <div className="grid grid-cols-2 gap-3">
             {myPersonas.map((persona, index) => (
               <div key={persona.id} className="animate-slide-up" style={{ animationDelay: `${index * 100}ms` }}>
-                <PersonaCard key={persona.id} persona={persona} showActions={false} />
+                <Link to={`/persona/${persona.id}`} className="block">
+                  <PersonaCard persona={persona} showActions={false} />
+                </Link>
               </div>
             ))}
           </div>

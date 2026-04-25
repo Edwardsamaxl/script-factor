@@ -4,6 +4,7 @@ import TabBar from './components/layout/TabBar'
 import HomePage from './pages/HomePage'
 import PersonaCreatePage from './pages/PersonaCreatePage'
 import PersonaSquarePage from './pages/PersonaSquarePage'
+import PersonaDetailPage from './pages/PersonaDetailPage'
 import ScriptCreatePage from './pages/ScriptCreatePage'
 import ScriptDetailPage from './pages/ScriptDetailPage'
 import AICreatePage from './pages/AICreatePage'
@@ -25,7 +26,7 @@ export default function App() {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/persona/create" element={<PersonaCreatePage />} />
                 <Route path="/persona/square" element={<PersonaSquarePage />} />
-                <Route path="/persona/:id" element={<PersonaCreatePage />} />
+                <Route path="/persona/:id" element={<PersonaDetailPage />} />
                 <Route path="/script/create" element={<ScriptCreatePage />} />
                 <Route path="/script/:id" element={<ScriptDetailPage />} />
                 <Route path="/ai/create/:scriptId" element={<AICreatePage />} />

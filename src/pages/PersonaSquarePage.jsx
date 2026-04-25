@@ -1,25 +1,61 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { usePersonas } from '../hooks/usePersonas'
 import PersonaCard from '../components/persona/PersonaCard'
 
 export default function PersonaSquarePage() {
   const navigate = useNavigate()
-  const { personas, toggleFavorite } = usePersonas()
-  const [filter, setFilter] = useState('all')
+  const { personas, toggleFavorite, incrementUsage, deletePersona } = usePersonas()
+  const [filter, setFilter] = useState('all') // 'all' | 'hot' | 'new' | 'mine' | 'favorited'
   const [search, setSearch] = useState('')
 
-  const filteredPersonas = personas.filter((p) => {
-    if (filter === 'hot') return p.usageCount > 50
-    if (filter === 'new') return Date.now() - p.createdAt < 86400000 * 7
-    return p.isPublic !== false
-  }).filter((p) =>
-    p.name.toLowerCase().includes(search.toLowerCase()) ||
-    p.personality.some((tag) => tag.toLowerCase().includes(search.toLowerCase()))
-  )
+  // 排序和筛选
+  const filteredPersonas = useMemo(() => {
+    let result = personas
+
+    // 按 tab 筛选
+    if (filter === 'mine') {
+      result = result.filter(p => p.creator === 'user')
+    } else if (filter === 'favorited') {
+      result = result.filter(p => p.isFavorited)
+    } else {
+      // 全部（公开的）
+      result = result.filter(p => p.isPublic !== false)
+    }
+
+    // 搜索
+    if (search) {
+      const searchLower = search.toLowerCase()
+      result = result.filter(p =>
+        p.name.toLowerCase().includes(searchLower) ||
+        (p.coreView && p.coreView.toLowerCase().includes(searchLower))
+      )
+    }
+
+    // 排序
+    if (filter === 'hot') {
+      result = [...result].sort((a, b) => (b.usageCount || 0) - (a.usageCount || 0))
+    } else if (filter === 'new') {
+      result = [...result].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
+    }
+
+    return result
+  }, [personas, filter, search])
 
   const handleUse = (persona) => {
+    incrementUsage(persona.id)
     navigate(`/script/create?personaA=${persona.id}`)
+  }
+
+  const getTabLabel = () => {
+    switch (filter) {
+      case 'all': return '全部'
+      case 'hot': return '热门'
+      case 'new': return '最新'
+      case 'mine': return '我的'
+      case 'favorited': return '已收藏'
+      default: return '全部'
+    }
   }
 
   return (
@@ -58,11 +94,13 @@ export default function PersonaSquarePage() {
       </div>
 
       {/* 筛选 Tab */}
-      <div className="flex gap-2 mb-5">
+      <div className="flex gap-2 mb-5 overflow-x-auto pb-1">
         {[
           { key: 'all', label: '全部' },
           { key: 'hot', label: '热门' },
           { key: 'new', label: '最新' },
+          { key: 'mine', label: '我的' },
+          { key: 'favorited', label: '已收藏' },
         ].map((tab) => (
           <button
             key={tab.key}
@@ -87,6 +125,12 @@ export default function PersonaSquarePage() {
                 persona={persona}
                 onUse={handleUse}
                 onFavorite={toggleFavorite}
+                onDelete={persona.creator === 'user' ? (id) => {
+                  const p = personas.find(p => p.id === id)
+                  if (p && confirm(`确定要删除人设「${p.name}」吗？此操作不可撤销。`)) {
+                    deletePersona(id)
+                  }
+                } : undefined}
               />
             </div>
           ))
@@ -99,8 +143,10 @@ export default function PersonaSquarePage() {
                   <path d="M16 16l4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                 </svg>
               </div>
-              <p className="empty-state-title">暂无匹配的人设</p>
-              <p className="empty-state-desc">试试其他关键词</p>
+              <p className="empty-state-title">暂无{getTabLabel()}的人设</p>
+              <p className="empty-state-desc">
+                {filter === 'mine' ? '快去创建第一个人设吧' : filter === 'favorited' ? '去广场发现更多有趣的人设' : '试试其他关键词'}
+              </p>
             </div>
           </div>
         )}
