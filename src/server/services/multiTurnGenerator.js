@@ -3,7 +3,7 @@ import { fileURLToPath } from 'url';
 import { callDeepSeekAWithSystem, callDeepSeekBWithSystem } from './llm.js';
 import { addDialogue, completeSession, failSession, getQueue, getSession, updateSession } from './sessionStore.js';
 import { summarizeToStoryboard, summarizeToScriptSummary } from './scriptSummarizer.js';
-import { loadScripts, saveScripts } from './dataStore.js';
+import { loadScripts, saveScripts, withExclusiveAccess, FILES } from './dataStore.js';
 
 const MAX_ROUNDS = 10;
 const SHORT_RESPONSE_THRESHOLD = 20;
@@ -195,42 +195,44 @@ async function generateMultiTurn(scriptId, personaA, personaB, scene, maxRounds 
     // Mark session complete AFTER storyboard and summary generation
     completeSession(scriptId);
 
-    // Auto-save completed script to scripts.json
+    // Auto-save completed script to scripts.json (with exclusive access to prevent race conditions)
     try {
       const session = getSession(scriptId);
       if (session) {
-        const scripts = loadScripts();
-        const newScript = {
-          id: `script-${Date.now()}`,
-          title: `Dialogue between ${personaA.name} and ${personaB.name}`,
-          dialogues: session.dialogues,
-          totalLines: session.dialogues.length,
-          wordCount: session.dialogues.reduce((sum, d) => sum + d.content.length, 0),
-          storyboard: session.storyboard || null,
-          summary: session.summary || null,
-          personaA: {
-            id: personaA.id,
-            name: personaA.name,
-            coreView: personaA.coreView || '',
-            speakingStyle: personaA.speakingStyle || '',
-            actionStyle: personaA.actionStyle || '',
-            background: personaA.background || ''
-          },
-          personaB: {
-            id: personaB.id,
-            name: personaB.name,
-            coreView: personaB.coreView || '',
-            speakingStyle: personaB.speakingStyle || '',
-            actionStyle: personaB.actionStyle || '',
-            background: personaB.background || ''
-          },
-          scene: { id: scene.id, name: scene.name, description: scene.description || '' },
-          creator: '当前用户',
-          createdAt: Date.now(),
-          updatedAt: Date.now()
-        };
-        scripts.unshift(newScript);
-        saveScripts(scripts);
+        await withExclusiveAccess(FILES.SCRIPTS, () => {
+          const scripts = loadScripts();
+          const newScript = {
+            id: `script-${Date.now()}`,
+            title: `Dialogue between ${personaA.name} and ${personaB.name}`,
+            dialogues: session.dialogues,
+            totalLines: session.dialogues.length,
+            wordCount: session.dialogues.reduce((sum, d) => sum + d.content.length, 0),
+            storyboard: session.storyboard || null,
+            summary: session.summary || null,
+            personaA: {
+              id: personaA.id,
+              name: personaA.name,
+              coreView: personaA.coreView || '',
+              speakingStyle: personaA.speakingStyle || '',
+              actionStyle: personaA.actionStyle || '',
+              background: personaA.background || ''
+            },
+            personaB: {
+              id: personaB.id,
+              name: personaB.name,
+              coreView: personaB.coreView || '',
+              speakingStyle: personaB.speakingStyle || '',
+              actionStyle: personaB.actionStyle || '',
+              background: personaB.background || ''
+            },
+            scene: { id: scene.id, name: scene.name, description: scene.description || '' },
+            creator: '当前用户',
+            createdAt: Date.now(),
+            updatedAt: Date.now()
+          };
+          scripts.unshift(newScript);
+          saveScripts(scripts);
+        });
       }
     } catch (err) {
       console.error('Failed to auto-save script:', err);

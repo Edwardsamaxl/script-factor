@@ -138,7 +138,7 @@
   },
   {
     "id": "ai-1777124329426-6bf73100",
-    "scriptId": "script-1777124317614",
+    "scriptId": "script-1777173230089",
     "scriptTitle": "Script",
     "type": "image",
     "provider": "seedance",
@@ -170,7 +170,7 @@
   },
   {
     "id": "ai-1777126015750-c1d39b3e",
-    "scriptId": "script-1777126011696",
+    "scriptId": "script-1777126011221",
     "scriptTitle": "Script",
     "type": "image",
     "provider": "seedance",
@@ -330,7 +330,7 @@
   },
   {
     "id": "ai-1777169881771-2be47359",
-    "scriptId": "script-1777169878356",
+    "scriptId": "script-1777169878014",
     "scriptTitle": "Script",
     "type": "image",
     "provider": "seedance",
@@ -350,7 +350,7 @@
   },
   {
     "id": "ai-1777170478962-70a87518",
-    "scriptId": "script-1777169878356",
+    "scriptId": "script-1777169878014",
     "scriptTitle": "Script",
     "type": "video",
     "provider": "seedance",
@@ -384,5 +384,83 @@
     "error": null,
     "createdAt": 1777170887680,
     "completedAt": 1777170921210
+  },
+  {
+    "id": "ai-1777171826745-e71c834f",
+    "scriptId": "standalone",
+    "scriptTitle": "Script",
+    "type": "image",
+    "provider": "seedream",
+    "mode": "persona",
+    "prompt": "一位45岁的中国男性，中等身材，微胖圆脸，留着利落的短发，鬓角有些花白，穿着深蓝色厨师围裙搭在灰色T恤外面，手里拿着一双长筷子，另一只手端着白色小碟子，站在街边小吃摊前，表情挑剔又带着点玩味的笑意，背景是热闹的夜市，暖黄色灯光和蒸汽缭绕，realistic风格，细节丰富",
+    "personaImages": {},
+    "personaId": "user-1777171824953",
+    "duration": 12,
+    "status": "success",
+    "resultUrl": "/assets/generated/personas/ai-1777171826745-e71c834f.jpg",
+    "volcanoTaskId": null,
+    "error": null,
+    "createdAt": 1777171826745,
+    "completedAt": 1777171857983
+  },
+  {
+    "id": "ai-1777172064191-3b2e16d6",
+    "scriptId": "script-1777172050812",
+    "scriptTitle": "Script",
+    "type": "image",
+    "provider": "seedance",
+    "mode": "cover",
+    "prompt": "城市公园相亲角，白天，阳光透过树荫。一位穿白色衬衫、佩戴名校校徽的年轻男生坐在折叠桌前，抬着下巴，眼神带着审视和优越感，桌上摆着写有QS排名和学历要求的牌子。对面站着一位50多岁烫卷发、穿花衬衫戴金链子的王大妈，双手叉腰，表情不屑一顾。周围有几位家长在闲聊，背景有老树和长椅。写实风格，光线明亮略带暖色调，构图突出两人对峙感。",
+    "personaImages": {
+      "aUrl": "/assets/generated/personas/ai-1777169829775-df0a6d0f.jpg",
+      "bUrl": "/assets/generated/personas/ai-1777167639657-17f0c712.jpg"
+    },
+    "duration": 12,
+    "status": "success",
+    "resultUrl": "/assets/generated/scenes/ai-1777172064191-3b2e16d6.jpg",
+    "volcanoTaskId": null,
+    "error": null,
+    "createdAt": 1777172064191,
+    "completedAt": 1777172107134
+  },
+  {
+    "id": "ai-1777172499643-626f78ea",
+    "scriptId": "script-1777172050812",
+    "scriptTitle": "Script",
+    "type": "video",
+    "provider": "seedance",
+    "mode": "cover",
+    "prompt": "公园相亲角，阳光透过梧桐树叶洒下斑驳光影。一名穿着整洁白衬衫、佩戴名校校徽的男生双手插兜，下巴微抬，嘴角带着一丝讥诮的笑。对面一位烫着卷发、穿金戴银的50多岁大妈涨红了脸，唾沫横飞，手指几乎戳到男生胸口。男生轻笑着后退半步，慢条斯理整理袖口，眼神带着居高临下的审视。大妈激动时突然放了个响屁，但强装镇定继续喷着唾沫星子说话。背景是几张手写征婚启事的折叠桌，偶尔有路人侧目。光线明亮，画面略带电影感，镜头从侧面捕捉两人对峙的张力。",
+    "personaImages": {
+      "aUrl": "/assets/generated/personas/ai-1777169829775-df0a6d0f.jpg",
+      "bUrl": "/assets/generated/personas/ai-1777167639657-17f0c712.jpg"
+    },
+    "duration": 12,
+    "status": "success",
+    "resultUrl": "/assets/generated/videos/ai-1777172499643-626f78ea.mp4",
+    "volcanoTaskId": "cgt-20260426110133-2cn7d",
+    "error": "Task timed out or server restarted during processing",
+    "createdAt": 1777172499644,
+    "completedAt": 1777173389240
+  },
+  {
+    "id": "ai-1777173473572-c1cbca5f",
+    "scriptId": "script-1777172050812",
+    "scriptTitle": "Script",
+    "type": "image",
+    "provider": "seedance",
+    "mode": "cover",
+    "prompt": "公园相亲角，光线刺眼如正午烈日。王大妈脸涨成猪肝色，唾沫横飞，手指几乎戳到年轻男生鼻尖，表情扭曲愤怒。年轻男生轻笑，推了推并不存在的眼镜，慢条斯理地整理白衬衫袖口，神态从容讥诮。周围家长纷纷侧目，背景有强烈的光影对比。写实风格，光线硬朗，构图极端近景，突出王大妈的失控与大学生的冷静反差。",
+    "personaImages": {
+      "aUrl": "/assets/generated/personas/ai-1777169829775-df0a6d0f.jpg",
+      "bUrl": "/assets/generated/personas/ai-1777167639657-17f0c712.jpg"
+    },
+    "duration": 12,
+    "status": "success",
+    "resultUrl": "/assets/generated/scenes/ai-1777173473572-c1cbca5f.jpg",
+    "volcanoTaskId": null,
+    "error": null,
+    "createdAt": 1777173473572,
+    "completedAt": 1777173522966
   }
 ]

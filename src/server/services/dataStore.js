@@ -75,6 +75,38 @@ export function deleteBackup(filePath) {
   }
 }
 
+// ── Write queue for exclusive file access ──
+// Prevents concurrent read-modify-write race conditions on JSON data files.
+const _writeQueues = new Map();
+
+function _getQueue(key) {
+  if (!_writeQueues.has(key)) {
+    _writeQueues.set(key, Promise.resolve());
+  }
+  return _writeQueues.get(key);
+}
+
+/**
+ * Execute a read-modify-write operation with exclusive access to a file.
+ * Operations on the same file are serialized via a promise queue.
+ * @param {string} key - Unique key for the file (use FILES.* constant)
+ * @param {Function} fn - Async or sync function that performs the operation
+ * @returns {Promise<any>} - Resolves to the return value of fn
+ */
+export async function withExclusiveAccess(key, fn) {
+  const prev = _getQueue(key);
+  let release;
+  const wait = new Promise(resolve => { release = resolve; });
+  // Chain: next operation waits for previous to release the lock
+  _writeQueues.set(key, prev.then(() => wait, () => wait));
+  await prev;
+  try {
+    return await fn();
+  } finally {
+    release();
+  }
+}
+
 // Centralized file paths
 export const FILES = {
   SCRIPTS: path.join(DATA_DIR, 'scripts.json'),

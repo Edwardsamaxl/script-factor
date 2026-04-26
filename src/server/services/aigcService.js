@@ -11,7 +11,7 @@ console.log('[aigcService] Loading module...');
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { loadAIResults, saveAIResults, loadUserPersonas, saveUserPersonas, loadBuiltInPersonas } from './dataStore.js';
+import { loadAIResults, saveAIResults, loadUserPersonas, saveUserPersonas, loadBuiltInPersonas, withExclusiveAccess, FILES } from './dataStore.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -106,10 +106,12 @@ export async function createAIResult({ scriptId, scriptTitle, type, provider, mo
     completedAt: null
   };
 
-  // Save initial record
-  const results = loadAIResults();
-  results.push(result);
-  saveAIResults(results);
+  // Save initial record with exclusive access to prevent race conditions
+  await withExclusiveAccess(FILES.AI_RESULTS, () => {
+    const results = loadAIResults();
+    results.push(result);
+    saveAIResults(results);
+  });
 
   // Start async generation
   if (type === 'video') {
@@ -125,14 +127,16 @@ export async function createAIResult({ scriptId, scriptTitle, type, provider, mo
  * Update AI result record
  */
 function updateAIResult(id, updates) {
-  const results = loadAIResults();
-  const index = results.findIndex(r => r.id === id);
-  if (index !== -1) {
-    results[index] = { ...results[index], ...updates };
-    saveAIResults(results);
-    return results[index];
-  }
-  return null;
+  return withExclusiveAccess(FILES.AI_RESULTS, () => {
+    const results = loadAIResults();
+    const index = results.findIndex(r => r.id === id);
+    if (index !== -1) {
+      results[index] = { ...results[index], ...updates };
+      saveAIResults(results);
+      return results[index];
+    }
+    return null;
+  });
 }
 
 /**
@@ -215,23 +219,25 @@ function updatePersonaImageUrl(personaId, imageUrl) {
  * Delete AI result
  */
 function deleteAIResult(id) {
-  const results = loadAIResults();
-  const index = results.findIndex(r => r.id === id);
-  if (index === -1) return false;
+  return withExclusiveAccess(FILES.AI_RESULTS, () => {
+    const results = loadAIResults();
+    const index = results.findIndex(r => r.id === id);
+    if (index === -1) return false;
 
-  const result = results[index];
+    const result = results[index];
 
-  // Delete associated files
-  if (result.resultUrl) {
-    const filePath = path.join(PROJECT_ROOT, 'public', result.resultUrl);
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
+    // Delete associated files
+    if (result.resultUrl) {
+      const filePath = path.join(PROJECT_ROOT, 'public', result.resultUrl);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
     }
-  }
 
-  results.splice(index, 1);
-  saveAIResults(results);
-  return true;
+    results.splice(index, 1);
+    saveAIResults(results);
+    return true;
+  });
 }
 
 /**
@@ -330,37 +336,11 @@ async function startVideoGeneration(result) {
       text: result.prompt
     });
 
-    // Add persona images as reference images (convert to base64)
-    const { personaImages, duration: resultDuration } = result;
-    const aBase64 = await localFileToBase64(personaImages?.aUrl);
-    const bBase64 = await localFileToBase64(personaImages?.bUrl);
-    const imageItems = [];
-    if (aBase64) {
-      imageItems.push({
-        type: 'image_url',
-        image_url: {
-          url: aBase64,
-          role: 'reference_image'
-        }
-      });
-    }
-    if (bBase64) {
-      imageItems.push({
-        type: 'image_url',
-        image_url: {
-          url: bBase64,
-          role: 'reference_image'
-        }
-      });
-    }
-
-    // Position first image as first_frame if available, rest as reference_image
-    // This helps Seedance anchor character appearance across the video
-    if (imageItems.length > 0) {
-      imageItems[0].image_url.role = 'first_frame';
-    }
-
-    content.push(...imageItems);
+    // Note: Seedance 1.5 Pro does NOT support "reference_image" role,
+    // so persona reference images are skipped for now.
+    // If needed in the future, they can be sent as "first_frame"+"last_frame"
+    // but this is incompatible with multi-reference-image workflows.
+    const { duration: resultDuration } = result;
 
     // Step 1: Create video generation task
     console.log('[Video Create] Starting video generation with prompt:', result.prompt?.slice(0, 100));

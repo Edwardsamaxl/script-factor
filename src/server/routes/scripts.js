@@ -7,7 +7,7 @@ import { summarizeToStoryboard } from '../services/scriptSummarizer.js';
 import { createSession, getSession } from '../services/sessionStore.js';
 import { queueAndGenerate } from '../services/multiTurnGenerator.js';
 import { callDeepSeekAWithSystem, callDeepSeekBWithSystem } from '../services/llm.js';
-import { loadScripts, saveScripts } from '../services/dataStore.js';
+import { loadScripts, saveScripts, withExclusiveAccess, FILES } from '../services/dataStore.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -330,7 +330,7 @@ router.get('/', (req, res) => {
  * POST /api/scripts
  * 保存剧本
  */
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   try {
     const script = req.body;
     if (!script || !script.title || !script.dialogues) {
@@ -340,7 +340,6 @@ router.post('/', (req, res) => {
       });
     }
 
-    const scripts = loadScripts();
     const timestamp = Date.now();
     const newScript = {
       ...script,
@@ -349,15 +348,17 @@ router.post('/', (req, res) => {
       updatedAt: timestamp
     };
 
-    // 如果有相同ID则更新，否则添加
-    const index = scripts.findIndex(s => s.id === newScript.id);
-    if (index >= 0) {
-      scripts[index] = { ...scripts[index], ...newScript, updatedAt: timestamp };
-    } else {
-      scripts.unshift(newScript);
-    }
-
-    saveScripts(scripts);
+    // 如果有相同ID则更新，否则添加（with exclusive access）
+    await withExclusiveAccess(FILES.SCRIPTS, () => {
+      const scripts = loadScripts();
+      const index = scripts.findIndex(s => s.id === newScript.id);
+      if (index >= 0) {
+        scripts[index] = { ...scripts[index], ...newScript, updatedAt: timestamp };
+      } else {
+        scripts.unshift(newScript);
+      }
+      saveScripts(scripts);
+    });
 
     res.json({
       success: true,
@@ -376,32 +377,40 @@ router.post('/', (req, res) => {
  * PUT /api/scripts/:id
  * 更新剧本
  */
-router.put('/:id', (req, res) => {
+router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const updates = req.body;
-    const scripts = loadScripts();
-    const index = scripts.findIndex(s => s.id === id);
 
-    if (index === -1) {
+    const result = await withExclusiveAccess(FILES.SCRIPTS, () => {
+      const scripts = loadScripts();
+      const index = scripts.findIndex(s => s.id === id);
+
+      if (index === -1) {
+        return { error: 'Script not found' };
+      }
+
+      scripts[index] = {
+        ...scripts[index],
+        ...updates,
+        id, // 防止ID被修改
+        updatedAt: Date.now()
+      };
+
+      saveScripts(scripts);
+      return { data: scripts[index] };
+    });
+
+    if (result.error) {
       return res.status(404).json({
         success: false,
-        error: 'Script not found'
+        error: result.error
       });
     }
 
-    scripts[index] = {
-      ...scripts[index],
-      ...updates,
-      id, // 防止ID被修改
-      updatedAt: Date.now()
-    };
-
-    saveScripts(scripts);
-
     res.json({
       success: true,
-      data: scripts[index]
+      data: result.data
     });
   } catch (error) {
     console.error('Error updating script:', error);
@@ -416,24 +425,32 @@ router.put('/:id', (req, res) => {
  * DELETE /api/scripts/:id
  * 删除剧本
  */
-router.delete('/:id', (req, res) => {
+router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const scripts = loadScripts();
-    const filtered = scripts.filter(s => s.id !== id);
 
-    if (filtered.length === scripts.length) {
+    const result = await withExclusiveAccess(FILES.SCRIPTS, () => {
+      const scripts = loadScripts();
+      const filtered = scripts.filter(s => s.id !== id);
+
+      if (filtered.length === scripts.length) {
+        return { error: 'Script not found' };
+      }
+
+      saveScripts(filtered);
+      return { data: { id } };
+    });
+
+    if (result.error) {
       return res.status(404).json({
         success: false,
-        error: 'Script not found'
+        error: result.error
       });
     }
 
-    saveScripts(filtered);
-
     res.json({
       success: true,
-      data: { id }
+      data: result.data
     });
   } catch (error) {
     console.error('Error deleting script:', error);
