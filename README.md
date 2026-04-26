@@ -1,22 +1,20 @@
-# 剧本工坊 ScriptStudio
+# 搭映 (ScriptStudio)
 
 > 两个人设，一个故事
 
-AI 对话剧本生成平台。选择两个人设 + 场景，双 LLM Agent 交替对话生成剧本，自动产出故事板和视频脚本。
+**搭映** 是一个 AI 对话剧本创作平台。它的工作方式很简单：你创建或选择两个"人设"（Persona），设定一个场景，两个 AI Agent 会以这些人设的身份进行即兴对话，自动生成完整的对话剧本 + 故事板 + 视频脚本。
 
 ---
 
-## 技术栈
+## 它解决什么问题？
 
-| 层级 | 技术 | 说明 |
-|------|------|------|
-| 前端 | React 19 + Vite 6 | SPA |
-| 路由 | React Router v7 | 页面路由 |
-| 样式 | Tailwind CSS | 原子化 CSS |
-| 后端 | Express 4.18 | RESTful API + SSE 流式推送 |
-| AI SDK | OpenAI SDK (DeepSeek API) | LLM 调用封装 |
-| AI 图像 | OpenAI DALL-E 3 | 图像生成 |
-| 持久化 | JSON 文件 | 文件存储 |
+写对话剧本是一件"看起来简单，动手就卡壳"的事：
+
+- 角色之间的化学反应很难凭空想象
+- 写 10 轮对话就要反复调整语气和立场的一致性
+- 故事板和分镜是另一套劳动，不在大多数编剧的创作流里
+
+搭映的做法是：**把人设从剧本里抽象出来**。人设是独立的可复用资产，选两个人设扔进一个场景，AI 自动演完一整段戏。
 
 ---
 
@@ -40,7 +38,7 @@ cd src/server && npm install && cd ../..
 ### 配置
 
 ```bash
-# 后端需要 DEEPSEEK_API_KEY（在 src/server/ 下创建 .env）
+# 后端需要 DeepSeek API 密钥
 echo "DEEPSEEK_API_KEY=your_key_here" > src/server/.env
 ```
 
@@ -61,241 +59,223 @@ npm run build   # 输出到 dist/
 
 ---
 
+## 核心流程：三步行活一部戏
+
+```
+Step 1: 准备人设 → 创建或从广场挑选两个角色
+Step 2: 选择场景 → 过年催婚 / 亲戚盘问 / 工作交接
+Step 3: 生成剧本 → 双 LLM 实时对话，SSE 流式推送
+```
+
+生成过程是全自动的：
+
+```
+用户点击"开始生成"
+        │
+POST /api/scripts/generate-multi
+        │
+        ▼
+Round 1  LLM A → Persona A 发言  → SSE 推送到前端
+Round 2  LLM B → Persona B 发言  → SSE 推送到前端
+Round 3  LLM A → Persona A 发言  → SSE 推送到前端
+... 交替进行，最多 10 轮 ...
+[END] 或连续短回复 → 对话结束
+        │
+  对话完成后（并行）：
+  ├─ 生成故事板（AI 生图用）
+  └─ 生成视频脚本（AI 视频用）
+        │
+        ▼
+前端跳转剧本详情页（对话 / 故事板 / 视频脚本三 Tab）
+```
+
+---
+
+## 技术栈
+
+| 层级 | 技术 | 用途 |
+|------|------|------|
+| 前端 | React 19 + Vite 6 | SPA |
+| 路由 | React Router v7 | 页面路由 |
+| 样式 | Tailwind CSS | 原子化 CSS |
+| 后端 | Express 4.18 | RESTful + SSE |
+| AI SDK | OpenAI SDK (DeepSeek API) | LLM 调用 |
+| AI 图像 | DALL-E 3 | 人设/故事板生图 |
+| 持久化 | JSON 文件 | 零依赖存储 |
+
+---
+
 ## 项目结构
 
 ```
-scriptstudio/
+搭映/
 ├── src/
-│   ├── App.jsx                 # 根组件 + 路由配置
-│   ├── main.jsx                # 入口文件
-│   ├── index.css               # 全局样式（Tailwind）
+│   ├── App.jsx                      # 根组件 + 路由
+│   ├── main.jsx                     # 入口
+│   ├── index.css                    # Tailwind 全局样式
 │   │
 │   ├── components/
-│   │   ├── common/             # 通用组件
-│   │   │   ├── Button.jsx
-│   │   │   ├── Modal.jsx
-│   │   │   └── TagInput.jsx
-│   │   ├── layout/
-│   │   │   ├── Navbar.jsx
-│   │   │   └── TabBar.jsx
-│   │   ├── persona/
-│   │   │   ├── PersonaCard.jsx     # 人设卡片（广场/列表用）
-│   │   │   ├── PersonaForm.jsx     # 人设创建/编辑表单
-│   │   │   └── PersonaPreview.jsx  # 人设预览（选人设时）
-│   │   ├── script/
-│   │   │   ├── ScriptCard.jsx         # 剧本卡片
-│   │   │   ├── ScriptViewer.jsx       # 剧本详情（故事板/视频脚本/对话三Tab）
-│   │   │   └── GenerationProgress.jsx # 生成进度动画
-│   │   └── scene/
-│   │       └── SceneSelector.jsx      # 场景选择
+│   │   ├── common/                  # Button, Modal, TagInput
+│   │   ├── layout/                  # Navbar, TabBar
+│   │   ├── persona/                 # PersonaCard, PersonaForm, PersonaPreview
+│   │   ├── script/                  # ScriptCard, ScriptViewer, GenerationProgress
+│   │   └── scene/                   # SceneSelector
 │   │
-│   ├── pages/
-│   │   ├── HomePage.jsx               # / 首页
-│   │   ├── PersonaCreatePage.jsx      # /persona/create 创建/编辑人设
-│   │   ├── PersonaDetailPage.jsx      # /persona/:id 人设详情
-│   │   ├── PersonaSquarePage.jsx      # /persona/square 人设广场
-│   │   ├── ScriptCreatePage.jsx       # /script/create 创作剧本（3步+SSE）
-│   │   ├── ScriptDetailPage.jsx       # /script/:id 剧本详情
-│   │   ├── AICreatePage.jsx           # /ai/create/:scriptId AI创作
-│   │   ├── AIHubPage.jsx              # /ai/hub 创作中心
-│   │   └── ProfilePage.jsx            # /profile 个人中心
+│   ├── pages/                       # 10 个页面组件
+│   │   ├── HomePage.jsx             # /
+│   │   ├── PersonaCreatePage.jsx    # /persona/create
+│   │   ├── PersonaSquarePage.jsx    # /persona/square
+│   │   ├── PersonaDetailPage.jsx    # /persona/:id
+│   │   ├── ScriptCreatePage.jsx     # /script/create（3 步 + SSE）
+│   │   ├── ScriptDetailPage.jsx     # /script/:id（3 Tab）
+│   │   ├── AICreatePage.jsx         # /ai/create/:scriptId
+│   │   ├── AIHubPage.jsx            # /ai/hub
+│   │   ├── ProfilePage.jsx          # /profile
+│   │   ├── MyPersonasPage.jsx       # /my/personas
+│   │   └── MyScriptsPage.jsx        # /my/scripts
 │   │
-│   ├── context/
-│   │   ├── UserContext.jsx        # 用户状态（localStorage）
-│   │   ├── PersonaContext.jsx     # 人设状态（API -> 后端）
-│   │   └── ScriptContext.jsx      # 剧本状态（API -> 后端）
-│   │
-│   ├── hooks/
-│   │   ├── useLocalStorage.js
-│   │   ├── usePersonas.js
-│   │   └── useScripts.js
-│   │
-│   ├── data/
-│   │   └── scenes.js             # 前端场景数据（备用）
-│   │
-│   ├── utils/
-│   │   ├── promptBuilder.js      # 前端 prompt 拼接
-│   │   └── scriptParser.js       # 剧本格式化
-│   │
-│   └── server/                   # 后端 Express 服务
-│       ├── app.js                # Express 应用入口
-│       ├── server.js             # 服务器启动
-│       │
-│       ├── routes/
-│       │   ├── personas.js       # 人设 CRUD + 点赞 + 使用 + AI生成
-│       │   ├── scripts.js        # 剧本 CRUD + 双LLM生成 + SSE流 + 故事板
-│       │   ├── scenes.js         # 场景查询
-│       │   └── aigc.js           # AI图像/视频生成任务
-│       │
-│       ├── services/
-│       │   ├── llm.js                 # LLM 封装（双客户端 + 重试）
-│       │   ├── personaGenerator.js    # AI人设生成
-│       │   ├── scriptGenerator.js     # 单轮剧本生成
-│       │   ├── multiTurnGenerator.js  # 双LLM多轮对话生成
-│       │   ├── sessionStore.js        # 对话会话管理 + 队列
-│       │   ├── scriptSummarizer.js    # 故事板 + 视频脚本生成
-│       │   └── aigcService.js         # DALL-E / Flux / 视频(占位)
-│       │
-│       ├── prompts/
-│       │   ├── persona-generation.md
-│       │   ├── script-generation.md
-│       │   └── dialogue-turn.md
-│       │
-│       ├── data/
-│       │   ├── built-in-personas.json  # 内置人设
-│       │   ├── user-personas.json      # 用户人设（运行时生成）
-│       │   ├── scenes.json             # 场景列表
-│       │   ├── scripts.json            # 剧本存储（运行时生成）
-│       │   └── sessions.json           # 生成会话（运行时生成）
-│       │
-│       └── test/
-│           ├── persona.test.js
-│           ├── script.test.js
-│           └── dual-llm.test.js
+│   ├── context/                     # UserContext, PersonaContext, ScriptContext
+│   ├── hooks/                       # useLocalStorage, usePersonas, useScripts
+│   ├── data/                        # 前端场景数据（备用）
+│   └── utils/                       # promptBuilder, scriptParser
 │
-├── PRD.md                  # 产品需求文档
-└── vite.config.js          # Vite 配置
-```
-
----
-
-## 数据模型
-
-### 人设 Persona（实际字段）
-
-| 字段 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `id` | string | 自动 | 唯一标识 |
-| `name` | string | ✅ | 人设名称 |
-| `avatar` | string | - | 头像 emoji |
-| `creator` | string | 自动 | `'user'` 或 `'system'` |
-| `coreView` | string | ✅ | 核心观点（一段话） |
-| `speakingStyle` | string | ✅ | 说话风格（方言、口头禅等） |
-| `actionStyle` | string | ✅ | 行动风格（小动作、习惯等） |
-| `background` | string | - | 背景故事 |
-| `imagePrompt` | string | - | AI 生图英文 prompt（自动生成） |
-| `imageUrl` | string | - | AI 生图结果 URL |
-| `isFavorited` | boolean | 自动 | 是否收藏 |
-| `usageCount` | number | 自动 | 使用次数 |
-| `likeCount` | number | 自动 | 点赞数 |
-| `isPublic` | boolean | - | 是否公开 |
-| `isPremium` | boolean | 自动 | 是否付费 |
-
-### 剧本 Script
-
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| `id` | string | UUID |
-| `title` | string | 标题 |
-| `personaA/personaB` | object | `{ id, name, avatar, coreView, speakingStyle, actionStyle, background }` |
-| `scene` | object | `{ id, name, description }` |
-| `dialogues` | array | `[{ speaker: 'A'\|'B', content }]` |
-| `totalLines` | number | 对话轮数 |
-| `wordCount` | number | 总字数 |
-| `storyboard` | object | 故事板：`{ title, totalScenes, scenes: [{ id, setting, characters, action, dialogue, emotion, visualPrompt }] }` |
-| `summary` | object | 视频脚本：`{ videoPrompt, duration, emotion, style }` |
-
-### 场景 Scene
-
-```javascript
-{ id: string, name: string, description: string, prompt: string, isBuiltIn: boolean }
-```
-
----
-
-## 核心流程：剧本生成
-
-```
-用户操作：选择人设A → 选择人设B → 选择场景 → 点击"开始生成"
-                                                        │
-前端调用 POST /api/scripts/generate-multi               │
-  ├─ 返回 { scriptId, status: 'generating' }             │
-  └─ 打开 SSE GET /api/scripts/:id/stream               │
-                                                        ▼
-后端异步执行 ────────────────────────────────────────────→
-  Round 1  LLM A → Persona A 发言  → SSE dialogue
-  Round 2  LLM B → Persona B 发言  → SSE dialogue
-  Round 3  LLM A → Persona A 发言  → SSE dialogue
-  ... 交替进行，最多10轮 ...
-  [END] 或 连续短回复 → 对话结束
-                                                        │
-  对话完成后（并行）：                                     │
-  ├─ summarizeToStoryboard()   → storyboard
-  └─ summarizeToScriptSummary() → summary
-                                                        │
-  completeSession() → SSE done                          │
-                                                        ▼
-前端收到 done → 保存剧本 → 跳转 /script/:id 详情页
-               └→ 如 storyboard 未就绪，每1秒轮询等待
+├── src/server/                      # 后端（Embedded Express）
+│   ├── app.js                       # Express 入口
+│   ├── server.js                    # 服务器启动
+│   ├── routes/                      # personas, scripts, scenes, aigc
+│   ├── services/                    # llm, personaGenerator, scriptGenerator,
+│   │                                # multiTurnGenerator, sessionStore,
+│   │                                # scriptSummarizer, aigcService
+│   ├── prompts/                     # prompt 模板（.md）
+│   ├── data/                        # JSON 文件存储
+│   └── test/                        # 3 个测试文件
+│
+├── vite.config.js
+└── index.html
 ```
 
 ---
 
 ## API 端点
 
+### 人设 (Personas)
+
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| `GET` | `/health` | 健康检查 |
-| `GET` | `/api/personas/built-in` | 内置人设 |
-| `GET` | `/api/personas` | 用户人设 |
-| `POST` | `/api/personas` | 创建人设（直接保存） |
+| `GET` | `/api/personas/built-in` | 内置人设列表 |
+| `GET` | `/api/personas` | 用户人设列表 |
+| `POST` | `/api/personas` | 创建人设 |
 | `PUT` | `/api/personas/:id` | 更新人设 |
 | `DELETE` | `/api/personas/:id` | 删除人设 |
-| `POST` | `/api/personas/generate` | AI辅助生成人设 |
+| `POST` | `/api/personas/generate` | AI 辅助生成人设 |
 | `POST` | `/api/personas/:id/like` | 点赞/取消 |
 | `POST` | `/api/personas/:id/use` | 记录使用 |
 | `GET` | `/api/personas/favorites` | 已收藏列表 |
-| `GET` | `/api/scenes` | 场景列表 |
-| `GET` | `/api/scripts` | 剧本列表 |
-| `POST` | `/api/scripts` | 保存剧本 |
-| `POST` | `/api/scripts/generate` | 单轮生成 |
-| `POST` | `/api/scripts/generate-multi` | 双LLM多轮生成 |
+
+### 剧本 (Scripts)
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| `POST` | `/api/scripts/generate-multi` | 双 LLM 多轮生成 |
+| `GET` | `/api/scripts/:id/stream` | SSE 流式推送 |
 | `GET` | `/api/scripts/:id` | 轮询状态 |
-| `GET` | `/api/scripts/:id/stream` | SSE流式推送 |
+| `POST` | `/api/scripts` | 保存剧本 |
+| `PUT` | `/api/scripts/:id` | 更新剧本 |
+| `DELETE` | `/api/scripts/:id` | 删除剧本 |
 | `POST` | `/api/scripts/:id/summarize` | 手动生成故事板 |
-| `POST` | `/api/ai/generate` | AI图像/视频生成 |
+
+### AI 创作
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| `POST` | `/api/ai/generate` | AI 图像生成 |
 | `GET` | `/api/ai/tasks` | 任务列表 |
 | `GET` | `/api/ai/tasks/:taskId` | 任务状态 |
 
----
+### 其他
 
-## 内置数据
-
-### 内置人设（2个）
-
-| 名称 | 核心观点 | 说话风格 | 行动风格 |
-|------|---------|---------|---------|
-| **佳宜** 👩‍💼 | 丁克、不结婚、为自己而活 | 客气→毒舌、逻辑碾压 | 被惹怒后扇耳光 |
-| **王大妈** 👵 | 养儿防老、女必嫁人 | 杭州方言、阴阳怪气 | 紧张放屁、戳人说话 |
-
-### 内置场景（3个）
-
-| 场景 | 描述 |
-|------|------|
-| **过年催婚** | 家庭聚会催婚连环攻势 |
-| **亲戚盘问** | 七大姑八大姨问工资/对象/买房 |
-| **工作交接** | 老员工推活给实习生 |
-
-| 场景 | 描述 |
-|------|------|
-| **过年催婚** | 家庭聚会催婚连环攻势 |
-| **亲戚盘问** | 七大姑八大姨问工资/对象/买房 |
-| **工作交接** | 老员工推活给实习生 |
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| `GET` | `/health` | 健康检查 |
+| `GET` | `/api/scenes` | 场景列表 |
 
 ---
 
-## 后端 LLM 配置
+## 数据模型
+
+### 人设 (Persona)
+
+```javascript
+{
+  id: 'user-1714500000000',
+  name: '佳宜',
+  avatar: '👩‍💼',
+  creator: 'user',                    // 'user' | 'system'
+  coreView: '丁克，为自己而活...',      // 核心观点（必填）
+  speakingStyle: '被惹怒后毒舌...',    // 说话风格（必填）
+  actionStyle: '被惹怒后扇耳光...',    // 行动风格（必填）
+  background: '985 名校毕业...',       // 背景故事（选填）
+  imagePrompt: '...',                 // AI 生图 prompt（自动生成）
+  imageUrl: null,                     // AI 生图结果
+  isFavorited: false,
+  usageCount: 128,
+  likeCount: 45,
+  isPublic: true,
+  isPremium: false
+}
+```
+
+### 剧本 (Script)
+
+```javascript
+{
+  id: 'uuid',
+  title: '过年催婚风波',
+  personaA: { /* 人设 A 快照 */ },
+  personaB: { /* 人设 B 快照 */ },
+  scene: { id: '场景-过年催婚', name: '过年催婚', description: '...' },
+  dialogues: [
+    { speaker: 'A', content: '...' },
+    { speaker: 'B', content: '...' }
+  ],
+  totalLines: 10,
+  wordCount: 850,
+  storyboard: {                       // 故事板（AI 生图用）
+    title: 'Storyboard: ...',
+    totalScenes: 4,
+    scenes: [{
+      id: 1,
+      setting: '场景环境',
+      characters: ['佳宜', '王大妈'],
+      action: '角色动作',
+      dialogue: '关键对白',
+      emotion: '情绪基调',
+      visualPrompt: '英文 AI 生图 prompt'
+    }]
+  },
+  summary: {                          // 视频脚本（AI 视频用）
+    videoPrompt: '...',
+    duration: '10秒',
+    emotion: 'tension',
+    style: '电影感'
+  }
+}
+```
+
+---
+
+## LLM 配置
 
 | 服务 | model | temperature | max_tokens | 重试 |
 |------|-------|------------|------------|------|
-| personaGenerator | deepseek-chat | 0.7 | 4096 | 3次 |
-| scriptGenerator | deepseek-chat | 0.8 | 8192 | 3次 |
-| multiTurn (LLM A) | deepseek-chat | 0.8 | 1024 | 3次 |
-| multiTurn (LLM B) | deepseek-chat | 0.8 | 1024 | 3次 |
+| 人设生成 | deepseek-chat | 0.7 | 4096 | 3 次 |
+| 单轮剧本 | deepseek-chat | 0.8 | 8192 | 3 次 |
+| 多轮对话 (LLM A) | deepseek-chat | 0.8 | 1024 | 3 次 |
+| 多轮对话 (LLM B) | deepseek-chat | 0.8 | 1024 | 3 次 |
+| 故事板生成 | deepseek-chat | 0.7 | 4096 | 3 次 |
+| 视频脚本生成 | deepseek-chat | 0.7 | 1024 | 3 次 |
 
----
-
-## 环境变量
+### 环境变量
 
 | 变量 | 说明 | 默认值 |
 |------|------|--------|
@@ -305,11 +285,54 @@ scriptstudio/
 
 ---
 
+## 内置数据
+
+### 人设
+
+| 名称 | 核心观点 | 说话风格 | 行动风格 |
+|------|---------|---------|---------|
+| **佳宜** 👩‍💼 | 丁克、不结婚、为自己而活 | 客气→毒舌、逻辑碾压 | 被惹怒后扇耳光 |
+| **王大妈** 👵 | 养儿防老、女必嫁人 | 杭州方言、阴阳怪气 | 紧张放屁、戳人说话 |
+
+### 场景
+
+| 场景 | 描述 |
+|------|------|
+| **过年催婚** | 家庭聚会催婚连环攻势 |
+| **亲戚盘问** | 七大姑八大姨问工资/对象/买房 |
+| **工作交接** | 老员工推活给实习生 |
+
+---
+
 ## 测试
 
 ```bash
 cd src/server
-node test/persona.test.js     # 人设生成（5个用例）
-node test/script.test.js      # 剧本生成（6个用例）
-node test/dual-llm.test.js    # 双LLM通信测试
+node test/persona.test.js     # 人设生成（5 个用例）
+node test/script.test.js      # 剧本生成（6 个用例）
+node test/dual-llm.test.js    # 双 LLM 通信测试
 ```
+
+---
+
+## 设计思路
+
+搭映的核心假设是：**好故事来自好角色的碰撞**。
+
+大多数 AI 剧本工具让你写 prompt 来描述你想要的剧情，但搭映让你先定义"谁在说话"。人设是独立于剧本的资产——你可以创建一个"毒舌都市女性"人设，然后把它和"传统大妈"扔进"过年催婚"场景，AI 自动完成剩下的。
+
+这种"人设蒸馏 + Agent 对话"的模式有两个好处：
+
+1. **人设可复用**——一个好的人设可以用于无数个场景和组合
+2. **对话自然**——两个 LLM 各自扮演一个角色对话，比单模型生成对话更接近真实的人类交流
+
+---
+
+## 后续方向
+
+- Flux / Stable Diffusion 图像生成接入
+- Seedance / Runway / Pika 视频生成接入
+- 用户认证系统
+- 人设市场（付费/授权）
+- 更多导出格式（TXT / Fountain）
+- 更多预设场景和人设
