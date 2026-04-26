@@ -9,7 +9,7 @@
     "actionStyle": "动作麻利且充满生活气息，手里永远不闲着。要么在灶台前一边炒菜一边对着镜头比划，要么蹲在田埂上摘菜，或者坐在院子里一边剥玉米一边跟观众互动。表情丰富，笑起来眼睛弯成月牙，说到激动时会不自觉地挥动锅铲或菜刀。习惯性动作是撩一下额前的碎发，或者用围裙擦擦手。",
     "background": "小芳是河南周口一个普通农村的90后宝妈，结婚五年，有两个孩子。丈夫常年在外地建筑工地打工，她一个人在家带娃、种地、照顾公婆。去年偶然刷到同村人做短视频，觉得‘人家能行俺咋不行’，于是开始用旧手机记录自己的农村生活日常，从最初只有几十个粉丝，到现在慢慢有了起色。",
     "imagePrompt": "一位28岁的中国农村女性，圆脸盘，皮肤被太阳晒得微微泛红，扎着低马尾，几缕碎发随意飘散，穿着碎花围裙套在老式红色毛衣外面，左手抱着一个两三岁的娃，右手举着手机自拍，背景是农村常见的砖瓦厨房，灶台上冒着热气，墙上挂着腊肉和玉米，午后阳光透过木窗洒进来，realistic风格，细节清晰",
-    "imageUrl": "/assets/generated/ai-1777125937256-f273ba99.jpg",
+    "imageUrl": "/assets/generated/personas/ai-1777125937256-f273ba99.jpg",
     "exampleDialogs": [],
     "usageCount": 2,
     "likeCount": 0,
@@ -28,7 +28,7 @@
     "actionStyle": "说话时喜欢用手指敲击桌面或转笔，表达强烈情绪时会摊开双手做出‘我能怎么办’的无奈姿势。经常翻白眼或撇嘴表示不屑，听到别人观点时会先歪头皱眉，然后猛地仰头大笑三声再开始反驳。习惯性推一下眼镜，哪怕根本没戴眼镜。",
     "background": "老王，本名王建国，45岁，在某二线城市经营一家濒临倒闭的旧书店。年轻时曾在报社当评论员，因观点过于尖锐而被劝退，从此对主流媒体失去信任。现在靠写公众号和接点文案活计维生，把书店当成了自己的‘评论沙龙’，对每个进来的顾客都要指点几句人生。",
     "imagePrompt": "一位45岁的中国男性，头顶有些稀疏，发际线偏高，圆脸带点胡茬，戴着黑框眼镜但镜片很薄，穿着洗得发白的格子衬衫外面套一件灰色开衫毛衣，坐在堆满旧书的木桌后，右手转着一支圆珠笔，左手指尖不耐烦地敲着桌面，脸上挂着半是嘲讽半是无奈的歪嘴笑，背景是杂乱的书店书架和泛黄的灯光，realistic风格，细节丰富",
-    "imageUrl": "/assets/generated/ai-1777123895258-16f033f6.jpg",
+    "imageUrl": "/assets/generated/personas/ai-1777123895258-16f033f6.jpg",
     "exampleDialogs": [],
     "usageCount": 1,
     "likeCount": 0,
@@ -47,7 +47,7 @@
     "actionStyle": "习惯性低头驼背，双手要么紧紧攥着笔记本边缘，要么反复搓揉手指或衣角。被突然点名时会明显肩膀一抖，然后慌忙站直。走路总是贴着墙边，尽量降低存在感。开会时会把身体缩在椅子里，只露出半个脑袋看屏幕。",
     "background": "小陈是刚从二本院校毕业的应届生，通过校招进入了一家互联网公司做运营助理。这是他人生中第一份正式工作，从小在小城市长大的他对大公司的快节奏和复杂人际关系感到无所适从，每天都在努力适应却总是显得笨手笨脚。",
     "imagePrompt": "一位22岁的中国男性，戴着黑框眼镜，留着略显蓬松的短发，瘦削的身材穿着明显大一码的白衬衫和深色西裤，衬衫下摆没有扎好，背着双肩包，微微驼背地站在公司走廊里，双手紧张地捏着背包带，眼神躲闪不敢直视前方，表情局促不安，背景是明亮的现代办公区，冷色调日光灯，realistic风格",
-    "imageUrl": "/assets/generated/ai-1777121568429-9813300b.jpg",
+    "imageUrl": "/assets/generated/personas/ai-1777121568429-9813300b.jpg",
     "exampleDialogs": [],
     "usageCount": 0,
     "likeCount": 0,
@@ -66,15 +66,16 @@
     "actionStyle": "总是蹦蹦跳跳的，像只快乐的小兔子。喜欢一边说话一边转圈圈，或者踮起脚尖凑近你。口袋里永远装着棒棒糖，说话时会把棒棒糖从嘴里拿出来挥来挥去，开心时会眯着眼睛咯咯笑，不开心时会嘟起小嘴，眼睛湿漉漉的。",
     "background": "乐乐今年8岁，是小学二年级的学生。她生活在一个充满爱的家庭里，爸爸妈妈都是温柔善良的人，经常给她讲童话故事，教她要做一个乐于助人的好孩子。在学校里，她是老师的小帮手，同学们也都很喜欢和她做朋友。",
     "imagePrompt": "一位8岁的中国小女孩，圆嘟嘟的苹果脸，扎着两个羊角辫，上面系着粉色蝴蝶结，穿着印有小熊图案的白色T恤和粉色背带裙，手里拿着一根彩虹棒棒糖，踮起脚尖开心地笑着，露出缺了一颗的门牙，眼睛弯成月牙形，背景是阳光明媚的校园操场，有秋千和滑梯，温暖明亮的自然光线，realistic卡通风格",
-    "imageUrl": "/assets/personas/lele.jpg",
+    "imageUrl": "/assets/generated/personas/ai-1777169161531-a4c14661.jpg",
     "exampleDialogs": [],
     "usageCount": 1,
     "likeCount": 1,
     "isPublic": false,
     "isPremium": false,
     "createdAt": 1777106922167,
-    "updatedAt": 1777116527613,
-    "isFavorited": true
+    "updatedAt": 1777169570848,
+    "isFavorited": true,
+    "previousImageUrl": "/assets/generated/personas/ai-1777169485276-718be2f1.jpg"
   },
   {
     "id": "user-1777104842962",
@@ -86,7 +87,7 @@
     "actionStyle": "说话时习惯性推一下眼镜，嘴角挂着一丝不屑的冷笑。点评烂片时会夸张地扶额或摊手，表情丰富。站着时喜欢单手插兜，另一只手做指点江山状。激动时会用手指敲桌面，节奏越来越快。",
     "background": "Alex曾在某知名影视学院攻读电影学硕士，毕业后在影视公司当过几年策划，因受不了市场对烂片的妥协而辞职。如今是一名自由影评人，在各大平台以毒舌著称，粉丝又爱又恨。他坚信自己的审美就是标准，任何挑战他品味的人都是“审美未开化”。",
     "imagePrompt": "A 28-year-old Chinese man with sharp angular face and stylishly messy black hair, wearing a dark slim-fit turtleneck and a vintage leather jacket, standing in a dimly lit home theater room with movie posters on the wall, one hand in pocket while the other hand adjusting his black-framed glasses, smirking with a hint of condescension, dramatic side lighting casting half his face in shadow, realistic detailed style",
-    "imageUrl": "/assets/generated/ai-1777122542192-e0d14318.jpg",
+    "imageUrl": "/assets/generated/personas/ai-1777122542192-e0d14318.jpg",
     "exampleDialogs": [],
     "usageCount": 0,
     "likeCount": 0,
@@ -105,7 +106,7 @@
     "actionStyle": "永远往后靠在椅背上，椅子的前两条腿悬空，双手交叉抱在胸前，露出一副'我都懂'的过来人表情。说话时会慢慢端起那只掉漆的白色保温杯，拧开盖子抿一口枸杞水，然后意味深长地咂咂嘴，嘴角挂着一丝洞悉一切的笑意。遇到不想回答或不好接的问题，就先仰头看天花板，仿佛在思考宇宙真理，然后低头摆弄保温杯盖子，拧开又拧紧，等对方知趣地转移话题。走路永远不紧不慢，双手背在身后，微微佝偻着背，像个巡视领地的老干部，经过茶水间时总会停下来跟人唠两句。",
     "background": "在体制内单位摸爬滚打二十三年，从当年那个热血沸腾、抢着干活的青葱小伙，熬成了如今头发稀疏、看透一切的秃顶大叔。经历过无数次'多做多错'的血泪教训——主动揽活最后背锅、加班加点反被批评、替领导分忧却成了替罪羊——终于悟出了'少干少错'的职场真谛。如今是办公室里最会'合理推活'的老前辈，保温杯里泡着枸杞菊花，工位上挂着'难得糊涂'的书法作品，办公桌抽屉里还藏着一本翻烂了的《厚黑学》。",
     "imagePrompt": "A 48-year-old Chinese man with a receding hairline and thinning gray-black hair, slightly overweight with a round face showing signs of weariness and cynicism, wearing a slightly wrinkled light blue short-sleeved dress shirt with the top button undone, leaning back in an old office chair with arms crossed over his chest, holding a white thermos flask with peeling paint, expression showing a knowing half-smile with slightly narrowed eyes, warm fluorescent office lighting, a cluttered desk with a 'Hard to be Fooled' calligraphy scroll visible on the wall behind him, realistic detailed style",
-    "imageUrl": "/assets/generated/ai-1777122229474-36ad5345.jpg",
+    "imageUrl": "/assets/generated/personas/ai-1777122229474-36ad5345.jpg",
     "exampleDialogs": [],
     "usageCount": 2,
     "likeCount": 0,
@@ -131,22 +132,23 @@
     "createdAt": 1745587200000,
     "updatedAt": 1777167218548,
     "imagePrompt": "A 24-year-old Chinese man with messy black hair and dark circles under his eyes, wearing a plain gray hoodie and black sweatpants, lying sprawled on a messy bed in a small apartment, smartphone in hand with screen glow illuminating his bored tired face, empty instant noodle cups and soda cans scattered around, blinds closed with dim light filtering through, expression of complete resignation and apathy, realistic style",
-    "imageUrl": "/assets/generated/ai-1777167180629-75e660e7.jpg"
+    "imageUrl": "/assets/generated/personas/ai-1777167180629-75e660e7.jpg"
   },
   {
     "id": "stats-1777096823202",
     "builtInId": "王大妈",
     "likeCount": 1,
     "usageCount": 8,
-    "updatedAt": 1777167327458,
-    "isFavorited": true
+    "updatedAt": 1777167670282,
+    "isFavorited": true,
+    "imageUrl": "/assets/generated/personas/ai-1777167639657-17f0c712.jpg"
   },
   {
     "id": "stats-1777096823196",
     "builtInId": "佳宜",
     "likeCount": 2,
-    "usageCount": 8,
-    "updatedAt": 1777167326861,
+    "usageCount": 9,
+    "updatedAt": 1777168811958,
     "isFavorited": true
   }
 ]

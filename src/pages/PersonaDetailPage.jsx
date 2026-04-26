@@ -8,7 +8,7 @@ import { useAIResults } from '../hooks/useAIResults'
 export default function PersonaDetailPage() {
   const navigate = useNavigate()
   const { id } = useParams()
-  const { getPersona, deletePersona, refreshPersonas } = usePersonas()
+  const { getPersona, deletePersona, refreshPersonas, revertPersonaImage } = usePersonas()
   const { createTask } = useAIResults()
 
   // 每次进入页面时刷新人物数据，确保 imageUrl 是最新的
@@ -18,7 +18,7 @@ export default function PersonaDetailPage() {
 
   const persona = getPersona(id)
 
-  // 生成形象图 - 发送到AI Hub
+  // 重新生成形象图 - 不传旧图作为参考，基于文本 prompt 重新生成
   const handleGenerateImage = async () => {
     if (!persona.imagePrompt) return
 
@@ -28,9 +28,6 @@ export default function PersonaDetailPage() {
         provider: 'seedream',
         mode: 'persona',
         prompt: persona.imagePrompt,
-        personaImages: {
-          aUrl: persona.imageUrl
-        },
         personaId: persona.id
       })
       navigate('/ai/hub')
@@ -73,13 +70,29 @@ export default function PersonaDetailPage() {
         <div className="mt-4">
           <div className="flex items-center justify-between mb-2">
             <h3 className="font-medium text-gray-900">形象图</h3>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleGenerateImage}
-            >
-              ✨ 重新生成
-            </Button>
+            <div className="flex gap-2">
+              {persona.previousImageUrl && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={async () => {
+                    const updated = await revertPersonaImage(persona.id)
+                    if (updated) {
+                      await refreshPersonas()
+                    }
+                  }}
+                >
+                  ↩ 上一版
+                </Button>
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleGenerateImage}
+              >
+                ✨ 重新生成
+              </Button>
+            </div>
           </div>
           <div className="rounded-xl overflow-hidden border border-gray-200">
             <img

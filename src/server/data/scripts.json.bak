@@ -157,7 +157,7 @@
   },
   {
     "id": "script-1777126011221",
-    "title": "Dialogue between 奋斗的90后农村宝妈小芳 and 王大妈",
+    "title": "奋斗的90后农村宝妈小芳 and 王大妈",
     "dialogues": [
       {
         "speaker": "A",
@@ -297,7 +297,7 @@
     },
     "creator": "当前用户",
     "createdAt": 1777126011221,
-    "updatedAt": 1777126011221
+    "updatedAt": 1777167255136
   },
   {
     "id": "script-1777117101674",
@@ -741,162 +741,6 @@
     "creator": "当前用户",
     "createdAt": 1777112555598,
     "updatedAt": 1777116266728
-  },
-  {
-    "id": "script-1777112409218",
-    "title": "Dialogue between 佳宜 and 王大妈",
-    "dialogues": [
-      {
-        "speaker": "A",
-        "content": "（低头玩手机，假装没听见）"
-      },
-      {
-        "speaker": "B",
-        "content": "（翘着二郎腿，手指戳着桌面）哎哟，佳宜啊，你看看你，都二十好几的人了，连个对象都没有！不像我家子涵，虽然现在...（突然顿住，脸色微变）反正人家孩子都生过了！你这书读得再好有啥用？"
-      },
-      {
-        "speaker": "A",
-        "content": "（抬起头，露出职业假笑）王大妈，您说得对，我这书是白读了。不过您家子涵也真是厉害，不光孩子有了，现在还能天天去夜店给男模当金主，这生活多精彩啊。要不您劝劝她，改天带我也去见识见识？"
-      },
-      {
-        "speaker": "B",
-        "content": "（脸一下子涨得通红，手指颤抖着指向佳宜）放你娘的狗臭屁！我家子涵那是...那是去放松心情！你以为人人都像你似的，光会读书有啥用？连个男人都找不到！（说到激动处，眼珠子一转，又阴阳怪气起来）对了佳宜啊，听说你在那什么大公司上班，工资不少吧？咋到现在连个厕所都买不起呢？不像我家子涵，虽然...虽然现在有点那个，但人家可是住别墅开豪车的人！"
-      },
-      {
-        "speaker": "A",
-        "content": "（放下手机，露出一个意味深长的笑容）王大妈，您说得对，我是买不起房。不过您想想啊，现在房价这么高，我一个月工资也就够付个首付，然后还得背三十年房贷。您说我这人吧，工作都够累了，何必再给自己找罪受？租房多自由啊，想搬就搬，不像有些人，住着大别墅，可里面住的都是别人的男人。"
-      },
-      {
-        "speaker": "B",
-        "content": "（猛地站起身，手指戳向佳宜，唾沫星子直喷）哎哟喂！你这话说的，跟谁家男人多似的！我家子涵那是...那是...（突然放了个响屁，脸更红了）呸！你懂个啥！那叫应酬！应酬懂不懂？不像你，书读那么多，连个应酬都不会，就知道死啃书本！你看看你那租的房子，连个厨房都没有，天天点外卖，这哪是人过的日子！"
-      },
-      {
-        "speaker": "A",
-        "content": "（慢悠悠地端起茶杯，呷了一口，露出一个意味深长的笑）王大妈，您这话说的，我租房子确实没有厨房。不过您想想，我这点外卖，好歹是正经厨师做的。您家子涵倒是有个大厨房，可那厨房里做的，怕不是给男模们煮的醒酒汤吧？"
-      },
-      {
-        "speaker": "B",
-        "content": "（气得浑身发抖，手指戳到佳宜脸上）你、你这个小蹄子！敢编排我家子涵？！（突然一屁股坐回椅子上，拍着大腿）我告诉你，我家子涵那是命好！嫁了个有钱人，生了个大胖小子，现在想怎么玩就怎么玩！你倒好，读了那么多书，连个对象都找不到，我看你啊，就是书读得太多，脑子都读傻了！（说着又放了个屁，赶紧咳嗽两声掩饰尴尬）"
-      },
-      {
-        "speaker": "A",
-        "content": "（放下茶杯，站起身来，直视王大妈的眼睛，露出一个冷笑）王大妈，您这屁放得可真够响的，不愧是您，连放屁都带着一股子铜臭味。您说子涵命好，那我可真是羡慕不来，毕竟我这人穷，也就只能靠读书混口饭吃。不过您放心，我虽然买不起房、找不着对象，但起码我不用天天操心女儿在外头找男模被街坊邻居戳脊梁骨。您说，这日子过得，是不是比我这种“书呆子”累多了？"
-      },
-      {
-        "speaker": "B",
-        "content": "（脸色铁青，手指颤抖着指着佳宜，嘴唇哆嗦了半天）你、你这个小贱蹄子！我家子涵的事你少管！（突然站起来，用力拍桌子）我告诉你，我家子涵再怎么着，那也是给咱们家生了个大胖小子！不像你，读那么多书有啥用？连个种都留不下！（说着说着声音越来越大，唾沫星子乱飞）你说我不检点？我看你才是不检点！天天穿得跟个男人似的，也不知道勾搭谁去！"
-      }
-    ],
-    "totalLines": 10,
-    "wordCount": 1227,
-    "storyboard": {
-      "title": "过年盘问：丁克女的逆袭",
-      "totalScenes": 6,
-      "scenes": [
-        {
-          "id": 1,
-          "setting": "过年期间，中国家庭客厅，拥挤的饭桌旁，暖黄色灯光，桌上摆满年货和瓜子果盘，背景有模糊的亲戚群像，气氛嘈杂压抑",
-          "characters": [
-            "佳宜",
-            "王大妈"
-          ],
-          "action": "佳宜低头刷手机，假装没听见亲戚的追问；王大妈翘着二郎腿，手指不耐烦地戳着桌面，斜眼盯着佳宜，嘴角带着轻蔑的笑",
-          "dialogue": "哎哟佳宜，二十好几了连对象都没有！",
-          "emotion": "压抑、轻蔑、挑衅",
-          "visualPrompt": "A young woman in her mid-20s wearing a simple sweater, sitting at a crowded Chinese New Year dinner table, looking down at her phone with a bored expression. An older woman in her 50s with permed curly hair and gold jewelry, sitting opposite her, pointing at the table with a smug, condescending smirk. Warm indoor lighting, festive but tense atmosphere, realistic style, shallow depth of field, Canon 35mm f/1.4."
-        },
-        {
-          "id": 2,
-          "setting": "同一客厅，镜头推近至佳宜面部特写，背景亲戚虚化，气氛突然安静",
-          "characters": [
-            "佳宜",
-            "王大妈"
-          ],
-          "action": "佳宜缓缓抬起头，放下手机，露出一个标准的职业假笑，眼神锐利；王大妈原本得意的表情僵住，手指停在半空",
-          "dialogue": "您家子涵天天去夜店给男模当金主？",
-          "emotion": "冷静、讽刺、暗藏锋芒",
-          "visualPrompt": "Close-up portrait of a young woman with a fake polite smile, her eyes sharp and unblinking, holding a phone in her hand. Background shows a blurred older woman with a frozen, shocked expression. Warm indoor lighting with a slight shadow across the young woman’s face, cinematic composition, realistic style, film grain, 85mm portrait lens."
-        },
-        {
-          "id": 3,
-          "setting": "客厅，王大妈坐的沙发区域，光线略显刺眼，背景墙上有富贵竹装饰",
-          "characters": [
-            "王大妈",
-            "佳宜"
-          ],
-          "action": "王大妈猛地站起身，脸涨得通红，手指颤抖着指向佳宜，唾沫星子乱飞，情绪激动；佳宜淡定地坐在对面，双手交叉放在膝盖上，微笑不变",
-          "dialogue": "放屁！我家子涵那是去放松心情！",
-          "emotion": "暴怒、失控、羞恼",
-          "visualPrompt": "A middle-aged woman with permed hair and gold earrings standing up angrily, her face flushed red, pointing a trembling finger at someone off-screen, spit flying from her mouth. In the foreground, a young woman sits calmly with a slight smirk. Harsh overhead lighting creates dramatic shadows, cluttered living room background with bamboo decoration, chaotic and tense mood, realistic style, dynamic composition."
-        },
-        {
-          "id": 4,
-          "setting": "客厅茶几旁，镜头聚焦在佳宜端茶杯的动作，窗外是夜晚城市灯光，室内暖光与窗外冷光形成对比",
-          "characters": [
-            "佳宜",
-            "王大妈"
-          ],
-          "action": "佳宜慢悠悠端起茶杯，轻轻吹气，呷了一口茶，放下杯子时发出清脆声响，然后露出意味深长的笑容；王大妈气得浑身发抖，嘴唇哆嗦说不出话",
-          "dialogue": "您家子涵的厨房，怕是给男模煮醒酒汤的吧？",
-          "emotion": "从容、嘲讽、掌控局面",
-          "visualPrompt": "A young woman elegantly holding a ceramic teacup, taking a sip with a knowing smile, her eyes looking up at someone off-screen. An older woman in the background is visibly shaking with rage, her face purple. Contrast between warm indoor light and cool blue light from a night window behind. Still life elements: teacup, nuts on table. Realistic style, cinematic lighting, medium shot."
-        },
-        {
-          "id": 5,
-          "setting": "客厅中央，王大妈坐的椅子旁，气氛紧张到顶点，周围亲戚侧目",
-          "characters": [
-            "王大妈",
-            "佳宜"
-          ],
-          "action": "王大妈一屁股坐回椅子上，用力拍大腿，说话时又放了一个响屁，赶紧咳嗽两声掩饰，脸色铁青；佳宜站起身，居高临下俯视她，冷笑",
-          "dialogue": "您这屁都带着铜臭味，子涵命好我羡慕不来。",
-          "emotion": "羞辱、尴尬、彻底被压制",
-          "visualPrompt": "An older woman sitting on a chair, her face bright red with embarrassment, one hand patting her chest as she coughs, another hand still pointing weakly. A young woman stands over her, looking down with a cold smirk, arms crossed. Side lighting emphasizes the older woman's flushed cheeks and the young woman's sharp jawline. Crowded living room background with blurred onlookers. Realistic, dramatic, slightly comedic."
-        },
-        {
-          "id": 6,
-          "setting": "客厅门口，佳宜已经拿起外套准备离开，逆光剪影效果，门外的冷空气吹进来，室内亲戚们鸦雀无声",
-          "characters": [
-            "佳宜",
-            "王大妈"
-          ],
-          "action": "佳宜回头最后看了一眼王大妈，眼神平静但充满力量，嘴角带着一丝不屑的笑；王大妈瘫坐在椅子上，脸色铁青，手指无力地垂下，彻底哑口无言",
-          "dialogue": "起码我不用操心女儿找男模被戳脊梁骨。",
-          "emotion": "胜利、解脱、冷冽的平静",
-          "visualPrompt": "A young woman standing at a doorway, half turned back, wearing a coat, her face half in shadow and half lit by cool outdoor light, a slight victorious smirk on her lips. In the background, an older woman sits slumped in a chair, defeated, surrounded by silent relatives. Strong backlight creates a silhouette effect, dramatic contrast between warm indoor and cold outdoor light, cinematic wide shot, realistic style."
-        }
-      ]
-    },
-    "summary": {
-      "videoPrompt": "A young woman in a modest living room, smirking calmly while sipping tea. An older woman with permed hair and gold jewelry stands red-faced, angrily pointing and spitting. The older woman suddenly farts loudly, looking mortified. Tension, awkward silence, dramatic lighting.",
-      "duration": "10秒",
-      "emotion": "紧张、讽刺、尴尬",
-      "style": "写实电影感"
-    },
-    "personaA": {
-      "id": "佳宜",
-      "name": "佳宜",
-      "coreView": "未来预期是丁克，现在没有对象不着急，租房比买房划算，人应该为自己而活。工作已经够累了，凭什么还要被婚姻和传宗接代绑架？",
-      "speakingStyle": "平时唯唯诺诺、客客气气，被惹怒之后重拳出击，脏话狂飙非常毒舌，但总体说话偏理智，会用逻辑碾压对方",
-      "actionStyle": "被惹怒之后会直接扇对方耳光，而且不把对方脸扇肿就绝对不会停手",
-      "background": "985名校毕业，之后在大城市工作，平时工作压力大，所以尚且没有买房买车还有结婚的打算。外表文静内心独立，对人生有自己的规划"
-    },
-    "personaB": {
-      "id": "王大妈",
-      "name": "王大妈",
-      "coreView": "养儿防老，不生孩子就是犯罪，女的就是得嫁人，学习好有什么用，还不如找个好人家嫁了，不买房不买车就是没有根基。",
-      "speakingStyle": "三句话不离'不像我家子涵...'，浙江杭州方言口音，尖酸刻薄，爱慕虚荣，说话阴阳怪气",
-      "actionStyle": "一紧张就放屁，被戳到痛处就脸红，说话爱喷口水，激动时手指戳人",
-      "background": "王大妈的女儿子涵傍上大款，他们家有钱了，但是等到子涵生完孩子之后，大款就开始包二奶，于是子涵每天晚上就去夜店点男模，被街坊邻居骂不检点，王大妈管不住她，每当有人提起这件事，王大妈就会暴跳如雷。50多岁，烫着卷发，喜欢穿金戴银"
-    },
-    "scene": {
-      "id": "场景-亲戚盘问",
-      "name": "亲戚盘问",
-      "description": "过年走亲戚，被七大姑八大姨问工资、对象、买房"
-    },
-    "creator": "当前用户",
-    "createdAt": 1777112409218,
-    "updatedAt": 1777112409218
   },
   {
     "title": "111",

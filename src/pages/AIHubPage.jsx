@@ -156,7 +156,6 @@ export default function AIHubPage() {
     if (filter === 'all') return true
     if (filter === 'video') return t.type === 'video'
     if (filter === 'image') return t.type === 'image'
-    if (filter === 'failed') return t.status === 'failed'
     return true
   })
 
@@ -166,6 +165,21 @@ export default function AIHubPage() {
 
   const handleDelete = async (resultId) => {
     await deleteResult(resultId)
+  }
+
+  const handleDownload = async (resultUrl, fileName) => {
+    try {
+      const res = await fetch(resultUrl)
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = fileName || 'download'
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch (e) {
+      console.error('Download failed:', e)
+    }
   }
 
   return (
@@ -189,7 +203,6 @@ export default function AIHubPage() {
           { key: 'all', label: '全部' },
           { key: 'video', label: '视频' },
           { key: 'image', label: '图像' },
-          { key: 'failed', label: '失败' },
         ].map((tab) => (
           <button
             key={tab.key}
@@ -287,7 +300,7 @@ export default function AIHubPage() {
                   </Button>
                 )}
                 {task.resultUrl && (
-                  <Button variant="secondary" size="sm" className="flex-1">
+                  <Button variant="secondary" size="sm" className="flex-1" onClick={() => handleDownload(task.resultUrl, `${task.id}.${task.type === 'video' ? 'mp4' : 'jpg'}`)}>
                     下载
                   </Button>
                 )}

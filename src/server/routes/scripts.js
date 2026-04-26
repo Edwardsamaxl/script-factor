@@ -2,7 +2,7 @@ import express from 'express';
 import crypto from 'crypto';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { generateScript } from '../services/scriptGenerator.js';
+
 import { summarizeToStoryboard } from '../services/scriptSummarizer.js';
 import { createSession, getSession } from '../services/sessionStore.js';
 import { queueAndGenerate } from '../services/multiTurnGenerator.js';
@@ -65,8 +65,8 @@ router.post('/generate-multi', async (req, res) => {
     // Generate unique script ID
     const scriptId = crypto.randomUUID();
 
-    // Create session with persona data for storyboard generation
-    createSession(scriptId, { personaA, personaB, scene });
+    // Create session with persona data for storyboard generation and maxRounds for progress tracking
+    createSession(scriptId, { personaA, personaB, scene, maxRounds: rounds });
 
     // Start generation in background (non-blocking)
     queueAndGenerate(scriptId, personaA, personaB, scene, rounds, () => {});
@@ -203,7 +203,7 @@ router.get('/:id/stream', async (req, res) => {
       // Send progress event
       res.write(`event: progress\ndata: ${JSON.stringify({
         round: currentSession.dialogues.length,
-        total: 10
+        total: currentSession.maxRounds || 10
       })}\n\n`);
     }
 
@@ -238,74 +238,6 @@ router.get('/:id/stream', async (req, res) => {
   req.on('close', () => {
     clearInterval(intervalId);
   });
-});
-
-/**
- * POST /api/scripts/generate
- * Generate a script based on personas and scene
- */
-router.post('/generate', async (req, res) => {
-  try {
-    const { personaA, personaB, scene, maxRounds } = req.body;
-
-    // Validate required fields
-    if (!personaA || !personaB || !scene) {
-      return res.status(400).json({
-        success: false,
-        error: 'Missing required fields: personaA, personaB, scene'
-      });
-    }
-
-    // Validate persona structures
-    if (!personaA.id || !personaA.name) {
-      return res.status(400).json({
-        success: false,
-        error: 'personaA must have id and name'
-      });
-    }
-
-    if (!personaB.id || !personaB.name) {
-      return res.status(400).json({
-        success: false,
-        error: 'personaB must have id and name'
-      });
-    }
-
-    // Validate scene structure
-    if (!scene.id || !scene.name) {
-      return res.status(400).json({
-        success: false,
-        error: 'scene must have id and name'
-      });
-    }
-
-    // Validate maxRounds if provided
-    const rounds = maxRounds ? parseInt(maxRounds, 10) : 10;
-    if (isNaN(rounds) || rounds < 4 || rounds > 20) {
-      return res.status(400).json({
-        success: false,
-        error: 'maxRounds must be a number between 4 and 20'
-      });
-    }
-
-    const script = await generateScript({
-      personaA,
-      personaB,
-      scene,
-      maxRounds: rounds
-    });
-
-    res.json({
-      success: true,
-      data: script
-    });
-  } catch (error) {
-    console.error('Error generating script:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to generate script'
-    });
-  }
 });
 
 /**

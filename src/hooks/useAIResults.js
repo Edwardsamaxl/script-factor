@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 
 const API_BASE = '/api/ai'
 
@@ -33,39 +33,45 @@ export function useAIResults(scriptId) {
     fetchResults()
   }, [fetchResults])
 
+  // 使用 ref 保存最新 results，避免轮询 effect 依赖 results 导致无限循环
+  const resultsRef = useRef(results)
+  resultsRef.current = results
+
   // Poll for updates (every 3 seconds)
   // For video tasks in processing state, also query the real-time API endpoint
   useEffect(() => {
     const interval = setInterval(async () => {
-      const videoProcessing = results.filter(r => r.type === 'video' && r.status === 'processing' && r.volcanoTaskId)
+      const currentResults = resultsRef.current
+      const videoProcessing = currentResults.filter(r => r.type === 'video' && r.status === 'processing' && r.volcanoTaskId)
       if (videoProcessing.length > 0) {
-        const updatedResults = [...results]
         for (const task of videoProcessing) {
           try {
             const res = await fetch(`${API_BASE}/video-results/${task.id}`)
             const data = await res.json()
             if (data.success && data.data.volcanoStatus) {
-              const idx = updatedResults.findIndex(r => r.id === task.id)
-              if (idx !== -1) {
-                updatedResults[idx] = {
-                  ...updatedResults[idx],
+              setResults(prev => {
+                const idx = prev.findIndex(r => r.id === task.id)
+                if (idx === -1) return prev
+                const updated = [...prev]
+                updated[idx] = {
+                  ...updated[idx],
                   status: data.data.volcanoStatus === 'succeeded' ? 'success' :
                           data.data.volcanoStatus === 'failed' ? 'failed' :
                           data.data.volcanoStatus === 'running' || data.data.volcanoStatus === 'processing' ? 'processing' : 'pending',
-                  resultUrl: data.data.volcanoVideoUrl || updatedResults[idx].resultUrl
+                  resultUrl: data.data.volcanoVideoUrl || updated[idx].resultUrl
                 }
-              }
+                return updated
+              })
             }
           } catch (e) {
             // Fallback to normal polling
           }
         }
-        setResults(updatedResults)
       }
       fetchResults()
     }, 3000)
     return () => clearInterval(interval)
-  }, [fetchResults, results])
+  }, [fetchResults])
 
   // Create a new generation task
   const createTask = async ({ type, provider, mode, prompt, personaImages, personaId, duration }) => {
@@ -111,7 +117,7 @@ export function useAIResults(scriptId) {
 
   // Retry a failed task
   const retryTask = async (resultId) => {
-    const res = await fetch(`${API_BASE}/tasks/${resultId}/retry`, {
+    const res = await fetch(`${API_BASE}/results/${resultId}/retry`, {
       method: 'POST'
     })
     const data = await res.json()

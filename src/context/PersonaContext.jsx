@@ -8,74 +8,49 @@ export function PersonaProvider({ children }) {
   const [personas, setPersonas] = useState([])
   const [loading, setLoading] = useState(true)
 
-  // 从后端加载内置人物、用户人物和点赞状态
+  // 从后端加载内置人物、用户人物和点赞状态（共享逻辑）
+  const fetchPersonas = async () => {
+    const [builtInRes, userRes, favRes] = await Promise.all([
+      fetch(`${API_BASE}/personas/built-in`),
+      fetch(`${API_BASE}/personas`),
+      fetch(`${API_BASE}/personas/favorites`)
+    ])
+
+    const builtInData = await builtInRes.json()
+    const userData = await userRes.json()
+    const favData = await favRes.json()
+
+    const builtIn = builtInData.success ? builtInData.data : []
+    const users = userData.success ? userData.data : []
+    const favorites = favData.success ? favData.data : { favoritedBuiltInIds: [], favoritedUserIds: [] }
+
+    // 过滤掉统计数据记录（builtInId 是内部统计标记，不是真实人设）
+    const realUsers = users.filter(p => !p.builtInId)
+    // 合并点赞状态
+    return [...builtIn, ...realUsers].map(p => {
+      const isFavorited = p.creator === 'user'
+        ? favorites.favoritedUserIds.includes(p.id)
+        : favorites.favoritedBuiltInIds.includes(p.id)
+      return { ...p, isFavorited }
+    })
+  }
+
+  // 初始加载
   useEffect(() => {
-    async function loadPersonas() {
-      try {
-        // 并行加载所有数据
-        const [builtInRes, userRes, favRes] = await Promise.all([
-          fetch(`${API_BASE}/personas/built-in`),
-          fetch(`${API_BASE}/personas`),
-          fetch(`${API_BASE}/personas/favorites`)
-        ])
-
-        const builtInData = await builtInRes.json()
-        const userData = await userRes.json()
-        const favData = await favRes.json()
-
-        const builtIn = builtInData.success ? builtInData.data : []
-        const users = userData.success ? userData.data : []
-        const favorites = favData.success ? favData.data : { favoritedBuiltInIds: [], favoritedUserIds: [] }
-
-        // 过滤掉统计数据记录（builtInId 是内部统计标记，不是真实人设）
-        const realUsers = users.filter(p => !p.builtInId)
-        // 合并点赞状态
-        const allPersonas = [...builtIn, ...realUsers].map(p => {
-          const isFavorited = p.creator === 'user'
-            ? favorites.favoritedUserIds.includes(p.id)
-            : favorites.favoritedBuiltInIds.includes(p.id)
-          return { ...p, isFavorited }
-        })
-
-        setPersonas(allPersonas)
-      } catch (error) {
-        console.error('Failed to load personas:', error)
+    fetchPersonas()
+      .then(setPersonas)
+      .catch(err => {
+        console.error('Failed to load personas:', err)
         setPersonas([])
-      } finally {
-        setLoading(false)
-      }
-    }
-    loadPersonas()
+      })
+      .finally(() => setLoading(false))
   }, [])
 
   // 刷新人物列表
   const refreshPersonas = async () => {
     setLoading(true)
     try {
-      const [builtInRes, userRes, favRes] = await Promise.all([
-        fetch(`${API_BASE}/personas/built-in`),
-        fetch(`${API_BASE}/personas`),
-        fetch(`${API_BASE}/personas/favorites`)
-      ])
-
-      const builtInData = await builtInRes.json()
-      const userData = await userRes.json()
-      const favData = await favRes.json()
-
-      const builtIn = builtInData.success ? builtInData.data : []
-      const users = userData.success ? userData.data : []
-      const favorites = favData.success ? favData.data : { favoritedBuiltInIds: [], favoritedUserIds: [] }
-
-      // 过滤掉统计数据记录
-      const realUsers = users.filter(p => !p.builtInId)
-
-      const allPersonas = [...builtIn, ...realUsers].map(p => {
-        const isFavorited = p.creator === 'user'
-          ? favorites.favoritedUserIds.includes(p.id)
-          : favorites.favoritedBuiltInIds.includes(p.id)
-        return { ...p, isFavorited }
-      })
-
+      const allPersonas = await fetchPersonas()
       setPersonas(allPersonas)
     } catch (error) {
       console.error('Failed to refresh personas:', error)
@@ -155,6 +130,24 @@ export function PersonaProvider({ children }) {
     }
   }
 
+  const revertPersonaImage = async (id) => {
+    try {
+      const res = await fetch(`${API_BASE}/personas/${id}/revert-image`, {
+        method: 'POST'
+      });
+      const data = await res.json();
+      if (data.success) {
+        setPersonas(prev =>
+          prev.map(p => p.id === id ? { ...p, ...data.data } : p)
+        );
+        return data.data;
+      }
+    } catch (error) {
+      console.error('Failed to revert persona image:', error);
+    }
+    return null;
+  };
+
   const toggleFavorite = async (id) => {
     const persona = personas.find(p => p.id === id)
     if (!persona) return
@@ -214,7 +207,8 @@ export function PersonaProvider({ children }) {
         getPersona,
         incrementUsage,
         toggleFavorite,
-        refreshPersonas
+        refreshPersonas,
+        revertPersonaImage
       }}
     >
       {children}

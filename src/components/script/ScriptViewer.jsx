@@ -2,9 +2,11 @@ import { useState, useRef, useEffect } from 'react'
 import Button from '../common/Button'
 import { formatScriptText } from '../../utils/scriptParser'
 import AIContentGallery from './AIContentGallery'
+import { useScripts } from '../../hooks/useScripts'
 
 
 export default function ScriptViewer({ script, onDelete }) {
+  const { updateScript } = useScripts()
   const [copied, setCopied] = useState(false)
   const [activeTab, setActiveTab] = useState('storyboard')
   const [isGeneratingStoryboard, setIsGeneratingStoryboard] = useState(false)
@@ -30,27 +32,21 @@ export default function ScriptViewer({ script, onDelete }) {
     setPromptDraft('')
   }
 
-  const savePrompt = (key) => {
+  const savePrompt = async (key) => {
     const newValue = promptDraft.trim()
     if (!newValue) { cancelEditPrompt(); return }
 
-    if (typeof key === 'number') {
-      // scene visualPrompt
-      const updated = [...(script.storyboard.scenes)]
-      updated[key] = { ...updated[key], visualPrompt: newValue }
-      script.storyboard.scenes = updated
-      fetch(`/api/scripts/${script.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ storyboard: script.storyboard }),
-      })
-    } else if (key === 'video') {
-      script.summary = { ...script.summary, videoPrompt: newValue }
-      fetch(`/api/scripts/${script.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ summary: script.summary }),
-      })
+    try {
+      if (typeof key === 'number') {
+        // scene visualPrompt
+        const updated = [...(script.storyboard.scenes)]
+        updated[key] = { ...updated[key], visualPrompt: newValue }
+        await updateScript(script.id, { storyboard: { ...script.storyboard, scenes: updated } })
+      } else if (key === 'video') {
+        await updateScript(script.id, { summary: { ...script.summary, videoPrompt: newValue } })
+      }
+    } catch (e) {
+      console.error('Failed to save prompt:', e)
     }
     cancelEditPrompt()
   }
@@ -62,20 +58,17 @@ export default function ScriptViewer({ script, onDelete }) {
     }
   }, [isRenaming])
 
-  const handleRenameConfirm = () => {
+  const handleRenameConfirm = async () => {
     const newTitle = renameValue.trim()
     if (newTitle && newTitle !== script.title) {
-      fetch(`/api/scripts/${script.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: newTitle }),
-      }).then((res) => res.json()).then((data) => {
-        if (data.success) {
-          // 直接更新传入的 script 对象的 title（props 是只读的，但对象引用可以修改内部属性）
-          script.title = newTitle
+      try {
+        const data = await updateScript(script.id, { title: newTitle })
+        if (data) {
           setIsRenaming(false)
         }
-      })
+      } catch (e) {
+        console.error('Failed to rename script:', e)
+      }
     } else {
       setIsRenaming(false)
     }

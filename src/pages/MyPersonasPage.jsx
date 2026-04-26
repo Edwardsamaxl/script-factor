@@ -83,7 +83,7 @@ export default function MyPersonasPage() {
                 <Button variant="primary">创建人设</Button>
               </Link>
             ) : (
-              <Link to="/persona-square">
+              <Link to="/persona/square">
                 <Button variant="primary">去广场</Button>
               </Link>
             )}

@@ -2,6 +2,7 @@ import { Routes, Route, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
 import Navbar from './components/layout/Navbar'
 import TabBar from './components/layout/TabBar'
+import ErrorBoundary from './components/common/ErrorBoundary'
 import HomePage from './pages/HomePage'
 import PersonaCreatePage from './pages/PersonaCreatePage'
 import PersonaSquarePage from './pages/PersonaSquarePage'
@@ -34,7 +35,8 @@ export default function App() {
             <Navbar />
             <main className="max-w-lg mx-auto px-4 py-4">
               <ScrollToTop />
-              <Routes>
+              <ErrorBoundary>
+                <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/persona/create" element={<PersonaCreatePage />} />
                 <Route path="/persona/square" element={<PersonaSquarePage />} />
@@ -47,6 +49,7 @@ export default function App() {
                 <Route path="/my/personas" element={<MyPersonasPage />} />
                 <Route path="/my/scripts" element={<MyScriptsPage />} />
               </Routes>
+              </ErrorBoundary>
             </main>
             <TabBar />
           </div>

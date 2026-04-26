@@ -50,6 +50,7 @@ console.log(`Loaded ${sessions.size} sessions from persistent storage`);
  * @returns {Object} - Created session
  */
 function createSession(id, data = {}) {
+  const now = Date.now();
   const session = {
     id,
     status: 'generating',
@@ -60,7 +61,10 @@ function createSession(id, data = {}) {
     personaB: data.personaB || null,
     scene: data.scene || null,
     storyboard: null,
-    summary: null
+    summary: null,
+    maxRounds: data.maxRounds || 10,
+    createdAt: now,
+    updatedAt: now
   };
   sessions.set(id, session);
   scheduleSave(); // Batch persist to file
@@ -84,7 +88,7 @@ function getSession(id) {
 function updateSession(id, updates) {
   const session = sessions.get(id);
   if (session) {
-    Object.assign(session, updates);
+    Object.assign(session, updates, { updatedAt: Date.now() });
     scheduleSave(); // Batch persist to file
   }
 }
@@ -98,7 +102,8 @@ function addDialogue(id, dialogue) {
   const session = sessions.get(id);
   if (session) {
     session.dialogues.push(dialogue);
-    session.progress = Math.round((session.dialogues.length / 10) * 100);
+    session.progress = Math.round((session.dialogues.length / (session.maxRounds || 10)) * 100);
+    session.updatedAt = Date.now();
     scheduleSave(); // Batch persist to file
   }
 }
@@ -112,6 +117,8 @@ function completeSession(id) {
   if (session) {
     session.status = 'completed';
     session.progress = 100;
+    session.updatedAt = Date.now();
+    scheduleSave();
     cleanupCompletedSessions();
   }
 }
@@ -165,6 +172,7 @@ function failSession(id, error) {
   if (session) {
     session.status = 'failed';
     session.error = error;
+    session.updatedAt = Date.now();
     scheduleSave(); // Batch persist to file
   }
 }

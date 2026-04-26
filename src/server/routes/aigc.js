@@ -129,6 +129,44 @@ router.delete('/results/:resultId', (req, res) => {
 });
 
 /**
+ * POST /api/ai/results/:resultId/retry
+ * Retry a failed AI generation task
+ */
+router.post('/results/:resultId/retry', async (req, res) => {
+  const { resultId } = req.params;
+  const existingResult = getAIResult(resultId);
+
+  if (!existingResult) {
+    return res.status(404).json({
+      success: false,
+      error: 'Result not found'
+    });
+  }
+
+  if (existingResult.status !== 'failed') {
+    return res.status(400).json({
+      success: false,
+      error: 'Can only retry failed tasks'
+    });
+  }
+
+  const result = await createAIResult({
+    scriptId: existingResult.scriptId,
+    scriptTitle: existingResult.scriptTitle,
+    type: existingResult.type,
+    provider: existingResult.provider,
+    mode: existingResult.mode,
+    prompt: existingResult.prompt,
+    personaImages: existingResult.personaImages
+  });
+
+  res.json({
+    success: true,
+    data: { resultId: result.id, status: 'pending' }
+  });
+});
+
+/**
  * GET /api/ai/video-results/:resultId
  * Query real-time video generation status from Volcano Engine API
  * This gives the frontend direct access to intermediate states (queued, running, etc.)
@@ -190,81 +228,5 @@ router.get('/video-results/:resultId', async (req, res) => {
   }
 });
 
-// Legacy endpoints for backwards compatibility
-
-/**
- * GET /api/ai/tasks/:taskId
- * Get task status (legacy - redirects to results)
- */
-router.get('/tasks/:taskId', (req, res) => {
-  const { taskId } = req.params;
-  const result = getAIResult(taskId);
-
-  if (!result) {
-    return res.status(404).json({
-      success: false,
-      error: 'Task not found'
-    });
-  }
-
-  res.json({
-    success: true,
-    data: result
-  });
-});
-
-/**
- * GET /api/ai/tasks
- * List all tasks (legacy)
- */
-router.get('/tasks', (req, res) => {
-  const tasks = loadAIResults()
-    .sort((a, b) => b.createdAt - a.createdAt)
-    .slice(0, 50);
-
-  res.json({
-    success: true,
-    data: tasks
-  });
-});
-
-/**
- * POST /api/ai/tasks/:taskId/retry
- * Retry a failed task (legacy)
- */
-router.post('/tasks/:taskId/retry', async (req, res) => {
-  const { taskId } = req.params;
-  const existingResult = getAIResult(taskId);
-
-  if (!existingResult) {
-    return res.status(404).json({
-      success: false,
-      error: 'Task not found'
-    });
-  }
-
-  if (existingResult.status !== 'failed') {
-    return res.status(400).json({
-      success: false,
-      error: 'Can only retry failed tasks'
-    });
-  }
-
-  // Create a new result to retry
-  const result = await createAIResult({
-    scriptId: existingResult.scriptId,
-    scriptTitle: existingResult.scriptTitle,
-    type: existingResult.type,
-    provider: existingResult.provider,
-    mode: existingResult.mode,
-    prompt: existingResult.prompt,
-    personaImages: existingResult.personaImages
-  });
-
-  res.json({
-    success: true,
-    data: { resultId: result.id, status: 'pending' }
-  });
-});
 
 export default router;

@@ -19,12 +19,14 @@ if (!process.env.DEEPSEEK_API_KEY) {
 }
 
 /**
- * Call DeepSeek LLM A with retry logic
+ * Call DeepSeek with retry logic (shared core)
+ * @param {Object} client - OpenAI client instance
+ * @param {string} clientName - Name for error messages ("A" or "B")
  * @param {Array} messages - Array of message objects with role and content
  * @param {Object} options - Options including temperature, max_tokens
  * @returns {Promise<string>} - The response content
  */
-async function callDeepSeekA(messages, options = {}) {
+async function _callDeepSeek(client, clientName, messages, options = {}) {
   const {
     temperature = 0.8,
     max_tokens = 1024,
@@ -36,7 +38,7 @@ async function callDeepSeekA(messages, options = {}) {
 
   for (let attempt = 0; attempt < max_retries; attempt++) {
     try {
-      const response = await deepseekA.chat.completions.create({
+      const response = await client.chat.completions.create({
         model,
         max_tokens,
         temperature,
@@ -47,10 +49,10 @@ async function callDeepSeekA(messages, options = {}) {
         return response.choices[0].message.content;
       }
 
-      throw new Error('Empty response from DeepSeek A');
+      throw new Error(`Empty response from DeepSeek ${clientName}`);
     } catch (error) {
       lastError = error;
-      console.error(`DeepSeek A attempt ${attempt + 1} failed:`, error.message);
+      console.error(`DeepSeek ${clientName} attempt ${attempt + 1} failed:`, error.message);
 
       if (attempt < max_retries - 1) {
         const delay = Math.pow(2, attempt) * 1000;
@@ -59,51 +61,21 @@ async function callDeepSeekA(messages, options = {}) {
     }
   }
 
-  throw new Error(`DeepSeek A failed after ${max_retries} attempts: ${lastError.message}`);
+  throw new Error(`DeepSeek ${clientName} failed after ${max_retries} attempts: ${lastError.message}`);
+}
+
+/**
+ * Call DeepSeek LLM A with retry logic
+ */
+async function callDeepSeekA(messages, options = {}) {
+  return _callDeepSeek(deepseekA, 'A', messages, options);
 }
 
 /**
  * Call DeepSeek LLM B with retry logic
- * @param {Array} messages - Array of message objects with role and content
- * @param {Object} options - Options including temperature, max_tokens
- * @returns {Promise<string>} - The response content
  */
 async function callDeepSeekB(messages, options = {}) {
-  const {
-    temperature = 0.8,
-    max_tokens = 1024,
-    max_retries = 3,
-    model = 'deepseek-chat'
-  } = options;
-
-  let lastError;
-
-  for (let attempt = 0; attempt < max_retries; attempt++) {
-    try {
-      const response = await deepseekB.chat.completions.create({
-        model,
-        max_tokens,
-        temperature,
-        messages
-      });
-
-      if (response.choices && response.choices.length > 0) {
-        return response.choices[0].message.content;
-      }
-
-      throw new Error('Empty response from DeepSeek B');
-    } catch (error) {
-      lastError = error;
-      console.error(`DeepSeek B attempt ${attempt + 1} failed:`, error.message);
-
-      if (attempt < max_retries - 1) {
-        const delay = Math.pow(2, attempt) * 1000;
-        await new Promise(resolve => setTimeout(resolve, delay));
-      }
-    }
-  }
-
-  throw new Error(`DeepSeek B failed after ${max_retries} attempts: ${lastError.message}`);
+  return _callDeepSeek(deepseekB, 'B', messages, options);
 }
 
 /**

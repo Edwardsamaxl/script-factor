@@ -8,11 +8,11 @@
     "mode": "cover",
     "prompt": "Modern Chinese drama scene: Living room during Chinese New Year. A well-dressed young woman (佳宜) sitting elegantly with a cup of tea, facing an older aunt (王大妈) with an amused smile. Warm afternoon light, cinematic composition, emotional atmosphere.",
     "personaImages": {
-      "aUrl": "/assets/personas/jiayi.jpg",
-      "bUrl": "/assets/personas/lele.jpg"
+      "aUrl": "/assets/generated/personas/jiayi.jpg",
+      "bUrl": "/assets/generated/personas/lele.jpg"
     },
     "status": "success",
-    "resultUrl": "/assets/generated/demo1.png",
+    "resultUrl": "/assets/generated/scenes/demo1.png",
     "error": null,
     "createdAt": 1745587200000,
     "completedAt": 1745587300000
@@ -26,11 +26,11 @@
     "mode": "characterA",
     "prompt": "Portrait of 佳宜: Young professional woman, 28 years old, confident posture, elegant casual attire, intellectual expression, modern Chinese aesthetic.",
     "personaImages": {
-      "aUrl": "/assets/personas/jiayi.jpg",
-      "bUrl": "/assets/personas/lele.jpg"
+      "aUrl": "/assets/generated/personas/jiayi.jpg",
+      "bUrl": "/assets/generated/personas/lele.jpg"
     },
     "status": "success",
-    "resultUrl": "/assets/generated/demo2.png",
+    "resultUrl": "/assets/generated/scenes/demo2.png",
     "error": null,
     "createdAt": 1745587400000,
     "completedAt": 1745587500000
@@ -44,7 +44,7 @@
     "mode": "cover",
     "prompt": "新年客厅，王大妈（脸红到脖子，卷发乱，表情窘迫）手叉腰，强装凶狠。佳宜（坐姿放松，端茶杯，眼神轻蔑，嘴角微翘）气质从容。暖光下，两人形成鲜明对比，背景有红灯笼。",
     "status": "success",
-    "resultUrl": "/assets/generated/ai-1777121429849-2f3d8488.jpg",
+    "resultUrl": "/assets/generated/scenes/ai-1777121429849-2f3d8488.jpg",
     "error": null,
     "createdAt": 1777121429850,
     "completedAt": 1777121472068
@@ -61,27 +61,10 @@
       "aUrl": null
     },
     "status": "success",
-    "resultUrl": "/assets/generated/ai-1777121568429-9813300b.jpg",
+    "resultUrl": "/assets/generated/personas/ai-1777121568429-9813300b.jpg",
     "error": null,
     "createdAt": 1777121568429,
     "completedAt": 1777121605446
-  },
-  {
-    "id": "ai-1777122002595-76ab0094",
-    "scriptId": "standalone",
-    "scriptTitle": "Script",
-    "type": "image",
-    "provider": "seedream",
-    "mode": "persona",
-    "prompt": "A 28-year-old Chinese man with sharp angular face and stylishly messy black hair, wearing a dark slim-fit turtleneck and a vintage leather jacket, standing in a dimly lit home theater room with movie posters on the wall, one hand in pocket while the other hand adjusting his black-framed glasses, smirking with a hint of condescension, dramatic side lighting casting half his face in shadow, realistic detailed style",
-    "personaImages": {
-      "aUrl": null
-    },
-    "status": "success",
-    "resultUrl": "/assets/generated/ai-1777122002595-76ab0094.jpg",
-    "error": null,
-    "createdAt": 1777122002595,
-    "completedAt": 1777122039788
   },
   {
     "id": "ai-1777122229474-36ad5345",
@@ -95,7 +78,7 @@
       "aUrl": null
     },
     "status": "success",
-    "resultUrl": "/assets/generated/ai-1777122229474-36ad5345.jpg",
+    "resultUrl": "/assets/generated/personas/ai-1777122229474-36ad5345.jpg",
     "error": null,
     "createdAt": 1777122229474,
     "completedAt": 1777122283507
@@ -112,7 +95,7 @@
       "aUrl": null
     },
     "status": "success",
-    "resultUrl": "/assets/generated/ai-1777122542192-e0d14318.jpg",
+    "resultUrl": "/assets/generated/personas/ai-1777122542192-e0d14318.jpg",
     "error": null,
     "createdAt": 1777122542192,
     "completedAt": 1777122599664
@@ -130,7 +113,7 @@
     },
     "personaId": "user-1777123890624",
     "status": "success",
-    "resultUrl": "/assets/generated/ai-1777123895258-16f033f6.jpg",
+    "resultUrl": "/assets/generated/personas/ai-1777123895258-16f033f6.jpg",
     "error": null,
     "createdAt": 1777123895258,
     "completedAt": 1777123941426
@@ -148,7 +131,7 @@
     },
     "personaId": "user-1777124256555",
     "status": "success",
-    "resultUrl": "/assets/generated/ai-1777124258149-e253d9e4.jpg",
+    "resultUrl": "/assets/generated/personas/ai-1777124258149-e253d9e4.jpg",
     "error": null,
     "createdAt": 1777124258149,
     "completedAt": 1777124308245
@@ -162,7 +145,7 @@
     "mode": "cover",
     "prompt": "一个45岁戴黑框眼镜、穿深色夹克、头发梳得整齐的男人（老马）站在昏暗旧书店里，冷笑看着对面。另一个45岁穿格子衬衫、头发微乱、戴眼镜的男人（老王）坐在堆满书的木桌后，翻白眼敲桌面。午后阳光从旧窗透入，空气中可见尘埃。电影感构图，低对比度，棕色调，光线偏暗，风格写实略带戏剧性。",
     "status": "success",
-    "resultUrl": "/assets/generated/ai-1777124329426-6bf73100.jpg",
+    "resultUrl": "/assets/generated/scenes/ai-1777124329426-6bf73100.jpg",
     "error": null,
     "createdAt": 1777124329426,
     "completedAt": 1777124379734
@@ -180,7 +163,7 @@
     },
     "personaId": "user-1777125936048",
     "status": "success",
-    "resultUrl": "/assets/generated/ai-1777125937256-f273ba99.jpg",
+    "resultUrl": "/assets/generated/personas/ai-1777125937256-f273ba99.jpg",
     "error": null,
     "createdAt": 1777125937256,
     "completedAt": 1777125981271
@@ -194,7 +177,7 @@
     "mode": "cover",
     "prompt": "中国河南农村老式堂屋，春节氛围，旧年画和木窗，午后暖阳洒入。一位30岁农村宝妈坐在矮凳上，穿碎花棉袄和蓝色围裙，扎低马尾，脸上有晒斑，笑容灿烂眼睛弯成月牙，手里麻利地剥花生，花生壳掉在围裙上。对面50多岁烫卷发大妈，穿红色棉袄戴金镯子金耳环，翘二郎腿，表情得意略带审视，桌上摆花生瓜子茶碗，风格写实，光线温暖柔和，电影感构图",
     "status": "success",
-    "resultUrl": "/assets/generated/ai-1777126015750-c1d39b3e.jpg",
+    "resultUrl": "/assets/generated/scenes/ai-1777126015750-c1d39b3e.jpg",
     "error": null,
     "createdAt": 1777126015750,
     "completedAt": 1777126072656
@@ -209,7 +192,7 @@
     "prompt": "中国农村堂屋，午后阳光斜照形成明暗对比，墙面有阴影。50多岁烫卷发大妈愤怒站立，穿红色棉袄戴金镯子，脸红脖子粗，手指戳向对方，嘴巴张开唾沫飞溅。30岁农村宝妈站在对面，穿碎花棉袄蓝色围裙，低马尾，表情从容带笑，眼睛弯弯，双手刚拍完灰，桌上花生壳散落，风格写实，光线戏剧性，人物情绪张力强",
     "duration": 12,
     "status": "success",
-    "resultUrl": "/assets/generated/ai-1777166523405-6945bb8c.jpg",
+    "resultUrl": "/assets/generated/scenes/ai-1777166523405-6945bb8c.jpg",
     "volcanoTaskId": null,
     "error": null,
     "createdAt": 1777166523406,
@@ -225,7 +208,7 @@
     "prompt": "镜头从近景小芳剥花生的手部特写开始，她麻利地剥壳，手指灵活，围裙上沾着花生壳。她抬起头，眼睛弯成月牙，嘴角带笑，语气爽朗。镜头拉远，王大妈坐在对面，金镯子晃眼，听到小芳提子涵逛夜店，笑容瞬间僵住，猛地一拍桌子站起身，金镯子撞在桌沿噼啪响，她手指戳向小芳，唾沫星子喷溅，脸红一阵白一阵。小芳不慌不忙抖抖围裙站起身，拍拍手，笑得眼睛更弯，语气不紧不慢。王大妈气得浑身发抖，抓起瓜子嚼得咔嚓响，吐皮时狠劲十足，又放了个响屁，脸红得像猴屁股。小芳转身添柴火，灶膛火光映红她的脸，她笑眯眯揭锅盖，热气腾腾的蒸馍香飘出，她拿起热馍吹了吹咬一口，笑容满足。王大妈抢过馍狠狠摔地上，金镯子叮当响，手指戳着空气，语气尖酸刻薄，最后擤鼻涕抹围裙上。整个画面充满农村灶房烟火气，光线温暖，人物站位一坐一站，互动激烈。",
     "duration": 12,
     "status": "success",
-    "resultUrl": "/assets/generated/ai-1777166621957-47821978.mp4",
+    "resultUrl": "/assets/generated/videos/ai-1777166621957-47821978.mp4",
     "volcanoTaskId": "cgt-20260426092335-qzpk4",
     "error": null,
     "createdAt": 1777166621957,
@@ -245,7 +228,7 @@
     "personaId": "user-反卷青年",
     "duration": 12,
     "status": "success",
-    "resultUrl": "/assets/generated/ai-1777167180629-75e660e7.jpg",
+    "resultUrl": "/assets/generated/personas/ai-1777167180629-75e660e7.jpg",
     "volcanoTaskId": null,
     "error": null,
     "createdAt": 1777167180629,
@@ -265,7 +248,7 @@
     "personaId": "user-职场老油条",
     "duration": 12,
     "status": "success",
-    "resultUrl": "/assets/generated/ai-1777167185446-71737ab3.jpg",
+    "resultUrl": "/assets/generated/personas/ai-1777167185446-71737ab3.jpg",
     "volcanoTaskId": null,
     "error": null,
     "createdAt": 1777167185446,
@@ -285,10 +268,47 @@
     "personaId": "王大妈",
     "duration": 12,
     "status": "success",
-    "resultUrl": "/assets/generated/ai-1777167639657-17f0c712.jpg",
+    "resultUrl": "/assets/generated/personas/ai-1777167639657-17f0c712.jpg",
     "volcanoTaskId": null,
     "error": null,
     "createdAt": 1777167639658,
     "completedAt": 1777167670279
+  },
+  {
+    "id": "ai-1777169161531-a4c14661",
+    "scriptId": "standalone",
+    "scriptTitle": "Script",
+    "type": "image",
+    "provider": "seedream",
+    "mode": "persona",
+    "prompt": "一位8岁的中国小女孩，圆嘟嘟的苹果脸，扎着两个羊角辫，上面系着粉色蝴蝶结，穿着印有小熊图案的白色T恤和粉色背带裙，手里拿着一根彩虹棒棒糖，踮起脚尖开心地笑着，露出缺了一颗的门牙，眼睛弯成月牙形，背景是阳光明媚的校园操场，有秋千和滑梯，温暖明亮的自然光线，realistic卡通风格",
+    "personaImages": {
+      "aUrl": "/assets/generated/personas/ai-1777168786554-831dbc4b.jpg"
+    },
+    "personaId": "user-1777106922167",
+    "duration": 12,
+    "status": "success",
+    "resultUrl": "/assets/generated/personas/ai-1777169161531-a4c14661.jpg",
+    "volcanoTaskId": null,
+    "error": null,
+    "createdAt": 1777169161531,
+    "completedAt": 1777169199301
+  },
+  {
+    "id": "ai-1777169485276-718be2f1",
+    "scriptId": "standalone",
+    "scriptTitle": "Script",
+    "type": "image",
+    "provider": "seedream",
+    "mode": "persona",
+    "prompt": "一位8岁的中国小女孩，圆嘟嘟的苹果脸，扎着两个羊角辫，上面系着粉色蝴蝶结，穿着印有小熊图案的白色T恤和粉色背带裙，手里拿着一根彩虹棒棒糖，踮起脚尖开心地笑着，露出缺了一颗的门牙，眼睛弯成月牙形，背景是阳光明媚的校园操场，有秋千和滑梯，温暖明亮的自然光线，realistic卡通风格",
+    "personaId": "user-1777106922167",
+    "duration": 12,
+    "status": "success",
+    "resultUrl": "/assets/generated/personas/ai-1777169485276-718be2f1.jpg",
+    "volcanoTaskId": null,
+    "error": null,
+    "createdAt": 1777169485276,
+    "completedAt": 1777169509754
   }
 ]

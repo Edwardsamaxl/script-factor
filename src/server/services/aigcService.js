@@ -28,12 +28,9 @@ console.log('[aigcService] ARK_API_KEY:', ARK_API_KEY ? '已设置' : '未设置
 // Public directory for storing generated files
 const GENERATED_DIR = path.join(PROJECT_ROOT, 'public', 'assets', 'generated');
 
-// Persona images directory
-const PERSONAS_DIR = path.join(PROJECT_ROOT, 'public', 'assets', 'personas');
-
 /**
  * Convert local file to base64 data URI
- * @param {string} filePath - Relative path under public directory (e.g. "/assets/personas/lele.jpg")
+ * @param {string} filePath - Relative path under public directory (e.g. "/assets/generated/personas/lele.jpg")
  * @returns {Promise<string|null>} - Base64 data URI or null if file not found
  */
 async function localFileToBase64(filePath) {
@@ -164,6 +161,10 @@ function updatePersonaImageUrl(personaId, imageUrl) {
   let personas = loadUserPersonas();
   let index = personas.findIndex(p => p.id === personaId);
   if (index !== -1) {
+    // 保存旧图地址，支持回退
+    if (personas[index].imageUrl && personas[index].imageUrl !== imageUrl) {
+      personas[index].previousImageUrl = personas[index].imageUrl;
+    }
     personas[index].imageUrl = imageUrl;
     personas[index].updatedAt = Date.now();
     saveUserPersonas(personas);
@@ -176,7 +177,22 @@ function updatePersonaImageUrl(personaId, imageUrl) {
   const builtInPersona = builtIn.find(p => p.id === personaId);
   if (builtInPersona) {
     // For built-in personas, we store the imageUrl in user-personas.json as a reference
-    const statsIndex = personas.findIndex(p => p.builtInId === personaId);
+    // First, deduplicate: remove stale stats entries for this builtInId (race condition guard)
+    const existingStats = personas.filter(p => p.builtInId === personaId);
+    const statsIndex = existingStats.length > 0
+      ? personas.indexOf(existingStats[0])
+      : -1;
+    // Remove any duplicate stats entries for the same builtInId (keep only the first one)
+    if (existingStats.length > 1) {
+      const usedIds = new Set();
+      personas = personas.filter(p => {
+        if (p.builtInId === personaId) {
+          if (usedIds.has(p.id)) return false;
+          usedIds.add(p.id);
+        }
+        return true;
+      });
+    }
     if (statsIndex !== -1) {
       personas[statsIndex].imageUrl = imageUrl;
       personas[statsIndex].updatedAt = Date.now();
@@ -274,8 +290,9 @@ async function startImageGeneration(result) {
       throw new Error('No image URL returned from Seedream API');
     }
 
-    // Download and save the image
-    const resultUrl = await downloadFile(imageData.url, result.id, 'image');
+    // Download and save the image to correct subdirectory
+    const imageType = result.mode === 'persona' ? 'persona-image' : 'scene-image';
+    const resultUrl = await downloadFile(imageData.url, result.id, imageType);
 
     updateAIResult(result.id, {
       status: 'success',
@@ -437,13 +454,36 @@ async function startVideoGeneration(result) {
   }
 }
 
+// Subdirectory names for different content types
+const SUBDIRS = {
+  video: 'videos',
+  'persona-image': 'personas',
+  'scene-image': 'scenes'
+};
+
 /**
- * Download file from URL and save to generated directory
+ * Ensure subdirectories exist
+ */
+function ensureSubDirs() {
+  Object.values(SUBDIRS).forEach(sub => {
+    const dir = path.join(GENERATED_DIR, sub);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+  });
+}
+
+// Ensure subdirectories exist on startup
+ensureSubDirs();
+
+/**
+ * Download file from URL and save to generated subdirectory
  */
 async function downloadFile(url, resultId, type) {
   const ext = type === 'video' ? 'mp4' : 'jpg';
   const fileName = `${resultId}.${ext}`;
-  const fullPath = path.join(GENERATED_DIR, fileName);
+  const subDir = SUBDIRS[type] || 'scenes';
+  const fullPath = path.join(GENERATED_DIR, subDir, fileName);
 
   const response = await fetchWithTimeout(url, {}, 120000); // 2min timeout for download
   if (!response.ok) {
@@ -454,7 +494,7 @@ async function downloadFile(url, resultId, type) {
   const buffer = Buffer.from(arrayBuffer);
   fs.writeFileSync(fullPath, buffer);
 
-  return `/assets/generated/${fileName}`;
+  return `/assets/generated/${subDir}/${fileName}`;
 }
 
 /**

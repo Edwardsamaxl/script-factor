@@ -390,6 +390,54 @@ router.delete('/:id', (req, res) => {
 });
 
 /**
+ * POST /api/personas/:id/revert-image
+ * 回退人设形象图到上一版
+ */
+router.post('/:id/revert-image', async (req, res) => {
+  try {
+    const { id } = req.params;
+    let personas = loadUserPersonas();
+    const index = personas.findIndex(p => p.id === id);
+
+    if (index === -1) {
+      return res.status(404).json({
+        success: false,
+        error: 'Persona not found'
+      });
+    }
+
+    if (!personas[index].previousImageUrl) {
+      return res.status(400).json({
+        success: false,
+        error: '没有上一版形象图可回退'
+      });
+    }
+
+    // 交换：当前图 -> 上一版，上一版 -> 当前图
+    const currentImageUrl = personas[index].imageUrl;
+    personas[index] = {
+      ...personas[index],
+      imageUrl: personas[index].previousImageUrl,
+      previousImageUrl: currentImageUrl,
+      updatedAt: Date.now()
+    };
+
+    saveUserPersonas(personas);
+
+    res.json({
+      success: true,
+      data: personas[index]
+    });
+  } catch (error) {
+    console.error('Error reverting persona image:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to revert persona image'
+    });
+  }
+});
+
+/**
  * POST /api/personas/generate
  * Generate a new persona based on input parameters (AI-assisted)
  */
