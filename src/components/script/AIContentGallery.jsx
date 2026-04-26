@@ -248,6 +248,10 @@ export default function AIContentGallery({ scriptId, script }) {
         if (userData.success) {
           userData.data.forEach(p => { if (p.imageUrl) map[p.id] = p.imageUrl })
         }
+        // Also check builtInId (for built-in persona stats entries)
+        if (userData.success) {
+          userData.data.forEach(p => { if (p.imageUrl && p.builtInId) map[p.builtInId] = p.imageUrl })
+        }
         setPersonaImageMap(map)
       } catch (e) {
         console.error('Failed to fetch persona images:', e)
@@ -341,8 +345,8 @@ export default function AIContentGallery({ scriptId, script }) {
         ))}
       </div>
 
-      {/* 角色人设图 */}
-      {(getPersonaImageUrl(script.personaA) || getPersonaImageUrl(script.personaB)) && (
+      {/* 角色人设图 - 只在"全部"和"图片"标签下显示 */}
+      {filter !== 'video' && (getPersonaImageUrl(script.personaA) || getPersonaImageUrl(script.personaB)) && (
         <div className="mb-6">
           <h4 className="text-sm font-semibold text-ink-700 mb-3 flex items-center gap-2">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-purple-500">
@@ -428,8 +432,8 @@ export default function AIContentGallery({ scriptId, script }) {
         </div>
       )}
 
-      {/* 空状态 */}
-      {filteredResults.length === 0 && (
+      {/* 空状态 - 仅在无AI结果且无人设图时显示 */}
+      {filteredResults.length === 0 && (filter === 'video' || !(getPersonaImageUrl(script.personaA) || getPersonaImageUrl(script.personaB))) && (
         <div className="text-center py-12">
           <div className="w-16 h-16 rounded-2xl bg-ink-100 flex items-center justify-center mx-auto mb-4">
             <svg width="28" height="28" viewBox="0 0 28 28" fill="none" className="text-ink-400">

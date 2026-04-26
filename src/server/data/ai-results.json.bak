@@ -67,23 +67,6 @@
     "completedAt": 1777121605446
   },
   {
-    "id": "ai-1777122002595-76ab0094",
-    "scriptId": "standalone",
-    "scriptTitle": "Script",
-    "type": "image",
-    "provider": "seedream",
-    "mode": "persona",
-    "prompt": "A 28-year-old Chinese man with sharp angular face and stylishly messy black hair, wearing a dark slim-fit turtleneck and a vintage leather jacket, standing in a dimly lit home theater room with movie posters on the wall, one hand in pocket while the other hand adjusting his black-framed glasses, smirking with a hint of condescension, dramatic side lighting casting half his face in shadow, realistic detailed style",
-    "personaImages": {
-      "aUrl": null
-    },
-    "status": "success",
-    "resultUrl": "/assets/generated/personas/ai-1777122002595-76ab0094.jpg",
-    "error": null,
-    "createdAt": 1777122002595,
-    "completedAt": 1777122039788
-  },
-  {
     "id": "ai-1777122229474-36ad5345",
     "scriptId": "standalone",
     "scriptTitle": "Script",
@@ -327,5 +310,79 @@
     "error": null,
     "createdAt": 1777169485276,
     "completedAt": 1777169509754
+  },
+  {
+    "id": "ai-1777169829775-df0a6d0f",
+    "scriptId": "standalone",
+    "scriptTitle": "Script",
+    "type": "image",
+    "provider": "seedream",
+    "mode": "persona",
+    "prompt": "一位22岁的中国男性，身高178cm左右，偏瘦身形，干净利落的短发，戴黑框眼镜，穿着印有985大学标志的白色T恤，外面套一件浅蓝色衬衫敞着穿，牛仔裤配白色运动鞋，站在大学图书馆前，一手插兜一手指向天空，下巴微抬露出自信笑容，眼神带着审视感，阳光明媚的校园背景，realistic风格，细节丰富",
+    "personaId": "user-1777169828266",
+    "duration": 12,
+    "status": "success",
+    "resultUrl": "/assets/generated/personas/ai-1777169829775-df0a6d0f.jpg",
+    "volcanoTaskId": null,
+    "error": null,
+    "createdAt": 1777169829775,
+    "completedAt": 1777169860737
+  },
+  {
+    "id": "ai-1777169881771-2be47359",
+    "scriptId": "script-1777169878356",
+    "scriptTitle": "Script",
+    "type": "image",
+    "provider": "seedance",
+    "mode": "cover",
+    "prompt": "农村小院午后，阳光透过树叶洒下斑驳光影，旧木桌堆满玉米。一位20岁出头名校男大学生，穿白衬衫黑裤，站姿挺拔，双手插兜，抬下巴露出优越表情。对面一位30岁农村宝妈，扎马尾穿碎花围裙，坐小板凳上麻利剥玉米，抬头咧嘴笑，眼睛弯成月牙。构图一高一低形成对比，自然光，写实风格。",
+    "personaImages": {
+      "aUrl": "",
+      "bUrl": "/assets/generated/personas/ai-1777125937256-f273ba99.jpg"
+    },
+    "duration": 12,
+    "status": "success",
+    "resultUrl": "/assets/generated/scenes/ai-1777169881771-2be47359.jpg",
+    "volcanoTaskId": null,
+    "error": null,
+    "createdAt": 1777169881771,
+    "completedAt": 1777169926236
+  },
+  {
+    "id": "ai-1777170478962-70a87518",
+    "scriptId": "script-1777169878356",
+    "scriptTitle": "Script",
+    "type": "video",
+    "provider": "seedance",
+    "mode": "cover",
+    "prompt": "乡村小院里，阳光透过槐树叶洒下斑驳光影。一名戴眼镜的男生穿着印有校名的T恤，双手插兜站在玉米堆旁，下巴微抬，眼神带着审视扫视四周。他对面，一位扎着马尾的农村宝妈坐在矮凳上，麻利地剥着玉米粒，围裙上沾着碎叶。男生用手指轻敲桌面，嘴角挂着讥诮的笑，身体微微前倾。宝妈抬头冲他咧嘴一笑，眼睛弯成月牙，一边把剥好的玉米粒倒进簸箕，一边用围裙角擦擦手，动作利落自如。男生冷笑一声，双手抱胸往后靠在椅背上，翘起二郎腿，用食指点了点空气。宝妈站起身来拍拍膝盖上的土，笑得眼睛眯成一条缝，阳光在她身后形成温暖光晕。两人之间堆着金黄的玉米，形成鲜明对比。",
+    "personaImages": {
+      "aUrl": "",
+      "bUrl": "/assets/generated/personas/ai-1777125937256-f273ba99.jpg"
+    },
+    "duration": 12,
+    "status": "success",
+    "resultUrl": "/assets/generated/videos/ai-1777170478962-70a87518.mp4",
+    "volcanoTaskId": "cgt-20260426102753-zlsw8",
+    "error": null,
+    "createdAt": 1777170478963,
+    "completedAt": 1777170872460
+  },
+  {
+    "id": "ai-1777170887680-7ff170d6",
+    "scriptId": "script-1777169878014",
+    "scriptTitle": "Script",
+    "type": "image",
+    "provider": "seedance",
+    "mode": "cover",
+    "prompt": "农村小院下午，光线温暖。男大学生前倾身体，食指敲击旧木桌，嘴角带讥笑，白衬衫袖子挽起，眼神轻蔑。农村宝妈坐在矮凳上，身边一盆玉米粒，她拍掉手上玉米须，抬头笑得灿烂，碎花围裙上有玉米壳，额前碎发被风吹起。景深中可见远处农田和晾晒的衣服，写实自然光。",
+    "personaImages": {},
+    "duration": 12,
+    "status": "processing",
+    "resultUrl": null,
+    "volcanoTaskId": null,
+    "error": null,
+    "createdAt": 1777170887680,
+    "completedAt": null
   }
 ]

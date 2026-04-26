@@ -1,11 +1,47 @@
 import express from 'express';
 import { createAIResult, getAIResult, getAIResultsByScriptId, deleteAIResult } from '../services/aigcService.js';
-import { loadAIResults } from '../services/dataStore.js';
+import { loadAIResults, loadScripts, loadUserPersonas, loadBuiltInPersonas } from '../services/dataStore.js';
 
 const ARK_API_KEY = process.env.ARK_API_KEY;
 const ARK_API_URL = process.env.ARK_API_URL || 'https://ark.cn-beijing.volces.com/api/v3';
 
 const router = express.Router();
+
+/**
+ * Resolve persona image URLs from script's persona data
+ * Falls back to persona database if not provided in request
+ */
+function resolvePersonaImages(scriptId, requestPersonaImages) {
+  // If both URLs are already provided, use them
+  if (requestPersonaImages?.aUrl && requestPersonaImages?.bUrl) {
+    return requestPersonaImages;
+  }
+
+  // Try to resolve from script data
+  const scripts = loadScripts();
+  const script = scripts.find(s => s.id === scriptId);
+  if (!script) return requestPersonaImages || {};
+
+  const userPersonas = loadUserPersonas();
+  const builtInPersonas = loadBuiltInPersonas();
+  const allPersonas = [...(Array.isArray(userPersonas) ? userPersonas : []), ...(Array.isArray(builtInPersonas) ? builtInPersonas : [])];
+
+  const getImageUrl = (persona) => {
+    if (!persona) return null;
+    if (persona.imageUrl) return persona.imageUrl;
+    // Look up by id in personas database
+    const found = allPersonas.find(p => p.id === persona.id);
+    if (found?.imageUrl) return found.imageUrl;
+    // Also check builtInId (for stats entries of built-in personas)
+    const foundByBuiltIn = allPersonas.find(p => p.builtInId === persona.id);
+    return foundByBuiltIn?.imageUrl || null;
+  };
+
+  return {
+    aUrl: requestPersonaImages?.aUrl || getImageUrl(script.personaA),
+    bUrl: requestPersonaImages?.bUrl || getImageUrl(script.personaB)
+  };
+}
 
 /**
  * POST /api/ai/generate
@@ -32,6 +68,10 @@ router.post('/generate', async (req, res) => {
 
     console.log('[AI Generate] Calling createAIResult with:', { scriptId, type, provider, mode, prompt: prompt?.substring(0, 50) });
 
+    // Resolve persona image URLs from script data when not provided
+    const resolvedPersonaImages = resolvePersonaImages(scriptId, personaImages);
+    console.log('[AI Generate] Resolved personaImages:', resolvedPersonaImages);
+
     // Create AI result and start generation
     const result = await createAIResult({
       scriptId: scriptId || 'standalone',
@@ -40,7 +80,7 @@ router.post('/generate', async (req, res) => {
       provider,
       mode: mode || 'cover',
       prompt,
-      personaImages,
+      personaImages: resolvedPersonaImages,
       personaId,
       duration
     });
