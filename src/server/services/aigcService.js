@@ -62,11 +62,31 @@ if (!fs.existsSync(GENERATED_DIR)) {
 }
 
 /**
+ * Resume pending tasks on server startup
+ * Any tasks with status 'pending' will be restarted
+ */
+export function resumePendingTasks() {
+  const results = loadAIResults();
+  const pending = results.filter(r => r.status === 'pending');
+  if (pending.length === 0) return;
+
+  console.log(`[aigcService] Resuming ${pending.length} pending task(s)...`);
+  pending.forEach(result => {
+    console.log(`[aigcService] Resuming task ${result.id} (${result.type}) for "${result.personaId || result.scriptId}"`);
+    if (result.type === 'video') {
+      startVideoGeneration(result);
+    } else {
+      startImageGeneration(result);
+    }
+  });
+}
+
+/**
  * Create an AI result record and start generation
  * @param {Object} params - Generation parameters
  * @returns {Promise<Object>} - Created result record
  */
-export async function createAIResult({ scriptId, scriptTitle, type, provider, mode, prompt, personaImages, personaId }) {
+export async function createAIResult({ scriptId, scriptTitle, type, provider, mode, prompt, personaImages, personaId, duration }) {
   const { v4: uuidv4 } = await import('uuid');
   const id = `ai-${Date.now()}-${uuidv4().slice(0, 8)}`;
 
@@ -80,8 +100,10 @@ export async function createAIResult({ scriptId, scriptTitle, type, provider, mo
     prompt,
     personaImages,
     personaId,
+    duration: duration || 12,
     status: 'pending',
     resultUrl: null,
+    volcanoTaskId: null,
     error: null,
     createdAt: Date.now(),
     completedAt: null
@@ -292,11 +314,12 @@ async function startVideoGeneration(result) {
     });
 
     // Add persona images as reference images (convert to base64)
-    const { personaImages } = result;
+    const { personaImages, duration: resultDuration } = result;
     const aBase64 = await localFileToBase64(personaImages?.aUrl);
     const bBase64 = await localFileToBase64(personaImages?.bUrl);
+    const imageItems = [];
     if (aBase64) {
-      content.push({
+      imageItems.push({
         type: 'image_url',
         image_url: {
           url: aBase64,
@@ -305,7 +328,7 @@ async function startVideoGeneration(result) {
       });
     }
     if (bBase64) {
-      content.push({
+      imageItems.push({
         type: 'image_url',
         image_url: {
           url: bBase64,
@@ -313,6 +336,14 @@ async function startVideoGeneration(result) {
         }
       });
     }
+
+    // Position first image as first_frame if available, rest as reference_image
+    // This helps Seedance anchor character appearance across the video
+    if (imageItems.length > 0) {
+      imageItems[0].image_url.role = 'first_frame';
+    }
+
+    content.push(...imageItems);
 
     // Step 1: Create video generation task
     console.log('[Video Create] Starting video generation with prompt:', result.prompt?.slice(0, 100));
@@ -328,7 +359,7 @@ async function startVideoGeneration(result) {
         content,
         resolution: '1080p',
         ratio: '16:9',
-        duration: 5,
+        duration: resultDuration || 12,
         watermark: false
       })
     }, 30000); // 30s timeout for task creation
@@ -344,6 +375,9 @@ async function startVideoGeneration(result) {
     if (!taskId) {
       throw new Error('No task ID returned from Seedance API');
     }
+
+    // Store volcano taskId immediately so frontend can poll via dedicated endpoint
+    updateAIResult(result.id, { volcanoTaskId: taskId });
 
     // Step 2: Poll for task completion
     const maxAttempts = 180; // 180 * 5s = 15 minutes max
@@ -373,8 +407,8 @@ async function startVideoGeneration(result) {
         console.log('[Video Poll] Task ID:', taskId, 'Status:', statusData.status, 'Full response:', JSON.stringify(statusData).slice(0, 500));
         taskStatus = statusData.status;
 
-        if (taskStatus === 'succeeded' && statusData.output?.video_url) {
-          const videoUrl = statusData.output.video_url;
+        if (taskStatus === 'succeeded' && statusData.content?.video_url) {
+          const videoUrl = statusData.content.video_url;
           // Download and save the video
           const resultUrl = await downloadFile(videoUrl, result.id, 'video');
 

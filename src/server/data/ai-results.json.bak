@@ -118,20 +118,6 @@
     "completedAt": 1777122599664
   },
   {
-    "id": "ai-1777123142554-f6e3d031",
-    "scriptId": "script-1777117101674",
-    "scriptTitle": "Script",
-    "type": "video",
-    "provider": "seedance",
-    "mode": "cover",
-    "prompt": "过年亲戚家，佳宜被王大妈拍肩膀质问，她放下手机抬头微笑，眼神渐冷。王大妈脸红喷口水手指戳人，佳宜突然站起拍桌，眼神凌厉。王大妈激动放屁，脸红尴尬。佳宜慢悠悠喝茶，嘴角带嘲讽。",
-    "status": "failed",
-    "resultUrl": null,
-    "error": "Video generation timed out",
-    "createdAt": 1777123142554,
-    "completedAt": 1777123219251
-  },
-  {
     "id": "ai-1777123895258-16f033f6",
     "scriptId": "standalone",
     "scriptTitle": "Script",
@@ -148,20 +134,6 @@
     "error": null,
     "createdAt": 1777123895258,
     "completedAt": 1777123941426
-  },
-  {
-    "id": "ai-1777123925765-34580c75",
-    "scriptId": "script-1777117101674",
-    "scriptTitle": "Script",
-    "type": "video",
-    "provider": "seedance",
-    "mode": "cover",
-    "prompt": "过年亲戚家，佳宜被王大妈拍肩膀质问，她放下手机抬头微笑，眼神渐冷。王大妈脸红喷口水手指戳人，佳宜突然站起拍桌，眼神凌厉。王大妈激动放屁，脸红尴尬。佳宜慢悠悠喝茶，嘴角带嘲讽。",
-    "status": "failed",
-    "resultUrl": null,
-    "error": "Video generation timed out",
-    "createdAt": 1777123925765,
-    "completedAt": 1777123995610
   },
   {
     "id": "ai-1777124258149-e253d9e4",
@@ -221,10 +193,102 @@
     "provider": "seedance",
     "mode": "cover",
     "prompt": "中国河南农村老式堂屋，春节氛围，旧年画和木窗，午后暖阳洒入。一位30岁农村宝妈坐在矮凳上，穿碎花棉袄和蓝色围裙，扎低马尾，脸上有晒斑，笑容灿烂眼睛弯成月牙，手里麻利地剥花生，花生壳掉在围裙上。对面50多岁烫卷发大妈，穿红色棉袄戴金镯子金耳环，翘二郎腿，表情得意略带审视，桌上摆花生瓜子茶碗，风格写实，光线温暖柔和，电影感构图",
-    "status": "processing",
-    "resultUrl": null,
+    "status": "success",
+    "resultUrl": "/assets/generated/ai-1777126015750-c1d39b3e.jpg",
     "error": null,
     "createdAt": 1777126015750,
+    "completedAt": 1777126072656
+  },
+  {
+    "id": "ai-1777166523405-6945bb8c",
+    "scriptId": "script-1777126011221",
+    "scriptTitle": "Script",
+    "type": "image",
+    "provider": "seedance",
+    "mode": "cover",
+    "prompt": "中国农村堂屋，午后阳光斜照形成明暗对比，墙面有阴影。50多岁烫卷发大妈愤怒站立，穿红色棉袄戴金镯子，脸红脖子粗，手指戳向对方，嘴巴张开唾沫飞溅。30岁农村宝妈站在对面，穿碎花棉袄蓝色围裙，低马尾，表情从容带笑，眼睛弯弯，双手刚拍完灰，桌上花生壳散落，风格写实，光线戏剧性，人物情绪张力强",
+    "duration": 12,
+    "status": "success",
+    "resultUrl": "/assets/generated/ai-1777166523405-6945bb8c.jpg",
+    "volcanoTaskId": null,
+    "error": null,
+    "createdAt": 1777166523406,
+    "completedAt": 1777166553963
+  },
+  {
+    "id": "ai-1777166621957-47821978",
+    "scriptId": "script-1777126011221",
+    "scriptTitle": "Script",
+    "type": "video",
+    "provider": "seedance",
+    "mode": "cover",
+    "prompt": "镜头从近景小芳剥花生的手部特写开始，她麻利地剥壳，手指灵活，围裙上沾着花生壳。她抬起头，眼睛弯成月牙，嘴角带笑，语气爽朗。镜头拉远，王大妈坐在对面，金镯子晃眼，听到小芳提子涵逛夜店，笑容瞬间僵住，猛地一拍桌子站起身，金镯子撞在桌沿噼啪响，她手指戳向小芳，唾沫星子喷溅，脸红一阵白一阵。小芳不慌不忙抖抖围裙站起身，拍拍手，笑得眼睛更弯，语气不紧不慢。王大妈气得浑身发抖，抓起瓜子嚼得咔嚓响，吐皮时狠劲十足，又放了个响屁，脸红得像猴屁股。小芳转身添柴火，灶膛火光映红她的脸，她笑眯眯揭锅盖，热气腾腾的蒸馍香飘出，她拿起热馍吹了吹咬一口，笑容满足。王大妈抢过馍狠狠摔地上，金镯子叮当响，手指戳着空气，语气尖酸刻薄，最后擤鼻涕抹围裙上。整个画面充满农村灶房烟火气，光线温暖，人物站位一坐一站，互动激烈。",
+    "duration": 12,
+    "status": "success",
+    "resultUrl": "/assets/generated/ai-1777166621957-47821978.mp4",
+    "volcanoTaskId": "cgt-20260426092335-qzpk4",
+    "error": null,
+    "createdAt": 1777166621957,
+    "completedAt": 1777167037688
+  },
+  {
+    "id": "ai-1777167180629-75e660e7",
+    "scriptId": "standalone",
+    "scriptTitle": "Script",
+    "type": "image",
+    "provider": "seedream",
+    "mode": "persona",
+    "prompt": "A 24-year-old Chinese man with messy black hair and dark circles under his eyes, wearing a plain gray hoodie and black sweatpants, lying sprawled on a messy bed in a small apartment, smartphone in hand with screen glow illuminating his bored tired face, empty instant noodle cups and soda cans scattered around, blinds closed with dim light filtering through, expression of complete resignation and apathy, realistic style",
+    "personaImages": {
+      "aUrl": null
+    },
+    "personaId": "user-反卷青年",
+    "duration": 12,
+    "status": "success",
+    "resultUrl": "/assets/generated/ai-1777167180629-75e660e7.jpg",
+    "volcanoTaskId": null,
+    "error": null,
+    "createdAt": 1777167180629,
+    "completedAt": 1777167218545
+  },
+  {
+    "id": "ai-1777167185446-71737ab3",
+    "scriptId": "standalone",
+    "scriptTitle": "Script",
+    "type": "image",
+    "provider": "seedream",
+    "mode": "persona",
+    "prompt": "A 42-year-old Chinese man with a completely bald head and slightly overweight build, wearing a slightly wrinkled light blue short-sleeve dress shirt with top buttons undone, sitting in an old office chair leaning back with both hands crossed over chest, holding a scratched white thermos flask, wearing glasses and showing a cunning knowing smile, a cluttered desk with tea stains and papers, a calligraphy scroll reading '难得糊涂' on the wall behind him, fluorescent office lighting, realistic style",
+    "personaImages": {
+      "aUrl": null
+    },
+    "personaId": "user-职场老油条",
+    "duration": 12,
+    "status": "success",
+    "resultUrl": "/assets/generated/ai-1777167185446-71737ab3.jpg",
+    "volcanoTaskId": null,
+    "error": null,
+    "createdAt": 1777167185446,
+    "completedAt": 1777167213282
+  },
+  {
+    "id": "ai-1777167639657-17f0c712",
+    "scriptId": "standalone",
+    "scriptTitle": "Script",
+    "type": "image",
+    "provider": "seedream",
+    "mode": "persona",
+    "prompt": "A 52-year-old Chinese woman with permed curly gray hair, wearing lots of gold jewelry including thick gold necklace and oversized gold earrings, dressed in loud floral print blouse with bright red lipstick, standing in a traditional Chinese neighborhood alley, arms crossed with a judgmental smug expression, sneering with arms akimbo, warm harsh sunlight creating strong shadows on her face showing wrinkles and attitude, realistic style",
+    "personaImages": {
+      "aUrl": null
+    },
+    "personaId": "王大妈",
+    "duration": 12,
+    "status": "processing",
+    "resultUrl": null,
+    "volcanoTaskId": null,
+    "error": null,
+    "createdAt": 1777167639658,
     "completedAt": null
   }
 ]

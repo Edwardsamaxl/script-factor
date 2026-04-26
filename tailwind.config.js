@@ -30,7 +30,7 @@ export default {
           500: '#bfb9a6',
         },
         accent: {
-          DEFAULT: '#c45d3a', // 赤陶色 - 剧本工坊的主色调
+          DEFAULT: '#c45d3a', // 赤陶色 - 搭映的主色调
           light: '#e07a5f',
           dark: '#a14a2e',
           muted: '#d4a59a',

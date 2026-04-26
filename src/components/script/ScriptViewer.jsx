@@ -322,7 +322,10 @@ export default function ScriptViewer({ script, onDelete }) {
                               scriptId: script.id,
                               type: 'image',
                               prompt: scene.visualPrompt,
-                              personaImages: script.personaImages
+                              personaImages: {
+                                aUrl: script.personaA?.imageUrl,
+                                bUrl: script.personaB?.imageUrl
+                              }
                             })
                           })
                           const data = await res.json()
@@ -385,7 +388,10 @@ export default function ScriptViewer({ script, onDelete }) {
                       scriptId: script.id,
                       type: 'video',
                       prompt: summary.videoPrompt,
-                      personaImages: script.personaImages
+                      personaImages: {
+                        aUrl: script.personaA?.imageUrl,
+                        bUrl: script.personaB?.imageUrl
+                      }
                     })
                   })
                   const data = await res.json()

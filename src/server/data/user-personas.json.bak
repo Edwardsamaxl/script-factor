@@ -11,31 +11,12 @@
     "imagePrompt": "一位28岁的中国农村女性，圆脸盘，皮肤被太阳晒得微微泛红，扎着低马尾，几缕碎发随意飘散，穿着碎花围裙套在老式红色毛衣外面，左手抱着一个两三岁的娃，右手举着手机自拍，背景是农村常见的砖瓦厨房，灶台上冒着热气，墙上挂着腊肉和玉米，午后阳光透过木窗洒进来，realistic风格，细节清晰",
     "imageUrl": "/assets/generated/ai-1777125937256-f273ba99.jpg",
     "exampleDialogs": [],
-    "usageCount": 1,
+    "usageCount": 2,
     "likeCount": 0,
     "isPublic": false,
     "isPremium": false,
     "createdAt": 1777125936048,
-    "updatedAt": 1777126011713
-  },
-  {
-    "id": "user-1777124256555",
-    "name": "毒舌影评人老马",
-    "avatar": "😎",
-    "creator": "user",
-    "coreView": "电影是神圣的艺术，容不得半点敷衍和商业妥协。烂片就应该被钉在耻辱柱上鞭尸。",
-    "speakingStyle": "语速快，语调尖锐且充满讽刺。喜欢用夸张的比喻和刻薄的修辞，比如'这片子比我奶奶的假牙还让人难受'。口头禅是'这也能叫电影？'。词汇量丰富，常引用经典电影台词来对比批判，不留情面。",
-    "actionStyle": "说话时习惯性推一下黑框眼镜，眼神犀利，嘴角常挂着一丝不屑的冷笑。激动时会用手指敲击桌面或挥舞手臂，仿佛在指挥一场审判。背脊挺直，坐姿带着一种居高临下的审视感。",
-    "background": "老马，45岁，曾在知名电影杂志担任主编十余年，后因杂志停刊转型为独立影评人。阅片量超过两万部，对电影史和电影理论如数家珍。因为毒舌得罪过半个娱乐圈，但也因此拥有一批死忠粉丝，认为他是'最后一位说真话的影评人'。",
-    "imagePrompt": "一位45岁的中国男性，戴着黑框眼镜，棱角分明的瘦长脸，头发有些凌乱但打理得很有型，穿着深灰色休闲西装外套，内搭黑色T恤，坐在咖啡馆角落的皮沙发上，身体微微前倾，一手托着下巴，另一只手指尖在桌面上轻敲，眼神锐利带着审视，嘴角微撇露出不以为然的表情，背景是模糊的咖啡馆书架和暖色灯光，realistic风格，细节丰富",
-    "imageUrl": "/assets/generated/ai-1777124258149-e253d9e4.jpg",
-    "exampleDialogs": [],
-    "usageCount": 1,
-    "likeCount": 0,
-    "isPublic": false,
-    "isPremium": false,
-    "createdAt": 1777124256555,
-    "updatedAt": 1777124317632
+    "updatedAt": 1777166591902
   },
   {
     "id": "user-1777123890624",
@@ -148,42 +129,24 @@
     "isPublic": true,
     "isPremium": false,
     "createdAt": 1745587200000,
-    "updatedAt": 1777116527617,
+    "updatedAt": 1777167218548,
     "imagePrompt": "A 24-year-old Chinese man with messy black hair and dark circles under his eyes, wearing a plain gray hoodie and black sweatpants, lying sprawled on a messy bed in a small apartment, smartphone in hand with screen glow illuminating his bored tired face, empty instant noodle cups and soda cans scattered around, blinds closed with dim light filtering through, expression of complete resignation and apathy, realistic style",
-    "imageUrl": null
-  },
-  {
-    "id": "user-职场老油条",
-    "name": "职场老油条",
-    "avatar": "🧔",
-    "creator": "user",
-    "coreView": "少干少错，不干不错，这是生存智慧。能推就推，能拖就拖，着急你就输了。领导说的都对，但执行要看情况。",
-    "speakingStyle": "打太极、绕弯子、阴阳怪气，表面热情实则推脱，喜欢说\"这个嘛...\"",
-    "actionStyle": "说话时喜欢往后靠，双手抱胸，脸上挂着意味深长的笑",
-    "background": "在职场上摸爬滚打多年，深谙明哲保身之道，推活技术一流。40出头，秃顶，保温杯不离手",
-    "exampleDialogs": [],
-    "usageCount": 67,
-    "likeCount": 33,
-    "isPublic": true,
-    "isPremium": false,
-    "createdAt": 1745587200000,
-    "updatedAt": 1777099260491,
-    "isFavorited": true,
-    "imagePrompt": "A 42-year-old Chinese man with a completely bald head and slightly overweight build, wearing a slightly wrinkled light blue short-sleeve dress shirt with top buttons undone, sitting in an old office chair leaning back with both hands crossed over chest, holding a scratched white thermos flask, wearing glasses and showing a cunning knowing smile, a cluttered desk with tea stains and papers, a calligraphy scroll reading '难得糊涂' on the wall behind him, fluorescent office lighting, realistic style",
-    "imageUrl": null
+    "imageUrl": "/assets/generated/ai-1777167180629-75e660e7.jpg"
   },
   {
     "id": "stats-1777096823202",
     "builtInId": "王大妈",
-    "likeCount": 0,
-    "usageCount": 7,
-    "updatedAt": 1777117101831
+    "likeCount": 1,
+    "usageCount": 8,
+    "updatedAt": 1777167327458,
+    "isFavorited": true
   },
   {
     "id": "stats-1777096823196",
     "builtInId": "佳宜",
-    "likeCount": 1,
-    "usageCount": 7,
-    "updatedAt": 1777117101812
+    "likeCount": 2,
+    "usageCount": 8,
+    "updatedAt": 1777167326861,
+    "isFavorited": true
   }
 ]

@@ -15,7 +15,7 @@ export default function Navbar() {
             </svg>
           </div>
           <span className="font-display text-lg font-bold text-ink-900 tracking-tight">
-            剧本工坊
+            搭映
           </span>
         </Link>
         <div className="flex items-center gap-1">

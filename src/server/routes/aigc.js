@@ -2,6 +2,9 @@ import express from 'express';
 import { createAIResult, getAIResult, getAIResultsByScriptId, deleteAIResult } from '../services/aigcService.js';
 import { loadAIResults } from '../services/dataStore.js';
 
+const ARK_API_KEY = process.env.ARK_API_KEY;
+const ARK_API_URL = process.env.ARK_API_URL || 'https://ark.cn-beijing.volces.com/api/v3';
+
 const router = express.Router();
 
 /**
@@ -11,7 +14,7 @@ const router = express.Router();
 router.post('/generate', async (req, res) => {
   try {
     console.log('[AI Generate] Request body:', req.body);
-    const { scriptId, type, mode, provider = 'seedance', prompt, personaImages, personaId } = req.body;
+    const { scriptId, type, mode, provider = 'seedance', prompt, personaImages, personaId, duration } = req.body;
 
     if (!type || !['image', 'video'].includes(type)) {
       return res.status(400).json({
@@ -38,7 +41,8 @@ router.post('/generate', async (req, res) => {
       mode: mode || 'cover',
       prompt,
       personaImages,
-      personaId
+      personaId,
+      duration
     });
 
     console.log('[AI Generate] createAIResult returned:', result);
@@ -122,6 +126,68 @@ router.delete('/results/:resultId', (req, res) => {
     success: true,
     data: { resultId }
   });
+});
+
+/**
+ * GET /api/ai/video-results/:resultId
+ * Query real-time video generation status from Volcano Engine API
+ * This gives the frontend direct access to intermediate states (queued, running, etc.)
+ */
+router.get('/video-results/:resultId', async (req, res) => {
+  const { resultId } = req.params;
+  const result = getAIResult(resultId);
+
+  if (!result) {
+    return res.status(404).json({
+      success: false,
+      error: 'Result not found'
+    });
+  }
+
+  // If no volcano taskId yet, return current result as-is
+  if (!result.volcanoTaskId) {
+    return res.json({
+      success: true,
+      data: result
+    });
+  }
+
+  try {
+    const statusRes = await fetch(`${ARK_API_URL}/contents/generations/tasks/${result.volcanoTaskId}`, {
+      headers: {
+        'Authorization': `Bearer ${ARK_API_KEY}`
+      }
+    });
+
+    if (!statusRes.ok) {
+      // If volcano API fails, return local result
+      return res.json({
+        success: true,
+        data: result
+      });
+    }
+
+    const statusData = await statusRes.json();
+
+    res.json({
+      success: true,
+      data: {
+        ...result,
+        volcanoStatus: statusData.status,
+        volcanoProgress: statusData.status === 'succeeded' ? 1 :
+                          statusData.status === 'running' ? 0.5 :
+                          statusData.status === 'queued' ? 0.2 : 0,
+        volcanoVideoUrl: statusData.content?.video_url || null,
+        volcanoError: statusData.error ? `${statusData.error.code}: ${statusData.error.message}` : null
+      }
+    });
+  } catch (error) {
+    // Fallback to local result on error
+    res.json({
+      success: true,
+      data: result
+    });
+  }
 });
 
 // Legacy endpoints for backwards compatibility

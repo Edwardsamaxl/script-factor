@@ -131,6 +131,7 @@ export default function ScriptCreatePage() {
             actionStyle: personaA.actionStyle || '',
             background: personaA.background || '',
             imagePrompt: personaA.imagePrompt || '',
+            imageUrl: personaA.imageUrl || '',
           },
           personaB: {
             id: personaB.id,
@@ -141,6 +142,7 @@ export default function ScriptCreatePage() {
             actionStyle: personaB.actionStyle || '',
             background: personaB.background || '',
             imagePrompt: personaB.imagePrompt || '',
+            imageUrl: personaB.imageUrl || '',
           },
           scene: { id: scene.id, name: scene.name, description: scene.description || '' },
           creator: '当前用户',
@@ -314,7 +316,7 @@ export default function ScriptCreatePage() {
             </div>
           )}
 
-          <SceneSelector selected={scene} onChange={setScene} />
+          <SceneSelector selected={scene} onChange={setScene} personaA={personaA} personaB={personaB} />
 
           {/* 匹配度预览 */}
           {personaA && personaB && scene && (

@@ -32,11 +32,13 @@ const FIELD_DESCRIPTIONS = {
   supplement: '其他需要说明的设定'
 }
 
-export default function SceneSelector({ selected, onChange }) {
+export default function SceneSelector({ selected, onChange, personaA, personaB }) {
   const [scenes, setScenes] = useState([])
   const [loading, setLoading] = useState(true)
   const [expanded, setExpanded] = useState(false)
   const [customFields, setCustomFields] = useState(EMPTY_CUSTOM)
+  const [generating, setGenerating] = useState(false)
+  const [generateError, setGenerateError] = useState(null)
 
   useEffect(() => {
     async function loadScenes() {
@@ -81,7 +83,37 @@ export default function SceneSelector({ selected, onChange }) {
   const handleBuiltInSelect = (scene) => {
     setExpanded(false)
     setCustomFields(EMPTY_CUSTOM)
+    setGenerateError(null)
     onChange(scene)
+  }
+
+  const handleGenerateAI = async () => {
+    if (!personaA || !personaB) return
+    setGenerating(true)
+    setGenerateError(null)
+    setExpanded(false)
+    setCustomFields(EMPTY_CUSTOM)
+
+    try {
+      const res = await fetch('/api/scenes/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ personaA, personaB })
+      })
+
+      const data = await res.json()
+
+      if (data.success) {
+        onChange(data.data)
+      } else {
+        setGenerateError(data.error || '生成失败，请重试')
+      }
+    } catch (error) {
+      console.error('Failed to generate scene:', error)
+      setGenerateError('网络错误，请重试')
+    } finally {
+      setGenerating(false)
+    }
   }
 
   const toggleExpand = () => {
@@ -96,6 +128,7 @@ export default function SceneSelector({ selected, onChange }) {
   }
 
   const isCustomSelected = selected?.isCustom || expanded
+  const isGeneratedSelected = selected?.isGenerated
 
   return (
     <div>
@@ -109,7 +142,7 @@ export default function SceneSelector({ selected, onChange }) {
               <label
                 key={scene.id}
                 className={`flex items-start gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${
-                  selected?.id === scene.id && !isCustomSelected
+                  selected?.id === scene.id && !isCustomSelected && !isGeneratedSelected
                     ? 'border-blue-500 bg-blue-50'
                     : 'border-gray-100 bg-white hover:border-gray-200'
                 }`}
@@ -117,7 +150,7 @@ export default function SceneSelector({ selected, onChange }) {
                 <input
                   type="radio"
                   name="scene"
-                  checked={selected?.id === scene.id && !isCustomSelected}
+                  checked={selected?.id === scene.id && !isCustomSelected && !isGeneratedSelected}
                   onChange={() => handleBuiltInSelect(scene)}
                   className="mt-1"
                 />
@@ -127,6 +160,68 @@ export default function SceneSelector({ selected, onChange }) {
                 </div>
               </label>
             ))}
+          </div>
+
+          {/* AI 随机场景 */}
+          <div
+            className={`rounded-xl border-2 transition-all ${
+              isGeneratedSelected
+                ? 'border-purple-500 bg-purple-50'
+                : generateError
+                  ? 'border-red-200 bg-red-50'
+                  : 'border-gray-100 bg-white'
+            }`}
+          >
+            <label
+              className={`flex items-start gap-3 p-3 rounded-xl cursor-pointer ${
+                !personaA || !personaB ? 'opacity-50' : ''
+              }`}
+            >
+              <input
+                type="radio"
+                name="scene"
+                checked={isGeneratedSelected}
+                onChange={() => {
+                  if (!personaA || !personaB) return
+                  handleGenerateAI()
+                }}
+                className="mt-1"
+                disabled={!personaA || !personaB || generating}
+              />
+              <div className="flex-1 min-w-0">
+                <div className="font-medium text-gray-900">
+                  {generating ? (
+                    <span className="flex items-center gap-2">
+                      <span className="inline-block w-4 h-4 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+                      AI 生成中...
+                    </span>
+                  ) : (
+                    'AI 随机场景'
+                  )}
+                </div>
+                {!personaA || !personaB ? (
+                  <div className="text-sm text-gray-400">请先完成前两步选择人设</div>
+                ) : isGeneratedSelected && selected ? (
+                  <div className="text-sm text-purple-700 mt-1">
+                    <div className="font-medium">{selected.name}</div>
+                    <div>{selected.description}</div>
+                  </div>
+                ) : generateError ? (
+                  <div className="text-sm text-red-600 mt-1">
+                    {generateError}
+                    <button
+                      type="button"
+                      onClick={(e) => { e.preventDefault(); handleGenerateAI() }}
+                      className="ml-2 underline hover:text-red-800"
+                    >
+                      重试
+                    </button>
+                  </div>
+                ) : (
+                  <div className="text-sm text-gray-400">基于两个人设 AI 动态生成匹配场景</div>
+                )}
+              </div>
+            </label>
           </div>
 
           {/* 自定义场景下拉开关 */}

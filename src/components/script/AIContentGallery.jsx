@@ -54,6 +54,32 @@ const PersonaBadge = ({ personaImages, script }) => {
   )
 }
 
+const PersonaImageCard = ({ persona, imageUrl, onPreview }) => (
+  <div className="relative rounded-xl overflow-hidden bg-ink-100 group">
+    <div className="cursor-pointer" onClick={onPreview}>
+      <img
+        src={imageUrl}
+        alt={`${persona.name} 人设图`}
+        className="w-full h-36 object-cover transition-transform duration-200 group-hover:scale-105"
+        loading="lazy"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+        <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
+          <div className="flex items-center gap-1">
+            <span className="text-xs px-2 py-0.5 rounded-full bg-purple-500/90 text-white font-medium">
+              人设图
+            </span>
+            <span className="text-xs px-2 py-0.5 rounded-full bg-white/80 text-ink-700 font-medium">
+              {persona.name}
+            </span>
+          </div>
+          <span className="text-white text-xs font-medium">查看</span>
+        </div>
+      </div>
+    </div>
+  </div>
+)
+
 const ImageCard = ({ result, script, onPreview, onDelete }) => (
   <div className="relative rounded-xl overflow-hidden bg-ink-100 group">
     <div
@@ -137,19 +163,29 @@ const PreviewModal = ({ result, script, onClose, onDelete }) => {
         {/* 顶部操作栏 */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <TypeBadge type={result.type} />
-            <span className="text-white/60 text-sm">{result.mode}</span>
-            <PersonaBadge personaImages={result.personaImages} script={script} />
+            {result.mode === '人设图' ? (
+              <span className="text-xs px-2 py-0.5 rounded-full bg-purple-500/90 text-white font-medium">
+                人设图
+              </span>
+            ) : (
+              <>
+                <TypeBadge type={result.type} />
+                <span className="text-white/60 text-sm">{result.mode}</span>
+                <PersonaBadge personaImages={result.personaImages} script={script} />
+              </>
+            )}
           </div>
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => onDelete(result.id)}
-              className="w-9 h-9 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
-            >
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="text-white">
-                <path d="M2 4h10M5 4V3h4v1M3 4v8h8V4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </button>
+            {result.mode !== '人设图' && (
+              <button
+                onClick={() => onDelete(result.id)}
+                className="w-9 h-9 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+              >
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="text-white">
+                  <path d="M2 4h10M5 4V3h4v1M3 4v8h8V4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            )}
             <button
               onClick={onClose}
               className="w-9 h-9 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
@@ -193,6 +229,38 @@ export default function AIContentGallery({ scriptId, script }) {
   const [loading, setLoading] = useState(true)
   const [previewResult, setPreviewResult] = useState(null)
   const [filter, setFilter] = useState('all')
+  const [personaImageMap, setPersonaImageMap] = useState({})
+
+  // Build persona image lookup map from both built-in and user personas
+  useEffect(() => {
+    async function fetchPersonaImages() {
+      try {
+        const [builtInRes, userRes] = await Promise.all([
+          fetch('/api/personas/built-in'),
+          fetch('/api/personas')
+        ])
+        const builtInData = await builtInRes.json()
+        const userData = await userRes.json()
+        const map = {}
+        if (builtInData.success) {
+          builtInData.data.forEach(p => { if (p.imageUrl) map[p.id] = p.imageUrl })
+        }
+        if (userData.success) {
+          userData.data.forEach(p => { if (p.imageUrl) map[p.id] = p.imageUrl })
+        }
+        setPersonaImageMap(map)
+      } catch (e) {
+        console.error('Failed to fetch persona images:', e)
+      }
+    }
+    fetchPersonaImages()
+  }, [])
+
+  // Resolve persona image: check script data first, then fallback to persona lookup
+  const getPersonaImageUrl = (persona) => {
+    if (!persona) return null
+    return persona.imageUrl || personaImageMap[persona.id] || null
+  }
 
   useEffect(() => {
     if (!scriptId) return
@@ -272,6 +340,53 @@ export default function AIContentGallery({ scriptId, script }) {
           </button>
         ))}
       </div>
+
+      {/* 角色人设图 */}
+      {(getPersonaImageUrl(script.personaA) || getPersonaImageUrl(script.personaB)) && (
+        <div className="mb-6">
+          <h4 className="text-sm font-semibold text-ink-700 mb-3 flex items-center gap-2">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-purple-500">
+              <circle cx="8" cy="5" r="2.5" stroke="currentColor" strokeWidth="1.2"/>
+              <path d="M3 14c0-2.5 2.5-4.5 5-4.5s5 2 5 4.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+            </svg>
+            角色人设图
+          </h4>
+          <div className="grid grid-cols-2 gap-3">
+            {script.personaA && getPersonaImageUrl(script.personaA) && (
+              <div className="animate-slide-up">
+                <PersonaImageCard
+                  persona={script.personaA}
+                  imageUrl={getPersonaImageUrl(script.personaA)}
+                  onPreview={() => setPreviewResult({
+                    id: 'persona-a',
+                    type: 'image',
+                    resultUrl: getPersonaImageUrl(script.personaA),
+                    mode: '人设图',
+                    personaImages: null,
+                    prompt: `${script.personaA.name} 人设图`
+                  })}
+                />
+              </div>
+            )}
+            {script.personaB && getPersonaImageUrl(script.personaB) && (
+              <div className="animate-slide-up" style={{ animationDelay: '60ms' }}>
+                <PersonaImageCard
+                  persona={script.personaB}
+                  imageUrl={getPersonaImageUrl(script.personaB)}
+                  onPreview={() => setPreviewResult({
+                    id: 'persona-b',
+                    type: 'image',
+                    resultUrl: getPersonaImageUrl(script.personaB),
+                    mode: '人设图',
+                    personaImages: null,
+                    prompt: `${script.personaB.name} 人设图`
+                  })}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* 处理中/失败状态 */}
       {processingResults.length > 0 && (

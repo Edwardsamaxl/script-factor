@@ -1,4 +1,5 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
 import Navbar from './components/layout/Navbar'
 import TabBar from './components/layout/TabBar'
 import HomePage from './pages/HomePage'
@@ -16,6 +17,14 @@ import { PersonaProvider } from './context/PersonaContext'
 import { ScriptProvider } from './context/ScriptContext'
 import { UserProvider } from './context/UserContext'
 
+function ScrollToTop() {
+  const { pathname } = useLocation()
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [pathname])
+  return null
+}
+
 export default function App() {
   return (
     <UserProvider>
@@ -24,6 +33,7 @@ export default function App() {
           <div className="min-h-screen bg-paper-100 pb-16 md:pb-0">
             <Navbar />
             <main className="max-w-lg mx-auto px-4 py-4">
+              <ScrollToTop />
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/persona/create" element={<PersonaCreatePage />} />
